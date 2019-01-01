@@ -15,7 +15,7 @@
     "MINECRAFT_SERVER_RCON_PORT": 25510,
     "MINECRAFT_SERVER_QUERY_PORT": 25511,
     "MINECRAFT_SERVER_RCON_PASSWORD": "",
-    "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%> %message%\"}]",
+    "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%> %message%\"}]",
     "WEBHOOK": "/minecraft/hook",
     "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
     "REGEX_IGNORED_CHAT": "packets too frequently",

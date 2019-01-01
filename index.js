@@ -24,7 +24,8 @@ function makeMinecraftTellraw(message) {
     text = text.replace(/[ç]/, "c");
 
     return c.MINECRAFT_TELLRAW_TEMPLATE
-        .replace('%username%', username + "#" + discriminator)
+        .replace('%username%', username)
+        .replace('%discriminator%', discriminator)
         .replace('%message%', text);
 
 };
