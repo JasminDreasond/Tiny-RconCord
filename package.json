@@ -1,10 +1,9 @@
 {
-    "name": "discormux",
+    "name": "tiny-dsmine-root",
     "version": "1.0",
-    "description": "Server to connect your smartphone with a Discord Bot",
+    "description": "Minecraft and Discord connected in a application :D",
     "homepage": "https://github.com/JasminDreasond",
     "bugs": {
-        "url": "https://nya.com",
         "email": "jackieapkon@outlook.com.br"
     },
     "main": "index.js",
