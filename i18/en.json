@@ -1,0 +1,22 @@
+{
+
+    "[ERROR]": "[ERROR]",
+    "minecraftconnection": "Minecraft Connection",
+    "connected": "Connected",
+    "deconnectedDS": "Disconnected with error code {0}\nReason: {1}",
+
+    "serverip": "Server IP",
+    "players": "Players",
+    "mineversion": "Minecraft Version",
+    "gameid": "Game ID",
+    "gametype": "Game Type",
+    "type": "Type",
+    "plugins": "Plugins",
+
+    "minecraftserver": "Minecraft Server:",
+    "offlineserver": "The server is offline!",
+
+    "emptylist": "Empty!",
+    "noneplayers": "No player is playing. Please join game now :c"
+
+}

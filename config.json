@@ -1,0 +1,25 @@
+{
+
+    "PREFIX": "/",
+    "LANG": "en",
+    "USE_WEBHOOKS": false,
+    "WEBHOOK_URL": "",
+    "DISCORD_TOKEN": "",
+    "DISCORD_CHANNEL_ID_COMMANDS": "",
+    "DISCORD_CHANNEL_ID_CHAT": "",
+    "DISCORD_CHANNEL_ID_BOT": "",
+    "DISCORD_MESSAGE_TEMPLATE": "`%username%`: %message%",
+    "MINECRAFT_SERVER_IP": "localhost",
+    "MINECRAFT_SERVER_PORT": 25574,
+    "MINECRAFT_SERVER_RCON_IP": "localhost",
+    "MINECRAFT_SERVER_RCON_PORT": 25510,
+    "MINECRAFT_SERVER_QUERY_PORT": 25511,
+    "MINECRAFT_SERVER_RCON_PASSWORD": "",
+    "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%> %message%\"}]",
+    "WEBHOOK": "/minecraft/hook",
+    "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
+    "REGEX_IGNORED_CHAT": "packets too frequently",
+    "RCON_RECONNECT_DELAY": 10,
+    "DEBUG": false
+
+}

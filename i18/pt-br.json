@@ -1,0 +1,22 @@
+{
+
+    "[ERROR]": "[ERROR]",
+    "minecraftconnection": "Conexão do Minecraft",
+    "connected": "Conectado",
+    "deconnectedDS": "Desconectado com erro de código {0}\nRazão: {1}",
+
+    "serverip": "IP do Servidor",
+    "players": "Jogadores",
+    "mineversion": "Versão do Minecraft",
+    "gameid": "ID do Jogo",
+    "gametype": "Tipo do Jogo",
+    "type": "Tipo",
+    "plugins": "Plugins",
+
+    "minecraftserver": "Servidor de Minecraft:",
+    "offlineserver": "O servidor está offline!",
+
+    "emptylist": "Vazio!",
+    "noneplayers": "Nenhum jogador está jogando. Que peninha, vem entrar :c"
+
+}

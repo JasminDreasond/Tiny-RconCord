@@ -1,0 +1,25 @@
+{
+    "name": "discormux",
+    "version": "1.0",
+    "description": "Server to connect your smartphone with a Discord Bot",
+    "homepage": "https://github.com/JasminDreasond",
+    "bugs": {
+        "url": "https://nya.com",
+        "email": "jackieapkon@outlook.com.br"
+    },
+    "main": "index.js",
+    "dependencies": {
+        "discord.io": "github:woor/discord.io#gateway_v6",
+        "emoji-strip": "^1.0.1",
+        "mcquery": "^0.2.7",
+        "safe-log-reader": "^1.0.8"
+    },
+    "scripts": {
+        "start": "node index.js"
+    },
+    "devDependencies": {},
+    "author": "Jasmin Dreasond",
+    "license": "MIT",
+    "repository": "github:user/repo",
+    "private": true
+}
