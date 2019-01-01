@@ -3,9 +3,6 @@
     "version": "1.0",
     "description": "Minecraft and Discord connected in a application :D",
     "homepage": "https://github.com/JasminDreasond",
-    "bugs": {
-        "email": "jackieapkon@outlook.com.br"
-    },
     "main": "index.js",
     "dependencies": {
         "discord.io": "github:woor/discord.io#gateway_v6",
