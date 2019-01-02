@@ -6,7 +6,11 @@ const emojiStrip = require('emoji-strip');
 const Discord = require('discord.io');
 const receiptor = require('./receiptor.js');
 const mcquery = require('./lib/mcquery.js');
-let bot;
+const fs = require('fs');
+
+if (c.SERVER_FOLDER) {
+    var Tail = require('tail').Tail;
+}
 
 function makeMinecraftTellraw(message) {
 
@@ -62,9 +66,23 @@ const server = {
         }, timer);
     },
 
+    securePresence: function(value, timenow, timesize) {
+
+        if (
+            (!server.send.dsbot.users[server.send.dsbot.id].game) ||
+            (
+                (timenow > server.send.dsbot.users[server.send.dsbot.id].game.created_at + timesize) &&
+                (server.send.dsbot.users[server.send.dsbot.id].game.name != value)
+            )
+        ) {
+            server.send.dsbot.setPresence({ game: { name: value } });
+        }
+
+    },
+
     send: {
 
-        getDiscord: function() { return bot; },
+        dsbot: null,
 
         ds: function(themessage, callback, timer) {
 
@@ -77,9 +95,9 @@ const server = {
                 }
             }
 
-            if (bot.connected == true) {
+            if (server.send.dsbot.connected == true) {
                 if (timer != undefined) {
-                    bot.sendMessage(themessage, function(error, mymessage) {
+                    server.send.dsbot.sendMessage(themessage, function(error, mymessage) {
 
                         if (error) {
                             console.log(error);
@@ -88,12 +106,12 @@ const server = {
                             if (typeof callback == "function") {
                                 callback();
                             }
-                            server.timeout(function() { bot.deleteMessage({ channelID: themessage.to, messageID: mymessage.id }); }, timer);
+                            server.timeout(function() { server.send.dsbot.deleteMessage({ channelID: themessage.to, messageID: mymessage.id }); }, timer);
                         }
 
                     });
                 } else {
-                    bot.sendMessage(themessage, function(error, mymessage) {
+                    server.send.dsbot.sendMessage(themessage, function(error, mymessage) {
                         if (error) {
                             console.log(error);
                             server.send.ds(themessage, callback, timer);
@@ -134,7 +152,11 @@ const conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, 
     close: function() { server.online.mc = false; },
 
     lookup: function(err, address, family, host) {
-        console.log(lang.minecraftconnection, err, address, family, host);
+        if (!err) {
+            console.log(lang.minecraftconnection, address, family, host);
+        } else {
+            console.error(lang.minecraftconnection, err);
+        }
     }
 
 });
@@ -143,35 +165,57 @@ const conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, 
 conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
     if (server.first == true) {
 
+        // Read Log
+        if (c.SERVER_FOLDER) {
+
+            if (fs.existsSync(c.SERVER_FOLDER + '/logs/latest.log')) {
+                const tail = new Tail(c.SERVER_FOLDER + '/logs/latest.log');
+                tail.on("line", function(data) {
+
+                    // Log Lines
+
+                    console.log(data);
+
+                });
+                tail.on("error", function(error) {
+                    console.error(lang['[ERROR]'], error);
+                });
+            } else {
+                console.warn(lang.no_game_log);
+            }
+        } else {
+            console.warn(lang.no_game_folder);
+        }
+
         server.first = false;
 
         // Start Bot
-        bot = new Discord.Client({ autorun: true, token: c.DISCORD_TOKEN });
+        server.send.dsbot = new Discord.Client({ autorun: true, token: c.DISCORD_TOKEN });
 
         // Ready
-        bot.on('ready', function(event) {
+        server.send.dsbot.on('ready', function(event) {
             server.online.ds = true;
-            console.log(bot.username + ' - ' + bot.id + ' - ' + lang.connected);
+            console.log(server.send.dsbot.username + ' - ' + server.send.dsbot.id + ' - ' + lang.connected);
         });
 
         // Reconnect
-        bot.on('disconnect', function(erMsg, code) {
+        server.send.dsbot.on('disconnect', function(erMsg, code) {
             server.online.ds = false;
             console.log(i18(lang.deconnectedDS, [code, erMsg]));
             if (server.shutdown == 0) {
-                bot.connect();
+                server.send.dsbot.connect();
             } else if (server.shutdown == 1) {
                 process.exit(1);
             } else if (server.shutdown == 3) {
-                bot = {};
-                bot = new Discord.Client({ autorun: true, token: c.DISCORD_TOKEN });
+                server.send.dsbot = {};
+                server.send.dsbot = new Discord.Client({ autorun: true, token: c.DISCORD_TOKEN });
                 bot_generator();
             }
         });
 
         // Receive Message
-        bot.on('message', function(user, userID, channelID, message, event) {
-            if ((userID !== bot.id) && (!event.d.bot)) {
+        server.send.dsbot.on('message', function(user, userID, channelID, message, event) {
+            if ((userID !== server.send.dsbot.id) && (!event.d.server.send.dsbot)) {
 
                 if (c.USE_WEBHOOKS && event.d.webhookID) {
                     return // ignore webhooks if using a webhook
@@ -190,9 +234,9 @@ conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
                 } else if (
                     (channelID == c.DISCORD_CHANNEL_ID_BOT) ||
                     (
-                        (bot.channels[channelID] == undefined) ||
-                        (bot.channels[channelID].guild_id == undefined) ||
-                        (bot.channels[channelID].guild_id != null)
+                        (server.send.dsbot.channels[channelID] == undefined) ||
+                        (server.send.dsbot.channels[channelID].guild_id == undefined) ||
+                        (server.send.dsbot.channels[channelID].guild_id != null)
                     )
                 ) {
 
@@ -312,19 +356,18 @@ conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
         });
 
         // Query
-        server.forceQuery = mcquery(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_QUERY_PORT, 60000, function(err, stat) {
+        server.forceQuery = mcquery(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_QUERY_PORT, 120000, function(err, stat) {
             if (err) {
                 server.query = null;
                 console.error(err);
                 server.timeout(function() {
-
+                    server.securePresence(lang.offlineserver, new Date(), 120000);
                 }, 500);
             }
             server.query = stat;
             server.timeout(function() {
-
+                server.securePresence(lang.players + " " + String(server.query.numplayers) + "/" + String(server.query.maxplayers), new Date(), 120000);
             }, 500);
-
         });
 
     }

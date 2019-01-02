@@ -17,6 +17,9 @@
     "offlineserver": "The server is offline!",
 
     "emptylist": "Empty!",
-    "noneplayers": "No player is playing. Please join game now :c"
+    "noneplayers": "No player is playing. Please join game now :c",
+
+    "no_game_folder": "The location of your server folder is not set. Some features have been disabled",
+    "no_game_log": "The server log file was not detected. Some features have been disabled."
 
 }

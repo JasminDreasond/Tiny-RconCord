@@ -17,6 +17,9 @@
     "offlineserver": "O servidor está offline!",
 
     "emptylist": "Vazio!",
-    "noneplayers": "Nenhum jogador está jogando. Que peninha, vem entrar :c"
+    "noneplayers": "Nenhum jogador está jogando. Que peninha, vem entrar :c",
+
+    "no_game_folder": "A localização da pasta do seu servidor não está definida. Alguns recursos foram desabilitados",
+    "no_game_log": "O arquivo de log do servidor não foi detectado. Alguns recursos foram desabilitados"
 
 }

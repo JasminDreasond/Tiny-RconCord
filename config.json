@@ -2,6 +2,7 @@
 
     "PREFIX": "/",
     "LANG": "en",
+    "SERVER_FOLDER": "",
     "USE_WEBHOOKS": false,
     "WEBHOOK_URL": "",
     "DISCORD_TOKEN": "",
