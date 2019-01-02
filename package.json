@@ -1,6 +1,6 @@
 {
     "name": "tiny-dsmine-root",
-    "version": "1.0",
+    "version": "1.0.0",
     "description": "Minecraft and Discord connected in a application :D",
     "homepage": "https://github.com/JasminDreasond",
     "main": "index.js",
@@ -8,7 +8,7 @@
         "discord.io": "github:woor/discord.io#gateway_v6",
         "emoji-strip": "^1.0.1",
         "mcquery": "^0.2.7",
-        "safe-log-reader": "^1.0.8"
+        "tail": "^2.0.2"
     },
     "scripts": {
         "start": "node index.js"
