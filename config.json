@@ -9,6 +9,7 @@
     "DISCORD_CHANNEL_ID_COMMANDS": "",
     "DISCORD_CHANNEL_ID_CHAT": "",
     "DISCORD_CHANNEL_ID_BOT": "",
+    "DISCORD_CHANNEL_ID_LOG": "",
     "DISCORD_MESSAGE_TEMPLATE": "`%username%`: %message%",
     "MINECRAFT_SERVER_IP": "localhost",
     "MINECRAFT_SERVER_PORT": 25574,

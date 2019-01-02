@@ -101,7 +101,6 @@ const server = {
 
                         if (error) {
                             console.log(error);
-                            server.send.ds(themessage, callback, timer);
                         } else {
                             if (typeof callback == "function") {
                                 callback();
@@ -114,7 +113,6 @@ const server = {
                     server.send.dsbot.sendMessage(themessage, function(error, mymessage) {
                         if (error) {
                             console.log(error);
-                            server.send.ds(themessage, callback, timer);
                         } else if (typeof callback == "function") {
                             callback();
                         }
@@ -145,7 +143,7 @@ const server = {
 const conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, {
 
     data: function(length, id, type, response) {
-        if (type == 0) { server.send.ds({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: response }); }
+        if ((response) && (response.replace(/ /g, "") != "")) { server.send.ds({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: response }); }
     },
 
     connect: function() { server.online.mc = true; },
@@ -215,7 +213,8 @@ conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
 
         // Receive Message
         server.send.dsbot.on('message', function(user, userID, channelID, message, event) {
-            if ((userID !== server.send.dsbot.id) && (!event.d.server.send.dsbot)) {
+            if ((userID !== server.send.dsbot.id) && (!event.d.bot)) {
+
 
                 if (c.USE_WEBHOOKS && event.d.webhookID) {
                     return // ignore webhooks if using a webhook
