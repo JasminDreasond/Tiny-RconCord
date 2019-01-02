@@ -1,4 +1,4 @@
-module.exports = function() {
+module.exports = function(pgdata) {
 
     //const mineflayer = require('mineflayer');
     const Rcon = require('./lib/rcon.js');
@@ -151,6 +151,10 @@ module.exports = function() {
 
     };
 
+
+
+
+
     // Loading Plugins
     console.log(lang.loadingplugins);
 
@@ -159,30 +163,15 @@ module.exports = function() {
 
     const plugins = [];
 
-    // RCON
-    console.log(lang.connecting_rcon);
-    const conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, {
 
-        data: function(length, id, type, response) {
-            if ((response) && (response.replace(/ /g, "") != "")) { server.send.ds({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: response }); }
-        },
 
-        connect: function() { server.online.mc = true; },
-        close: function() { server.online.mc = false; },
 
-        lookup: function(err, address, family, host) {
-            if (!err) {
-                console.log(lang.minecraftconnection, address, family, host);
-            } else {
-                console.error(lang.minecraftconnection, err);
-            }
-        }
 
-    });
 
-    // Auth RCON
-    conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
-        if (server.first.rcon == true) {
+    // Start System
+    const startServer = {
+
+        logAPI: function() {
 
             // Read Log
             if (c.SERVER_FOLDER) {
@@ -194,17 +183,21 @@ module.exports = function() {
                         // Log Lines
 
                         // is Chat?
-                        const userchat = data.match(new RegExp(c.REGEX_MATCH_CHAT_MC));
+                        let userchat = data.match(new RegExp(c.REGEX_MATCH_CHAT_MC));
                         if (userchat) {
 
                             userchat[2] = userchat[2].replace(/\@everymine/g, "<@&529850331904081950>");
 
                             // Send Bot Mode
 
-                            for (var i = 0; i < plugins.length; i++) {
-                                if (typeof plugins[i].mc == "function") {
-                                    userchat = plugins[i].mc(userchat[1], userchat[2]);
+                            if (plugins.length > 0) {
+                                for (var i = 0; i < plugins.length; i++) {
+                                    if (typeof plugins[i].mc == "function") {
+                                        userchat = plugins[i].mc(userchat[1], userchat[2]);
+                                    }
                                 }
+                            } else {
+                                userchat = [userchat[1], userchat[2]];
                             }
 
                             server.send.ds({ to: c.DISCORD_CHANNEL_ID_CHAT, message: makeDiscordMessage(userchat[0], userchat[1]) });
@@ -229,7 +222,9 @@ module.exports = function() {
                 console.warn(lang.no_game_folder);
             }
 
-            server.first.rcon = false;
+        },
+
+        discord: function() {
 
             console.log(lang.loading_discord + " (Discord.IO)");
 
@@ -428,6 +423,47 @@ module.exports = function() {
             });
 
         }
-    });
+
+    };
+
+
+
+
+    // Start with RCON
+    if (!pgdata) {
+
+        console.log(lang.connecting_rcon);
+        const conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, {
+
+            data: function(length, id, type, response) {
+                if ((response) && (response.replace(/ /g, "") != "")) { server.send.ds({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: response }); }
+            },
+
+            connect: function() { server.online.mc = true; },
+            close: function() { server.online.mc = false; },
+
+            lookup: function(err, address, family, host) {
+                if (!err) {
+                    console.log(lang.minecraftconnection, address, family, host);
+                } else {
+                    console.error(lang.minecraftconnection, err);
+                }
+            }
+
+        });
+
+        // Auth RCON
+        conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
+            if (server.first.rcon == true) {
+
+                server.first.rcon = false;
+                startServer.logAPI();
+                startServer.discord();
+
+            }
+        });
+
+    }
+
 
 };
