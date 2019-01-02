@@ -34,6 +34,13 @@ function makeMinecraftTellraw(message) {
 
 };
 
+function makeDiscordMessage(username, message) {
+    // make a discord message string by formatting the configured template with the given parameters
+    return c.DISCORD_MESSAGE_TEMPLATE
+        .replace('%username%', username)
+        .replace('%message%', message)
+}
+
 function i18(text, replaces) {
 
     for (var i = 0; i < replaces.length; i++) {
@@ -172,7 +179,21 @@ conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
 
                     // Log Lines
 
-                    console.log(data);
+                    // is Chat?
+                    const userchat = data.match(new RegExp(c.REGEX_MATCH_CHAT_MC));
+                    if (userchat) {
+
+                        // Send Bot Mode
+                        server.send.ds({ to: c.DISCORD_CHANNEL_ID_CHAT, message: makeDiscordMessage(userchat[1], userchat[2]) });
+
+                    }
+
+                    // Nope
+                    else {
+
+                        console.log(data);
+
+                    }
 
                 });
                 tail.on("error", function(error) {
