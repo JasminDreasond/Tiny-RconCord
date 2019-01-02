@@ -18,7 +18,7 @@
         "token": "",
 
         "channelID": {
-            "commands": "",
+            "rcon": "",
             "chat": "",
             "bot": "",
             "log": ""
@@ -52,6 +52,8 @@
         "advancement_mc": "\\[Server thread/INFO\\]: (.*) has made the advancement [(.*)]",
         "ignored_chat": "packets too frequently"
 
-    }
+    },
+
+    "npmPlugins": []
 
 }
