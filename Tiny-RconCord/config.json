@@ -20,6 +20,7 @@
     "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%> %message%\"}]",
     "WEBHOOK": "/minecraft/hook",
     "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
+    "REGEX_MATCH_ADVANCEMENT_MC": "\\[Server thread/INFO\\]: (.*) has made the advancement [(.*)]",
     "REGEX_IGNORED_CHAT": "packets too frequently",
     "RCON_RECONNECT_DELAY": 10,
     "DEBUG": false
