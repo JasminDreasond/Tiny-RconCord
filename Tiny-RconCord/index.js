@@ -36,6 +36,8 @@ module.exports = function(pgdata) {
         text = text.replace(/[èéêë]/, "e");
         text = text.replace(/[ÒÓôö]/, "O");
         text = text.replace(/[òóôö]/, "o");
+        text = text.replace(/[ÙÚûü]/, "U");
+        text = text.replace(/[ùúûü]/, "u");
         text = text.replace(/[Ç]/, "C");
         text = text.replace(/[ç]/, "c");
 
