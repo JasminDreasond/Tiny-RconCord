@@ -5,9 +5,11 @@
     "homepage": "https://github.com/JasminDreasond",
     "main": "index.js",
     "dependencies": {
+        "colors": "^1.3.3",
         "discord.io": "github:woor/discord.io#gateway_v6",
         "emoji-strip": "^1.0.1",
         "mcquery": "^0.2.7",
+        "moment": "^2.23.0",
         "tail": "^2.0.2"
     },
     "scripts": {
