@@ -13,13 +13,13 @@ const helloworld = {
     start: function(pg) {
 
 
-        pg.log.info("Hello World started using the Discord Lib: " + pg.c.DISCORD_LIB);
+        pg.log.info("Hello World started using the Discord Lib: " + pg.c.discord.lib);
         pg.log.info("Plugin Folder: " + pg.folder);
 
         // pg.log.info( pg.getDS()); Wait the Discord API is ready before you use it...
 
         // Use the Discord API only if the Discord Lib is the Discord.IO
-        if (pg.c.DISCORD_LIB == "discord.io") {
+        if (pg.c.discord.lib == "discord.io") {
 
             // Discord Chat
             helloworld.ds = function(user, userID, channelID, message, event) {

@@ -2,7 +2,7 @@
 
 const net = require('net');
 const c = require('../config.json');
-const debug = c.DEBUG;
+const debug = c.minecraft.rcon.debug;
 
 module.exports = Rcon;
 

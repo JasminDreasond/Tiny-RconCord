@@ -3,10 +3,10 @@ const discordio = {
     start: function(server, lang, conn, c, plugins, i18, log) {
 
         log.info(lang.loading_discord + " (Discord.IO)");
-        const Discord = require(c.DISCORD_LIB);
+        const Discord = require(c.discord.lib);
 
         // Start Bot
-        discordio.bot = new Discord.Client({ autorun: true, token: c.DISCORD_TOKEN });
+        discordio.bot = new Discord.Client({ autorun: true, token: c.discord.token });
 
         // Send Message
         const sendMessage = function(themessage, callback, timer) {
@@ -123,7 +123,7 @@ const discordio = {
                 process.exit(1);
             } else if (server.shutdown == 3) {
                 discordio.bot = {};
-                discordio.bot = new Discord.Client({ autorun: true, token: c.DISCORD_TOKEN });
+                discordio.bot = new Discord.Client({ autorun: true, token: c.discord.token });
                 bot_generator();
             }
         });
@@ -133,22 +133,24 @@ const discordio = {
             if ((userID !== discordio.bot.id) && (!event.d.bot)) {
 
 
-                if (c.USE_WEBHOOKS && event.d.webhookID) {
+                if (c.webhook.part.use && event.d.webhookID) {
                     return // ignore webhooks if using a webhook
                 }
 
-                if (channelID == c.DISCORD_CHANNEL_ID_CHAT) {
-                    server.sendMC(event);
-                } else if ((channelID == c.DISCORD_CHANNEL_ID_COMMANDS) && message.startsWith(c.PREFIX)) {
+                if (channelID == c.discord.channelID.chat) {
+                    if (message.replace(" ", "").length > 0) {
+                        server.sendMC(event);
+                    }
+                } else if ((channelID == c.discord.channelID.commands) && message.startsWith(c.discord.prefix)) {
                     message = message.substring(1, message.length);
                     conn.command(message, function(err) {
                         if (err) {
                             log.error(err);
-                            sendMessage({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                            sendMessage({ to: c.discord.channelID.commands, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
                         }
                     });
                 } else if (
-                    (channelID == c.DISCORD_CHANNEL_ID_BOT) ||
+                    (channelID == c.discord.channelID.bot) ||
                     (
                         (discordio.bot.channels[channelID] == undefined) ||
                         (discordio.bot.channels[channelID].guild_id == undefined) ||
@@ -156,7 +158,7 @@ const discordio = {
                     )
                 ) {
 
-                    if (message.startsWith(c.PREFIX + "minecraftstatus")) {
+                    if (message.startsWith(c.discord.prefix + "minecraftstatus")) {
 
                         server.forceQuery();
 
@@ -165,7 +167,7 @@ const discordio = {
 
                                 const fields = [{
                                         name: lang.serverip,
-                                        value: String(c.MINECRAFT_SERVER_IP) + ":" + String(c.MINECRAFT_SERVER_PORT),
+                                        value: String(c.minecraft.serverIP) + ":" + String(c.minecraft.port),
                                         inline: true
                                     },
                                     {
@@ -219,7 +221,7 @@ const discordio = {
 
                         }, 500);
 
-                    } else if (message.startsWith(c.PREFIX + "minecraftplayers")) {
+                    } else if (message.startsWith(c.discord.prefix + "minecraftplayers")) {
 
                         server.forceQuery();
 
@@ -260,7 +262,7 @@ const discordio = {
 
                         }, 500);
 
-                    } else if (message.startsWith(c.PREFIX + "nodeplugins")) {
+                    } else if (message.startsWith(c.discord.prefix + "nodeplugins")) {
 
                         server.timeout(function() {
 

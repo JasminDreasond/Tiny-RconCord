@@ -1,30 +1,57 @@
 {
 
-    "DISCORD_LIB": "discord.io",
-    "EVERYMINE": "",
-    "PREFIX": "/",
-    "LANG": "en",
-    "SERVER_FOLDER": "",
-    "USE_WEBHOOKS": false,
-    "WEBHOOK_URL": "",
-    "DISCORD_TOKEN": "",
-    "DISCORD_CHANNEL_ID_COMMANDS": "",
-    "DISCORD_CHANNEL_ID_CHAT": "",
-    "DISCORD_CHANNEL_ID_BOT": "",
-    "DISCORD_CHANNEL_ID_LOG": "",
-    "DISCORD_MESSAGE_TEMPLATE": "`%username%`: %message%",
-    "MINECRAFT_SERVER_IP": "localhost",
-    "MINECRAFT_SERVER_PORT": 25574,
-    "MINECRAFT_SERVER_RCON_IP": "localhost",
-    "MINECRAFT_SERVER_RCON_PORT": 25510,
-    "MINECRAFT_SERVER_QUERY_PORT": 25511,
-    "MINECRAFT_SERVER_RCON_PASSWORD": "",
-    "MINECRAFT_TELLRAW_TEMPLATE": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%> %message%\"}]",
-    "WEBHOOK": "/minecraft/hook",
-    "REGEX_MATCH_CHAT_MC": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
-    "REGEX_MATCH_ADVANCEMENT_MC": "\\[Server thread/INFO\\]: (.*) has made the advancement [(.*)]",
-    "REGEX_IGNORED_CHAT": "packets too frequently",
-    "RCON_RECONNECT_DELAY": 10,
-    "DEBUG": false
+    "lang": "en",
+    "server_folder": "",
+
+    "webhook": {
+        "use": false,
+        "part": "/minecraft/hook",
+        "url": ""
+    },
+
+    "discord": {
+
+        "prefix": "/",
+        "lib": "discord.io",
+        "everymine": "",
+        "template": "`%username%`: %message%",
+        "token": "",
+
+        "channelID": {
+            "commands": "",
+            "chat": "",
+            "bot": "",
+            "log": ""
+        }
+
+    },
+    "minecraft": {
+
+        "serverIP": "",
+        "port": 25574,
+
+        "rcon": {
+            "ip": "localhost",
+            "password": "",
+            "debug": false,
+            "port": 25510,
+            "delay": 10
+        },
+
+        "query": {
+            "port": 25511
+        },
+
+        "tellraw_template": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%> %message%\"}]"
+
+    },
+
+    "regex": {
+
+        "chat_mc": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
+        "advancement_mc": "\\[Server thread/INFO\\]: (.*) has made the advancement [(.*)]",
+        "ignored_chat": "packets too frequently"
+
+    }
 
 }

@@ -6,10 +6,10 @@ module.exports = function(pgdata) {
     const Rcon = require('./lib/rcon.js');
     const c = require('./config.json');
 
-    const lang = require('./i18/' + c.LANG + '.json');
-    moment.locale(c.LANG);
+    const lang = require('./i18/' + c.lang + '.json');
+    moment.locale(c.lang);
 
-    if (c.LANG != "en") {
+    if (c.lang != "en") {
         var tinylang = require("./i18/en.json");
         for (items in tinylang) {
             if (typeof lang[items] != "string") {
@@ -31,7 +31,7 @@ module.exports = function(pgdata) {
     const emojiStrip = require('emoji-strip');
     const fs = require('fs');
 
-    if (c.SERVER_FOLDER) {
+    if (c.server_folder) {
         var Tail = require('tail').Tail;
     }
 
@@ -52,7 +52,7 @@ module.exports = function(pgdata) {
         text = text.replace(/[Ç]/, "C");
         text = text.replace(/[ç]/, "c");
 
-        return c.MINECRAFT_TELLRAW_TEMPLATE
+        return c.minecraft.tellraw_template
             .replace('%username%', username)
             .replace('%discriminator%', discriminator)
             .replace('%message%', text);
@@ -61,7 +61,7 @@ module.exports = function(pgdata) {
 
     function makeDiscordMessage(username, message) {
         // make a discord message string by formatting the configured template with the given parameters
-        return c.DISCORD_MESSAGE_TEMPLATE
+        return c.discord.template
             .replace('%username%', username)
             .replace('%message%', message)
     }
@@ -92,7 +92,7 @@ module.exports = function(pgdata) {
         query: null,
 
         // Discord
-        ds: require('./discord/' + c.DISCORD_LIB + '.js'),
+        ds: require('./discord/' + c.discord.lib + '.js'),
 
         // Timeout
         timeout: function(callback, timer) {
@@ -111,7 +111,7 @@ module.exports = function(pgdata) {
             conn.command('tellraw @a ' + makeMinecraftTellraw(message), function(err) {
                 if (err) {
                     log.error(err);
-                    server.ds.sendMessage({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                    server.ds.sendMessage({ to: c.discord.channelID.commands, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
                 }
             });
         }
@@ -130,23 +130,23 @@ module.exports = function(pgdata) {
         logAPI: function() {
 
             // Read Log
-            if (c.SERVER_FOLDER) {
+            if (c.server_folder) {
 
-                if (fs.existsSync(c.SERVER_FOLDER + '/logs/latest.log')) {
-                    const tail = new Tail(c.SERVER_FOLDER + '/logs/latest.log');
+                if (fs.existsSync(c.server_folder + '/logs/latest.log')) {
+                    const tail = new Tail(c.server_folder + '/logs/latest.log');
                     tail.on("line", function(data) {
 
                         // Log Lines
 
                         // is Chat?
-                        let userchat = data.match(new RegExp(c.REGEX_MATCH_CHAT_MC));
+                        let userchat = data.match(new RegExp(c.regex.chat_mc));
                         if (userchat) {
 
                             // Model Chat
                             userchat = [userchat[1], userchat[2]];
 
                             // Add everymine
-                            userchat[1] = userchat[1].replace(/\@everymine/g, "<@&" + c.EVERYMINE + ">");
+                            userchat[1] = userchat[1].replace(/\@everymine/g, "<@&" + c.discord.everymine + ">");
 
                             // Send Bot Mode
                             if (plugins.length > 0) {
@@ -157,7 +157,7 @@ module.exports = function(pgdata) {
                                 }
                             }
 
-                            server.ds.sendMessage({ to: c.DISCORD_CHANNEL_ID_CHAT, message: makeDiscordMessage(userchat[0], userchat[1]) });
+                            server.ds.sendMessage({ to: c.discord.channelID.chat, message: makeDiscordMessage(userchat[0], userchat[1]) });
 
                         }
 
@@ -192,7 +192,7 @@ module.exports = function(pgdata) {
             const mcquery = require('./lib/mcquery.js');
 
             // Query
-            server.forceQuery = mcquery(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_QUERY_PORT, 120000, function(err, stat) {
+            server.forceQuery = mcquery(c.minecraft.rcon.ip, c.minecraft.query.port, 120000, function(err, stat) {
                 if (err) {
                     server.query = null;
                     log.error(err);
@@ -226,9 +226,9 @@ module.exports = function(pgdata) {
                         // Load Language
                         if ((fs.existsSync(tinyfolder + "/i18")) && (fs.existsSync(tinyfolder + "/i18/en.json"))) {
 
-                            if ((c.LANG != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.LANG + ".json"))) {
+                            if ((c.lang != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.lang + ".json"))) {
 
-                                var tinylang = require(tinyfolder + "/i18/" + c.LANG + ".json");
+                                var tinylang = require(tinyfolder + "/i18/" + c.lang + ".json");
                                 for (items in tinylang) {
                                     if (typeof tinylang[items] == "string") {
                                         lang[items] = tinylang[items];
@@ -328,7 +328,7 @@ module.exports = function(pgdata) {
     if (!pgdata) {
 
         log.info(lang.connecting_rcon);
-        conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, {
+        conn = new Rcon(c.minecraft.rcon.ip, c.minecraft.rcon.port, {
 
             data: function(length, id, type, response) {
                 if ((response) && (response.replace(/ /g, "") != "")) {
@@ -339,7 +339,7 @@ module.exports = function(pgdata) {
                         }
                     }
 
-                    server.ds.sendMessage({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: response });
+                    server.ds.sendMessage({ to: c.discord.channelID.commands, message: response });
 
                 }
             },
@@ -358,7 +358,7 @@ module.exports = function(pgdata) {
         }, log);
 
         // Auth RCON
-        conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, async function() {
+        conn.auth(c.minecraft.rcon.password, async function() {
             if (server.first.rcon == true) {
 
                 server.first.rcon = false;
