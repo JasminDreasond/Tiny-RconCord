@@ -1,5 +1,10 @@
 {
 
+    "connecting_rcon": "Conectando Rcon...",
+    "loadingplugins": "Carregando Plugins...",
+    "loading_discord": "Carregando Discord...",
+    "loading_complete": "Tudo Pronto ({0} milissegundos)!",
+
     "[ERROR]": "[ERROR]",
     "minecraftconnection": "Conexão do Minecraft",
     "connected": "Conectado",
