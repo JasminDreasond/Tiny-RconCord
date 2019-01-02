@@ -5,6 +5,11 @@
     "loading_discord": "Loading Discord...",
     "loading_complete": "Ready ({0} milliseconds)!",
 
+    "nopermission": "You do not have permission to run this command!",
+
+    "loadedplugin": "The plugin {0} is loaded",
+    "failedplugin": "The values from the plugin {0} is incorrect:{1}",
+
     "[ERROR]": "[ERROR]",
     "minecraftconnection": "Minecraft Connection",
     "connected": "Connected",
@@ -17,6 +22,10 @@
     "gametype": "Game Type",
     "type": "Type",
     "plugins": "Plugins",
+    "unknown": "Unknown",
+
+    "dspage": "Page:",
+    "dsissues": "Issues:",
 
     "minecraftserver": "Minecraft Server:",
     "offlineserver": "The server is offline!",

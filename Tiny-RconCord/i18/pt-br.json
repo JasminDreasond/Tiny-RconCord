@@ -5,6 +5,11 @@
     "loading_discord": "Carregando Discord...",
     "loading_complete": "Tudo Pronto ({0} milissegundos)!",
 
+    "nopermission": "Você não tem permissão para executar este comando!",
+
+    "loadedplugin": "O plugin {0} foi carregado",
+    "failedplugin": "Os valores do plugin {0} estão incorretos:{1}",
+
     "[ERROR]": "[ERROR]",
     "minecraftconnection": "Conexão do Minecraft",
     "connected": "Conectado",
@@ -17,6 +22,10 @@
     "gametype": "Tipo do Jogo",
     "type": "Tipo",
     "plugins": "Plugins",
+    "unknown": "Desconhecido",
+
+    "dspage": "Página:",
+    "dsissues": "Problemas:",
 
     "minecraftserver": "Servidor de Minecraft:",
     "offlineserver": "O servidor está offline!",

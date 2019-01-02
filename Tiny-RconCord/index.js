@@ -3,7 +3,20 @@ module.exports = function(pgdata) {
     //const mineflayer = require('mineflayer');
     const Rcon = require('./lib/rcon.js');
     const c = require('./config.json');
+
     const lang = require('./i18/' + c.LANG + '.json');
+
+    if (c.LANG != "en") {
+        var tinylang = require("./i18/en.json");
+        for (items in tinylang) {
+            if (typeof lang[items] != "string") {
+                lang[items] = tinylang[items];
+            }
+        }
+
+        delete tinylang;
+    }
+
     const emojiStrip = require('emoji-strip');
     const fs = require('fs');
 
@@ -96,20 +109,9 @@ module.exports = function(pgdata) {
 
 
 
-    // Loading Plugins
-    console.log(lang.loadingplugins);
-
-    const pluginslist = fs.readdirSync(__dirname + "/plugins", { withFileTypes: true });
-    console.log(pluginslist);
-
-    const plugins = [];
-
-
-
-
-
 
     // Start System
+    const plugins = [];
     const startServer = {
 
         logAPI: function() {
@@ -184,6 +186,106 @@ module.exports = function(pgdata) {
                 }, 500);
             });
 
+        },
+
+        // Loading Plugins
+        plugins: function() {
+
+            console.log(lang.loadingplugins);
+
+            const pluginlist = fs.readdirSync(__dirname + "/plugins", { withFileTypes: true });
+            for (var i = 0; i < pluginlist.length; i++) {
+                if (pluginlist[i].endsWith(".js")) {
+
+                    plugins.push(require('./plugins/' + pluginlist[i]));
+                    var tinyfolder = __dirname + "/plugins/" + pluginlist[i].substring(0, pluginlist[i].length - 3)
+
+                    // Load Language
+                    if ((fs.existsSync(tinyfolder + "/i18")) && (fs.existsSync(tinyfolder + "/i18/en.json"))) {
+
+                        if ((c.LANG != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.LANG + ".json"))) {
+
+                            var tinylang = require(tinyfolder + "/i18/" + c.LANG + ".json");
+                            for (items in tinylang) {
+                                if (typeof tinylang[items] == "string") {
+                                    lang[items] = tinylang[items];
+                                }
+                            }
+
+                            var tinylang = require(tinyfolder + "/i18/en.json");
+                            for (items in tinylang) {
+                                if (typeof lang[items] != "string") {
+                                    lang[items] = tinylang[items];
+                                }
+                            }
+
+                        } else {
+                            var tinylang = require(tinyfolder + "/i18/en.json");
+                            for (items in tinylang) {
+                                if (typeof tinylang[items] == "string") {
+                                    lang[items] = tinylang[items];
+                                }
+                            }
+                        }
+
+                    }
+
+                    // Load System
+                    if (
+                        (typeof plugins[i].name == "string") &&
+                        (typeof plugins[i].author == "string") &&
+                        (typeof plugins[i].version == "string") &&
+                        (typeof plugins[i].start == "function")
+                    ) {
+
+                        plugins[i].start({
+                            i18: i18,
+                            c: c,
+                            server: {
+
+                                online: function() { return server.online; },
+                                first: function() { return server.first; },
+                                shutdown: function() { return server.shutdown; },
+                                query: function() { return server.query; },
+
+                                forceQuery: server.forceQuery,
+                                timeout: server.timeout,
+                                sendMC: server.sendMC
+
+                            },
+                            getDS: function() { return server.ds.getDS(); },
+                            folder: tinyfolder
+                        });
+                        console.log(i18(lang.loadedplugin, [plugins[i].name]));
+
+                    }
+
+                    // Fail Load
+                    else {
+
+                        var failmotive = '';
+                        if (typeof plugins[i].name != "string") {
+                            failmotive += ' name';
+                        }
+                        if (typeof plugins[i].author != "string") {
+                            failmotive += ' author';
+                        }
+                        if (typeof plugins[i].version != "string") {
+                            failmotive += ' version';
+                        }
+                        if (typeof plugins[i].start != "fuction") {
+                            failmotive += ' start';
+                        }
+                        console.warn(i18(lang.failedplugin, [pluginlist[i], failmotive]));
+
+                    }
+
+                }
+            }
+
+            delete tinyfolder;
+            delete tinylang;
+
         }
 
     };
@@ -219,8 +321,10 @@ module.exports = function(pgdata) {
             if (server.first.rcon == true) {
 
                 server.first.rcon = false;
-                startServer.logAPI();
+
                 server.ds.start(server, lang, conn, c, plugins, i18);
+                startServer.plugins();
+                startServer.logAPI();
                 startServer.query();
 
             }

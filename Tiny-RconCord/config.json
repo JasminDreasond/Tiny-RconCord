@@ -1,5 +1,6 @@
 {
 
+    "DISCORD_LIB": "discord.io",
     "PREFIX": "/",
     "LANG": "en",
     "SERVER_FOLDER": "",

@@ -13,13 +13,16 @@ const helloworld = {
     start: function(pg) {
 
 
-        console.log("Hello World started using the Discord Lib: " + pg.dslib);
+        console.log("Hello World started using the Discord Lib: " + pg.c.DISCORD_LIB);
+        console.log("Plugin Folder: " + pg.folder);
+
+        // console.log(pg.getDS()); Wait the Discord API is ready before you use it...
 
         // Use the Discord API only if the Discord Lib is the Discord.IO
-        if (pg.dslib == "discord.io") {
+        if (pg.c.DISCORD_LIB == "discord.io") {
 
             // Discord Chat
-            helloworld.ds = function(bot, user, userID, channelID, message, event) {
+            helloworld.ds = function(user, userID, channelID, message, event) {
 
                 // Discord scripts...
 
@@ -28,7 +31,7 @@ const helloworld = {
         }
 
         // Minecraft Chat
-        helloworld.ms = function(user, message) {
+        helloworld.ms = function(message) {
 
             // Return the message before it enter into Discord
             return [user, message];
