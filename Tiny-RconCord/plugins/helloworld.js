@@ -41,7 +41,13 @@ const helloworld = {
         // Minecraft Log
         helloworld.mslog = function(log) {
 
-            // Return the message before it enter into Discord
+            return log;
+
+        };
+
+        // Minecraft RCON
+        helloworld.rcon = function(log) {
+
             return log;
 
         };

@@ -150,6 +150,12 @@ module.exports = function(pgdata) {
                         // Nope
                         else {
 
+                            for (var i = 0; i < plugins.length; i++) {
+                                if (typeof plugins[i].mslog == "function") {
+                                    data = plugins[i].mslog(data);
+                                }
+                            }
+
                             console.log(data);
 
                         }
@@ -304,8 +310,8 @@ module.exports = function(pgdata) {
                 if ((response) && (response.replace(/ /g, "") != "")) {
 
                     for (var i = 0; i < plugins.length; i++) {
-                        if (typeof plugins[i].mslog == "function") {
-                            response = plugins[i].mslog(response);
+                        if (typeof plugins[i].rcon == "function") {
+                            response = plugins[i].rcon(response);
                         }
                     }
 
