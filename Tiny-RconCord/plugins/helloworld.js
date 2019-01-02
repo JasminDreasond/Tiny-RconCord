@@ -31,18 +31,18 @@ const helloworld = {
         }
 
         // Minecraft Chat
-        helloworld.ms = function(message) {
+        helloworld.ms = function(user, message) {
 
             // Return the message before it enter into Discord
             return [user, message];
 
         };
 
-        // Minecraft Chat
+        // Minecraft Log
         helloworld.mslog = function(log) {
 
             // Return the message before it enter into Discord
-            return [user, message];
+            return log;
 
         };
 

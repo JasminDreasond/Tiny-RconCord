@@ -239,6 +239,7 @@ module.exports = function(pgdata) {
                     ) {
 
                         plugins[i].start({
+                            connCommand: conn.command,
                             i18: i18,
                             c: c,
                             server: {
@@ -291,16 +292,26 @@ module.exports = function(pgdata) {
     };
 
 
-
+    let conn;
 
     // Start with RCON
     if (!pgdata) {
 
         console.log(lang.connecting_rcon);
-        const conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, {
+        conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, {
 
             data: function(length, id, type, response) {
-                if ((response) && (response.replace(/ /g, "") != "")) { server.ds.sendMessage({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: response }); }
+                if ((response) && (response.replace(/ /g, "") != "")) {
+
+                    for (var i = 0; i < plugins.length; i++) {
+                        if (typeof plugins[i].mslog == "function") {
+                            response = plugins[i].mslog(response);
+                        }
+                    }
+
+                    server.ds.sendMessage({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: response });
+
+                }
             },
 
             connect: function() { server.online.mc = true; },
