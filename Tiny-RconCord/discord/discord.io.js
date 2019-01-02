@@ -1,8 +1,8 @@
 const discordio = {
 
-    start: function(server, lang, conn, c, plugins, i18) {
+    start: function(server, lang, conn, c, plugins, i18, log) {
 
-        console.log(lang.loading_discord + " (Discord.IO)");
+        log.info(lang.loading_discord + " (Discord.IO)");
         const Discord = require(c.DISCORD_LIB);
 
         // Start Bot
@@ -25,7 +25,7 @@ const discordio = {
                     discordio.bot.sendMessage(themessage, function(error, mymessage) {
 
                         if (error) {
-                            console.log(error);
+                            log.info(error);
                         } else {
                             if (typeof callback == "function") {
                                 callback();
@@ -37,7 +37,7 @@ const discordio = {
                 } else {
                     discordio.bot.sendMessage(themessage, function(error, mymessage) {
                         if (error) {
-                            console.log(error);
+                            log.info(error);
                         } else if (typeof callback == "function") {
                             callback();
                         }
@@ -106,17 +106,17 @@ const discordio = {
         // Ready
         discordio.bot.on('ready', function(event) {
             server.online.ds = true;
-            console.log(discordio.bot.username + ' - ' + discordio.bot.id + ' - ' + lang.connected);
+            log.info(discordio.bot.username + ' - ' + discordio.bot.id + ' - ' + lang.connected);
             if (server.first.discord) {
                 server.first.discord = false;
-                console.log(i18(lang.loading_complete, [Date.now() - server.first.timestart]));
+                log.info(i18(lang.loading_complete, [Date.now() - server.first.timestart]));
             }
         });
 
         // Reconnect
         discordio.bot.on('disconnect', function(erMsg, code) {
             server.online.ds = false;
-            console.log(i18(lang.deconnectedDS, [code, erMsg]));
+            log.info(i18(lang.deconnectedDS, [code, erMsg]));
             if (server.shutdown == 0) {
                 discordio.bot.connect();
             } else if (server.shutdown == 1) {
@@ -143,7 +143,7 @@ const discordio = {
                     message = message.substring(1, message.length);
                     conn.command(message, function(err) {
                         if (err) {
-                            console.error(lang['[ERROR]'], err);
+                            log.error(err);
                             sendMessage({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
                         }
                     });
@@ -294,7 +294,7 @@ const discordio = {
                                 } else {
                                     fields.push({
                                         name: lang.emptylist,
-                                        value: lang.noneplayers
+                                        value: lang.noneplugins
                                     });
                                 }
 

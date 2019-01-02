@@ -1,10 +1,13 @@
 module.exports = function(pgdata) {
 
     //const mineflayer = require('mineflayer');
+    const moment = require('moment');
+    const log = require('./lib/log.js');
     const Rcon = require('./lib/rcon.js');
     const c = require('./config.json');
 
     const lang = require('./i18/' + c.LANG + '.json');
+    moment.locale(c.LANG);
 
     if (c.LANG != "en") {
         var tinylang = require("./i18/en.json");
@@ -16,6 +19,14 @@ module.exports = function(pgdata) {
 
         delete tinylang;
     }
+
+    log.startApp(moment, {
+        warn: lang['warn'],
+        error: lang['error'],
+        info: lang['info'],
+        minecraft: lang['minecraft'],
+        debug: lang['debug']
+    });
 
     const emojiStrip = require('emoji-strip');
     const fs = require('fs');
@@ -99,7 +110,7 @@ module.exports = function(pgdata) {
         sendMC: function(message) {
             conn.command('tellraw @a ' + makeMinecraftTellraw(message), function(err) {
                 if (err) {
-                    console.error(lang['[ERROR]'], err);
+                    log.error(err);
                     server.ds.sendMessage({ to: c.DISCORD_CHANNEL_ID_COMMANDS, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
                 }
             });
@@ -158,19 +169,19 @@ module.exports = function(pgdata) {
                                 }
                             }
 
-                            console.log(data);
+                            log.minecraft(data);
 
                         }
 
                     });
                     tail.on("error", function(error) {
-                        console.error(lang['[ERROR]'], error);
+                        log.error(error);
                     });
                 } else {
-                    console.warn(lang.no_game_log);
+                    log.warn(lang.no_game_log);
                 }
             } else {
-                console.warn(lang.no_game_folder);
+                log.warn(lang.no_game_folder);
             }
 
         },
@@ -183,7 +194,7 @@ module.exports = function(pgdata) {
             server.forceQuery = mcquery(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_QUERY_PORT, 120000, function(err, stat) {
                 if (err) {
                     server.query = null;
-                    console.error(err);
+                    log.error(err);
                     server.timeout(function() {
                         server.ds.securePresence(lang.offlineserver, new Date(), 120000);
                     }, 500);
@@ -197,103 +208,113 @@ module.exports = function(pgdata) {
         },
 
         // Loading Plugins
-        plugins: function() {
-
-            console.log(lang.loadingplugins);
+        plugins: async function() {
 
             const pluginlist = fs.readdirSync(__dirname + "/plugins", { withFileTypes: true });
-            for (var i = 0; i < pluginlist.length; i++) {
-                if (pluginlist[i].endsWith(".js")) {
 
-                    plugins.push(require('./plugins/' + pluginlist[i]));
-                    var tinyfolder = __dirname + "/plugins/" + pluginlist[i].substring(0, pluginlist[i].length - 3)
+            if (pluginlist.length > 0) {
 
-                    // Load Language
-                    if ((fs.existsSync(tinyfolder + "/i18")) && (fs.existsSync(tinyfolder + "/i18/en.json"))) {
+                log.info(lang.loadingplugins);
 
-                        if ((c.LANG != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.LANG + ".json"))) {
+                for (var i = 0; i < pluginlist.length; i++) {
+                    if (pluginlist[i].endsWith(".js")) {
 
-                            var tinylang = require(tinyfolder + "/i18/" + c.LANG + ".json");
-                            for (items in tinylang) {
-                                if (typeof tinylang[items] == "string") {
-                                    lang[items] = tinylang[items];
+                        plugins.push(require('./plugins/' + pluginlist[i]));
+                        var tinyfolder = __dirname + "/plugins/" + pluginlist[i].substring(0, pluginlist[i].length - 3)
+
+                        // Load Language
+                        if ((fs.existsSync(tinyfolder + "/i18")) && (fs.existsSync(tinyfolder + "/i18/en.json"))) {
+
+                            if ((c.LANG != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.LANG + ".json"))) {
+
+                                var tinylang = require(tinyfolder + "/i18/" + c.LANG + ".json");
+                                for (items in tinylang) {
+                                    if (typeof tinylang[items] == "string") {
+                                        lang[items] = tinylang[items];
+                                    }
+                                }
+
+                                var tinylang = require(tinyfolder + "/i18/en.json");
+                                for (items in tinylang) {
+                                    if (typeof lang[items] != "string") {
+                                        lang[items] = tinylang[items];
+                                    }
+                                }
+
+                            } else {
+                                var tinylang = require(tinyfolder + "/i18/en.json");
+                                for (items in tinylang) {
+                                    if (typeof tinylang[items] == "string") {
+                                        lang[items] = tinylang[items];
+                                    }
                                 }
                             }
 
-                            var tinylang = require(tinyfolder + "/i18/en.json");
-                            for (items in tinylang) {
-                                if (typeof lang[items] != "string") {
-                                    lang[items] = tinylang[items];
-                                }
+                        }
+
+                        // Load System
+                        if (
+                            (typeof plugins[i].name == "string") &&
+                            (typeof plugins[i].author == "string") &&
+                            (typeof plugins[i].version == "string") &&
+                            (typeof plugins[i].start == "function")
+                        ) {
+
+                            await plugins[i].start({
+                                moment: moment,
+                                lang: lang,
+                                log: log,
+                                connCommand: conn.command,
+                                i18: i18,
+                                c: c,
+                                server: {
+
+                                    online: function() { return server.online; },
+                                    first: function() { return server.first; },
+                                    shutdown: function() { return server.shutdown; },
+                                    query: function() { return server.query; },
+
+                                    forceQuery: server.forceQuery,
+                                    timeout: server.timeout,
+                                    sendMC: server.sendMC
+
+                                },
+                                getDS: function() { return server.ds.getDS(); },
+                                folder: tinyfolder
+                            });
+                            log.info(i18(lang.loadedplugin, [plugins[i].name]));
+
+                        }
+
+                        // Fail Load
+                        else {
+
+                            var failmotive = '';
+                            if (typeof plugins[i].name != "string") {
+                                failmotive += ' name';
                             }
-
-                        } else {
-                            var tinylang = require(tinyfolder + "/i18/en.json");
-                            for (items in tinylang) {
-                                if (typeof tinylang[items] == "string") {
-                                    lang[items] = tinylang[items];
-                                }
+                            if (typeof plugins[i].author != "string") {
+                                failmotive += ' author';
                             }
+                            if (typeof plugins[i].version != "string") {
+                                failmotive += ' version';
+                            }
+                            if (typeof plugins[i].start != "fuction") {
+                                failmotive += ' start';
+                            }
+                            log.warn(i18(lang.failedplugin, [pluginlist[i], failmotive]));
+
                         }
 
                     }
-
-                    // Load System
-                    if (
-                        (typeof plugins[i].name == "string") &&
-                        (typeof plugins[i].author == "string") &&
-                        (typeof plugins[i].version == "string") &&
-                        (typeof plugins[i].start == "function")
-                    ) {
-
-                        plugins[i].start({
-                            connCommand: conn.command,
-                            i18: i18,
-                            c: c,
-                            server: {
-
-                                online: function() { return server.online; },
-                                first: function() { return server.first; },
-                                shutdown: function() { return server.shutdown; },
-                                query: function() { return server.query; },
-
-                                forceQuery: server.forceQuery,
-                                timeout: server.timeout,
-                                sendMC: server.sendMC
-
-                            },
-                            getDS: function() { return server.ds.getDS(); },
-                            folder: tinyfolder
-                        });
-                        console.log(i18(lang.loadedplugin, [plugins[i].name]));
-
-                    }
-
-                    // Fail Load
-                    else {
-
-                        var failmotive = '';
-                        if (typeof plugins[i].name != "string") {
-                            failmotive += ' name';
-                        }
-                        if (typeof plugins[i].author != "string") {
-                            failmotive += ' author';
-                        }
-                        if (typeof plugins[i].version != "string") {
-                            failmotive += ' version';
-                        }
-                        if (typeof plugins[i].start != "fuction") {
-                            failmotive += ' start';
-                        }
-                        console.warn(i18(lang.failedplugin, [pluginlist[i], failmotive]));
-
-                    }
-
                 }
-            }
 
-            delete tinyfolder;
-            delete tinylang;
+                delete tinyfolder;
+                delete tinylang;
+
+                log.info(lang.loadingpluginscomplete);
+
+            }
 
         }
 
@@ -305,7 +326,7 @@ module.exports = function(pgdata) {
     // Start with RCON
     if (!pgdata) {
 
-        console.log(lang.connecting_rcon);
+        log.info(lang.connecting_rcon);
         conn = new Rcon(c.MINECRAFT_SERVER_RCON_IP, c.MINECRAFT_SERVER_RCON_PORT, {
 
             data: function(length, id, type, response) {
@@ -327,22 +348,22 @@ module.exports = function(pgdata) {
 
             lookup: function(err, address, family, host) {
                 if (!err) {
-                    console.log(lang.minecraftconnection, address, family, host);
+                    log.info(lang.minecraftconnection, address, family, host);
                 } else {
-                    console.error(lang.minecraftconnection, err);
+                    log.error(lang.minecraftconnection, err);
                 }
             }
 
-        });
+        }, log);
 
         // Auth RCON
-        conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, function() {
+        conn.auth(c.MINECRAFT_SERVER_RCON_PASSWORD, async function() {
             if (server.first.rcon == true) {
 
                 server.first.rcon = false;
 
-                server.ds.start(server, lang, conn, c, plugins, i18);
-                startServer.plugins();
+                await startServer.plugins();
+                server.ds.start(server, lang, conn, c, plugins, i18, log);
                 startServer.logAPI();
                 startServer.query();
 

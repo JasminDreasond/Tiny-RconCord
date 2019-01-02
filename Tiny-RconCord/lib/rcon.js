@@ -6,7 +6,7 @@ const debug = c.DEBUG;
 
 module.exports = Rcon;
 
-function Rcon(ip, port, calls) {
+function Rcon(ip, port, calls, log) {
     const self = this;
     self.rconTimeout = undefined;
     self.nextId = 0;
@@ -17,7 +17,7 @@ function Rcon(ip, port, calls) {
 
     self.socket = net.connect(port, ip, function() {
         self.connected = true;
-        console.log('[INFO] Authenticated with ' + ip + ':' + port);
+        log.info('Authenticated with ' + ip + ':' + port);
     });
 
     self.socket.on('data', function(data) {
@@ -26,6 +26,10 @@ function Rcon(ip, port, calls) {
         const type = data.readInt32LE(8);
         const response = data.toString('ascii', 12, data.length - 2);
 
+        if (debug) {
+            log.debug(response)
+        }
+
         if ((calls) && (typeof calls.data == "function")) {
             calls.data(length, id, type, response);
         }
@@ -33,43 +37,56 @@ function Rcon(ip, port, calls) {
         if (self.packages[id]) {
             self.packages[id](type, response);
         } else {
-            console.log('unexpected rcon response', id, type, response);
+            log.warn('unexpected rcon response', id, type, response);
         }
     }).on('end', function() {
+        if (debug) {
+            log.debug('Rcon Ended!')
+        }
         if ((calls) && (typeof calls.end == "function")) {
             calls.end();
         }
-        if (debug) {
-            console.log('[DEBUG] Rcon closed!')
-        }
     }).on('close', function(err) {
+        if (debug) {
+            log.debug('Rcon Closed!');
+            log.error(err);
+        }
         if ((calls) && (typeof calls.close == "function")) {
             calls.close(err);
         }
     }).on('connect', function() {
+        if (debug) { log.debug('Rcon Connect!') }
         self.restart = false;
         if ((calls) && (typeof calls.end == "connect")) {
             calls.connect();
         }
     }).on('drain', function() {
+        if (debug) { log.debug('Rcon Drain!') }
         if ((calls) && (typeof calls.drain == "function")) {
             calls.drain();
         }
     }).on('error', function(err) {
+        if (debug) {
+            log.debug('Rcon Error!');
+            log.error(err);
+        }
         self.restart = true;
         self.socket.connect();
         if ((calls) && (typeof calls.error == "error")) {
             calls.error(err);
         }
     }).on('lookup', function(err, address, family, host) {
+        if (debug) { log.debug('Rcon Lookup!') }
         if ((calls) && (typeof calls.lookup == "function")) {
             calls.lookup(err, address, family, host);
         }
     }).on('ready', function() {
+        if (debug) { log.debug('Rcon Ready!') }
         if ((calls) && (typeof calls.end == "function")) {
             calls.end();
         }
     }).on('timeout', function() {
+        if (debug) { log.debug('Rcon Timeout!') }
         if ((calls) && (typeof calls.timeout == "function")) {
             calls.timeout();
         }
@@ -128,7 +145,7 @@ Rcon.prototype.sendPackage = function(type, payload, cb) {
         clearTimeout(timeout);
         const err = type >= 0 ? false : 'Server sent package code ' + type;
         if (debug) {
-            console.log('[DEBUG] Recieved response: ' + response);
+            log.debug('Recieved response: ' + response);
         }
         cb(err, response, type);
     };

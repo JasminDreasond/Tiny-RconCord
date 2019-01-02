@@ -2,6 +2,7 @@
 
     "connecting_rcon": "Conectando Rcon...",
     "loadingplugins": "Carregando Plugins...",
+    "loadingpluginscomplete": "Os plugins foram carregados com sucesso",
     "loading_discord": "Carregando Discord...",
     "loading_complete": "Tudo Pronto ({0} milissegundos)!",
 
@@ -9,8 +10,14 @@
 
     "loadedplugin": "O plugin {0} foi carregado",
     "failedplugin": "Os valores do plugin {0} estão incorretos:{1}",
+    "noneplugins": "Nenhum plugin foi carregado no sistema",
 
-    "[ERROR]": "[ERROR]",
+    "error": "Error",
+    "info": "Info",
+    "warn": "Aviso",
+    "minecraft": "Minecraft",
+    "debug": "Debug",
+
     "minecraftconnection": "Conexão do Minecraft",
     "connected": "Conectado",
     "deconnectedDS": "Desconectado com erro de código {0}\nRazão: {1}",
