@@ -13,14 +13,19 @@ const helloworld = {
     start: function(pg) {
 
 
-        console.log("Hello World started");
+        console.log("Hello World started using the Discord Lib: " + pg.dslib);
 
-        // Discord Chat
-        helloworld.ds = function(user, userID, channelID, message, event) {
+        // Use the Discord API only if the Discord Lib is the Discord.IO
+        if (pg.dslib == "discord.io") {
 
-            // Discord scripts...
+            // Discord Chat
+            helloworld.ds = function(bot, user, userID, channelID, message, event) {
 
-        };
+                // Discord scripts...
+
+            };
+
+        }
 
         // Minecraft Chat
         helloworld.ms = function(user, message) {
