@@ -31,7 +31,7 @@ const helloworld = {
         }
 
         // Minecraft Chat
-        helloworld.ms = function(user, message) {
+        helloworld.mc = function(user, message) {
 
             // Return the message before it enter into Discord
             return [user, message];

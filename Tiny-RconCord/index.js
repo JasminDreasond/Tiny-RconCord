@@ -142,18 +142,19 @@ module.exports = function(pgdata) {
                         let userchat = data.match(new RegExp(c.REGEX_MATCH_CHAT_MC));
                         if (userchat) {
 
-                            userchat[2] = userchat[2].replace(/\@everymine/g, "<@&529850331904081950>");
+                            // Model Chat
+                            userchat = [userchat[1], userchat[2]];
+
+                            // Add everymine
+                            userchat[1] = userchat[1].replace(/\@everymine/g, "<@&" + c.EVERYMINE + ">");
 
                             // Send Bot Mode
-
                             if (plugins.length > 0) {
                                 for (var i = 0; i < plugins.length; i++) {
                                     if (typeof plugins[i].mc == "function") {
-                                        userchat = plugins[i].mc(userchat[1], userchat[2]);
+                                        userchat = plugins[i].mc(userchat[0], userchat[1]);
                                     }
                                 }
-                            } else {
-                                userchat = [userchat[1], userchat[2]];
                             }
 
                             server.ds.sendMessage({ to: c.DISCORD_CHANNEL_ID_CHAT, message: makeDiscordMessage(userchat[0], userchat[1]) });

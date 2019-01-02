@@ -1,6 +1,7 @@
 {
 
     "DISCORD_LIB": "discord.io",
+    "EVERYMINE": "",
     "PREFIX": "/",
     "LANG": "en",
     "SERVER_FOLDER": "",
