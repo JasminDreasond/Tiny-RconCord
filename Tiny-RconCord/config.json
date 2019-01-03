@@ -16,13 +16,10 @@
         "debug": false,
         "prefix": "/",
         "lib": "discord.io",
-        "everymine": "",
-        "template": "`%username%`: %message%",
         "token": "",
 
         "channelID": {
             "rcon": "",
-            "chat": "",
             "bot": "",
             "log": ""
         }
@@ -47,16 +44,7 @@
             "delay": 120000
         },
 
-        "avatar_url": "https://minotar.net/helm/%username%/256.png",
-        "bot_discord_template": "[%text%]",
-        "tellraw_template": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%>%bot% %message%\"}]"
-
-    },
-
-    "regex": {
-
-        "chat_mc": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
-        "advancement_mc": "\\[Server thread/INFO\\]: (.*) has made the advancement [(.*)]"
+        "avatar_url": "https://minotar.net/helm/%username%/256.png"
 
     },
 

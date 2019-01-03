@@ -145,59 +145,99 @@ const discordio = {
 
         });
 
-        // Receive Message
-        discordio.bot.on('message', function(user, userID, channelID, message, event) {
-            if ((userID !== discordio.bot.id) && (!event.d.bot)) {
-
-                // Detect if the message is from server or private message
-                if (
-                    (channelID == c.discord.channelID.bot) &&
-                    (typeof discordio.bot.channels[channelID] != "undefined") &&
-                    (discordio.bot.channels[channelID].guild_id)
-                ) {
-                    var guildID = discordio.bot.channels[channelID].guild_id;
-                } else {
-                    var guildID = null;
-                }
-
-                // Send Data
-                if (globalds.message({
-                        isBot: event.d.author.bot,
-                        webhookID: event.d.webhook_id,
-                        ownerID: discordio.bot.internals.oauth.owner.id,
-                        userID: userID,
-                        botName: discordio.bot.username,
-                        guildID: guildID,
-                        channelID: channelID,
-                        message: message,
-                        username: event.d.author.username,
-                        discriminator: event.d.author.discriminator
-                    })) {
-
-                    // If the message is a normal message... Send the message data to Plugins
-                    for (var i = 0; i < plugins.length; i++) {
-                        if (typeof plugins[i].mc == "function") {
-                            plugins[i].ds(user, userID, channelID, message, event);
-                        }
-                    }
-
-                }
-
-            }
-        });
-
         // Discord Events
-        discordio.bot.on('any', function(event) {
+        // Async function for plugins with some await
+        discordio.bot.on('any', async function(event) {
 
             if (c.discord.debug) {
                 log.discord(json_stringify(event, null, 2, 100));
             }
 
-            // All the Discord Events will be send to plugins here
-            for (var i = 0; i < plugins.length; i++) {
-                if (typeof plugins[i].ds_any == "function") {
-                    plugins[i].ds_any(event);
+            if ((event.t == "MESSAGE_CREATE") && (event.d.author.id !== discordio.bot.id) && (!event.d.bot)) {
+
+                // Detect if the message is from server or private message
+                if (
+                    (event.d.channel_id == c.discord.channelID.bot) &&
+                    (typeof discordio.bot.channels[event.d.channel_id] != "undefined") &&
+                    (discordio.bot.channels[event.d.channel_id].guild_id)
+                ) {
+                    var guildID = discordio.bot.channels[event.d.channel_id].guild_id;
+                } else {
+                    var guildID = null;
                 }
+
+                if ((c.webhook.use) && (event.d.webhook_id == c.webhook.id)) {
+                    return; // ignore webhooks if using a webhook
+                }
+
+                // The message is for a special channel?
+                for (var i = 0; i < plugins.length; i++) {
+                    if (typeof plugins[i].ds_special_chat == "function") {
+
+                        // Wait the response from the special channel
+                        var special_channel = await plugins[i].ds_special_chat({
+                            isBot: event.d.author.bot,
+                            webhookID: event.d.webhook_id,
+                            ownerID: discordio.bot.internals.oauth.owner.id,
+                            userID: event.d.author.id,
+                            botName: discordio.bot.username,
+                            guildID: guildID,
+                            channelID: event.d.channel_id,
+                            message: event.d.content,
+                            username: event.d.author.username,
+                            discriminator: event.d.author.discriminator
+                        }, event);
+
+                    }
+                }
+
+                if (!special_channel) {
+
+                    // Send Data
+                    if (globalds.message({
+                            isBot: event.d.author.bot,
+                            webhookID: event.d.webhook_id,
+                            ownerID: discordio.bot.internals.oauth.owner.id,
+                            userID: event.d.author.id,
+                            botName: discordio.bot.username,
+                            guildID: guildID,
+                            channelID: event.d.channel_id,
+                            message: event.d.content,
+                            username: event.d.author.username,
+                            discriminator: event.d.author.discriminator
+                        })) {
+
+                        // If the message is a normal message... Send the message data to Plugins
+                        for (var i = 0; i < plugins.length; i++) {
+                            if (typeof plugins[i].ds_chat == "function") {
+                                plugins[i].ds_chat({
+                                    isBot: event.d.author.bot,
+                                    webhookID: event.d.webhook_id,
+                                    ownerID: discordio.bot.internals.oauth.owner.id,
+                                    userID: event.d.author.id,
+                                    botName: discordio.bot.username,
+                                    guildID: guildID,
+                                    channelID: event.d.channel_id,
+                                    message: event.d.content,
+                                    username: event.d.author.username,
+                                    discriminator: event.d.author.discriminator
+                                }, event);
+                            }
+                        }
+
+                    }
+
+                }
+
+            } else {
+
+                // All the Discord Events will be send to plugins here
+                for (var i = 0; i < plugins.length; i++) {
+                    if (typeof plugins[i].ds_any == "function") {
+                        plugins[i].ds_any(event);
+                    }
+                }
+
             }
 
         });

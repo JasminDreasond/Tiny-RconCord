@@ -10,6 +10,7 @@
     "loading_complete": "Ready ({0} milliseconds)!",
 
     "no_permission": "You do not have permission to run this command!",
+    "no_english": "The {0} plugin needs to have an English language!",
 
     "loaded_plugin": "The plugin {0} is loaded",
     "failed_plugin": "The values from the plugin {0} is incorrect:{1}",
@@ -53,6 +54,7 @@
     "help_presence": "Say {0} for help",
 
     "help": "Help",
+    "madeby": "Made by: {0}",
     "help_minecraftstatus": "View information about the Minecraft server",
     "help_minecraftplayers": "View the player list",
     "help_nodeplugins": "View the list of plugins installed on the rcon node",

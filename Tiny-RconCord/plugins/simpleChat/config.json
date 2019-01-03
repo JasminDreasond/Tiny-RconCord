@@ -1,0 +1,15 @@
+{
+
+    "regex": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
+    "everymine": "529850331904081950",
+    "channelID": "529507370301128715",
+
+    "template": {
+
+        "bot_discord": "[%text%]",
+        "discord": "`%username%`: %message%",
+        "tellraw": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%>%bot% %message%\"}]"
+
+    }
+
+}

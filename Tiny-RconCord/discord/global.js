@@ -1,52 +1,11 @@
 const globalds = {
 
-    start: function(c, lang, conn, server, plugins, log) {
+    start: function(c, lang, conn, server, plugins, log, tinypack, i18) {
 
         globalds.message = function(data) {
 
-            if ((c.webhook.use) && (data.webhookID == c.webhook.id)) {
-                return false; // ignore webhooks if using a webhook
-            }
-
-            // Minecraft Chat Message
-            if (data.channelID == c.discord.channelID.chat) {
-
-                if (data.message.replace(" ", "").length > 0) {
-
-                    if (!data.isBot) {
-
-                        if (c.chatLog) {
-                            log.chat(data.username + "#" + data.discriminator, data.message);
-                        }
-                        server.sendMC(data.message, {
-                            type: "user",
-                            username: data.username,
-                            discriminator: data.discriminator,
-                            bot: ""
-                        });
-
-                    } else {
-
-                        if (c.chatLog) {
-                            log.chat(data.username + "#" + data.discriminator + " (" + lang.bot.toUpperCase() + ")", data.message);
-                        }
-                        server.sendMC(data.message, {
-                            type: "user",
-                            username: data.username,
-                            discriminator: data.discriminator,
-                            bot: lang.bot.toUpperCase()
-                        });
-
-                    }
-
-                }
-
-                return false;
-
-            }
-
             // RCON Message
-            else if ((data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
+            if ((data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
 
                 data.message = data.message.substring(1, data.message.length);
                 conn.command(data.message, function(err) {
@@ -88,7 +47,7 @@ const globalds = {
                                 },
                                 {
                                     name: lang.game_id,
-                                    value: String(server.query.gameid),
+                                    value: String(server.query.game_id),
                                     inline: true
                                 },
                                 {
@@ -193,8 +152,9 @@ const globalds = {
 
                                         fields.push({
                                             name: plugins[i].name + " (" + plugins[i].version + ")",
-                                            value: plugins[i].author +
-                                                "\n" + lang.ds_page + " " + +plugins[i].page +
+                                            value: i18(lang.madeby, [plugins[i].author]) +
+                                                "\n" + plugins[i].description +
+                                                "\n" + lang.ds_page + " " + plugins[i].page +
                                                 "\n" + lang.ds_issues + " " + +plugins[i].issues
                                         });
 
@@ -202,7 +162,8 @@ const globalds = {
 
                                         fields.push({
                                             name: plugins[i].name + " (" + plugins[i].version + ")",
-                                            value: plugins[i].author +
+                                            value: i18(lang.madeby, [plugins[i].author]) +
+                                                "\n" + plugins[i].description +
                                                 "\n" + lang.ds_page + " " + plugins[i].page
                                         });
 
@@ -219,7 +180,7 @@ const globalds = {
                             server.ds.sendMessage({
                                 "to": data.channelID,
                                 "embed": {
-                                    "title": lang.plugins + " - " + data.botName,
+                                    "title": lang.plugins + " - " + data.botName + " (" + tinypack.version + ")",
                                     "fields": fields
                                 }
                             });

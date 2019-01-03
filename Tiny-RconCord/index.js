@@ -15,6 +15,7 @@ module.exports = function(pgdata) {
     const c = require('./config.json');
     const globalds = require('./discord/global.js');
     const webhook = require("./discord/webhook.js");
+    const tinypack = require('../package.json');
 
     const lang = require('./i18/' + c.lang + '.json');
     moment.locale(c.lang);
@@ -44,44 +45,6 @@ module.exports = function(pgdata) {
 
     if (c.server_folder) {
         var Tail = require('tail').Tail;
-    }
-
-    function makeMinecraftTellraw(data) {
-
-        const username = emojiStrip(data.username);
-        const discriminator = data.discriminator;
-        let text = emojiStrip(data.message);
-
-        let bot = '';
-
-        if (data.bot != "") {
-            bot = " " + c.minecraft.bot_discord_template.replace('%text%', data.bot);
-        }
-
-        text = text.replace(/[ÀÁÂÃÄÅ]/, "A");
-        text = text.replace(/[àáâãäå]/, "a");
-        text = text.replace(/[ÈÉÊË]/, "E");
-        text = text.replace(/[èéêë]/, "e");
-        text = text.replace(/[ÒÓôö]/, "O");
-        text = text.replace(/[òóôö]/, "o");
-        text = text.replace(/[ÙÚûü]/, "U");
-        text = text.replace(/[ùúûü]/, "u");
-        text = text.replace(/[Ç]/, "C");
-        text = text.replace(/[ç]/, "c");
-
-        return c.minecraft.tellraw_template
-            .replace('%username%', username)
-            .replace('%discriminator%', discriminator)
-            .replace('%bot%', bot)
-            .replace('%message%', text);
-
-    };
-
-    function makeDiscordMessage(username, message) {
-        // make a discord message string by formatting the configured template with the given parameters
-        return c.discord.template
-            .replace('%username%', username)
-            .replace('%message%', message)
     }
 
     function i18(text, replaces) {
@@ -122,35 +85,6 @@ module.exports = function(pgdata) {
                     server.timeout(callback, timer);
                 }
             }, timer);
-        },
-
-        //Send Minecraft
-        sendMC: function(message, data) {
-
-            if (data) {
-                if (data.type == "user") {
-                    var cmd = makeMinecraftTellraw({
-                        message: message,
-                        username: data.username,
-                        discriminator: data.discriminator,
-                        bot: data.bot
-                    });
-                } else {
-                    var cmd = message;
-                }
-            } else {
-                var cmd = message;
-            }
-
-            conn.command('tellraw @a ' + cmd, function(err) {
-                if (err) {
-                    log.error(err);
-                    if (c.discord.channelID.rcon) {
-                        server.ds.sendMessage({ to: c.discord.channelID.rcon, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
-                    }
-                }
-            });
-
         }
 
     };
@@ -217,91 +151,62 @@ module.exports = function(pgdata) {
                         // Log Lines
 
                         // Prepare Regex
-                        let userchat = data.match(new RegExp(c.regex.chat_mc));
-                        let useradvanc = data.match(new RegExp(c.regex.advancement_mc));
-                        let prespawn = data.match(new RegExp(c.regex.preparing_spawn_mc));
-                        let leftgame = data.match(new RegExp(c.regex.left_mc));
-                        let joingame = data.match(new RegExp(c.regex.join_mc));
+                        if (c.regex) {
 
-                        // is Chat?
-                        if ((typeof c.regex.chat_mc == "string") && (userchat)) {
+                            if (c.regex.advancement_mc) { var useradvanc = data.match(new RegExp(c.regex.advancement_mc)); }
+                            if (c.regex.preparing_spawn_mc) { var prespawn = data.match(new RegExp(c.regex.preparing_spawn_mc)); }
+                            if (c.regex.left_mc) { var leftgame = data.match(new RegExp(c.regex.left_mc)); }
+                            if (c.regex.join_mc) { var joingame = data.match(new RegExp(c.regex.join_mc)); }
 
-                            // Model Chat
-                            userchat = [userchat[1], userchat[2]];
+                        }
 
-                            // Add everymine
-                            userchat[1] = userchat[1].replace(/\@everymine/g, "<@&" + c.discord.everymine + ">");
+                        for (var i = 0; i < plugins.length; i++) {
+                            if (typeof plugins[i].mc_log == "function") {
+                                data = plugins[i].mc_log(data);
+                            }
+                        }
 
-                            // Send Bot Mode
-                            if (plugins.length > 0) {
-                                for (var i = 0; i < plugins.length; i++) {
-                                    if (typeof plugins[i].mc == "function") {
-                                        userchat = plugins[i].mc(userchat[0], userchat[1]);
-                                    }
+                        if ((typeof data == "string") && (data != "")) {
+
+                            // is Advancement?
+                            if ((typeof c.regex.advancement_mc == "string") && (useradvanc)) {
+
+                                console.log(useradvanc[1], useradvanc[2]);
+
+                            }
+
+                            // is Player lefting?
+                            else if ((typeof c.regex.left_mc == "string") && (leftgame)) {
+
+                                console.log(leftgame[1]);
+
+                            }
+
+                            // is New Player?
+                            else if ((typeof c.regex.join_mc == "string") && (joingame)) {
+
+                                console.log(joingame[1]);
+
+                            }
+
+                            // is Spawn Loading?
+                            else if ((typeof c.regex.preparing_spawn_mc == "string") && (prespawn)) {
+                                if (c.minecraft.debug) {
+                                    log.minecraft(i18(lang.loading_world, [prespawn[1]]));
                                 }
                             }
 
-                            if (c.chatLog) {
-                                log.chat(userchat[0], userchat[1]);
-                            }
+                            // Nope
+                            else {
 
-                            if (c.webhook.use) {
-
-                                webhook.send(c.webhook, {
-                                    username: userchat[0],
-                                    content: userchat[1],
-                                    avatar_url: c.minecraft.avatar_url.replace("%username%", userchat[0])
-                                });
-
-                            } else if (c.discord.channelID.chat) {
-                                server.ds.sendMessage({ to: c.discord.channelID.chat, message: makeDiscordMessage(userchat[0], userchat[1]) });
-                            }
-
-                        }
-
-                        // is Advancement?
-                        else if ((typeof c.regex.advancement_mc == "string") && (useradvanc)) {
-
-                            console.log(useradvanc[1], useradvanc[2]);
-
-                        }
-
-                        // is Player lefting?
-                        else if ((typeof c.regex.left_mc == "string") && (leftgame)) {
-
-                            console.log(leftgame[1]);
-
-                        }
-
-                        // is New Player?
-                        else if ((typeof c.regex.join_mc == "string") && (joingame)) {
-
-                            console.log(joingame[1]);
-
-                        }
-
-                        // is Spawn Loading?
-                        else if ((typeof c.regex.preparing_spawn_mc == "string") && (prespawn)) {
-                            if (c.minecraft.debug) {
-                                log.minecraft(i18(lang.loading_world, [prespawn[1]]));
-                            }
-                        }
-
-                        // Nope
-                        else {
-
-                            for (var i = 0; i < plugins.length; i++) {
-                                if (typeof plugins[i].mc_log == "function") {
-                                    data = plugins[i].mc_log(data);
+                                if (c.minecraft.debug) {
+                                    log.minecraft(data);
                                 }
-                            }
 
-                            if (c.minecraft.debug) {
-                                log.minecraft(data);
-                            }
+                                if (c.discord.channelID.log) {
+                                    log_control.send(data);
+                                }
 
-                            if (c.discord.channelID.log) {
-                                log_control.send(data);
                             }
 
                         }
@@ -348,31 +253,37 @@ module.exports = function(pgdata) {
             var tinyfolder = __dirname + "/plugins/" + pluginName.substring(0, pluginName.length - 3)
 
             // Load Language
-            if ((fs.existsSync(tinyfolder + "/i18")) && (fs.existsSync(tinyfolder + "/i18/en.json"))) {
+            if (fs.existsSync(tinyfolder + "/i18")) {
 
-                if ((c.lang != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.lang + ".json"))) {
+                if (fs.existsSync(tinyfolder + "/i18/en.json")) {
 
-                    var tinylang = require(tinyfolder + "/i18/" + c.lang + ".json");
-                    for (items in tinylang) {
-                        if (typeof tinylang[items] == "string") {
-                            lang[items] = tinylang[items];
+                    if ((c.lang != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.lang + ".json"))) {
+
+                        var tinylang = require(tinyfolder + "/i18/" + c.lang + ".json");
+                        for (items in tinylang) {
+                            if (typeof tinylang[items] == "string") {
+                                lang[items] = tinylang[items];
+                            }
                         }
-                    }
 
-                    var tinylang = require(tinyfolder + "/i18/en.json");
-                    for (items in tinylang) {
-                        if (typeof lang[items] != "string") {
-                            lang[items] = tinylang[items];
+                        var tinylang = require(tinyfolder + "/i18/en.json");
+                        for (items in tinylang) {
+                            if (typeof lang[items] != "string") {
+                                lang[items] = tinylang[items];
+                            }
+                        }
+
+                    } else {
+                        var tinylang = require(tinyfolder + "/i18/en.json");
+                        for (items in tinylang) {
+                            if (typeof tinylang[items] == "string") {
+                                lang[items] = tinylang[items];
+                            }
                         }
                     }
 
                 } else {
-                    var tinylang = require(tinyfolder + "/i18/en.json");
-                    for (items in tinylang) {
-                        if (typeof tinylang[items] == "string") {
-                            lang[items] = tinylang[items];
-                        }
-                    }
+                    log.error(i18(lang.no_english, [pluginName]));
                 }
 
             }
@@ -380,17 +291,23 @@ module.exports = function(pgdata) {
             // Load System
             if (
                 (typeof plugins[i].name == "string") &&
+                (typeof plugins[i].description == "string") &&
                 (typeof plugins[i].author == "string") &&
                 (typeof plugins[i].version == "string") &&
                 (typeof plugins[i].start == "function")
             ) {
 
                 await plugins[i].start({
+                    plugins: plugins,
+                    emojiStrip: emojiStrip,
+                    webhook: webhook,
                     json_stringify: json_stringify,
                     moment: moment,
                     lang: lang,
                     log: log,
-                    connCommand: conn.command,
+                    connCommand: function(cmd, callback) {
+                        conn.command(cmd, callback);
+                    },
                     i18: i18,
                     c: c,
                     server: {
@@ -401,8 +318,7 @@ module.exports = function(pgdata) {
                         query: function() { return server.query; },
 
                         forceQuery: server.forceQuery,
-                        timeout: server.timeout,
-                        sendMC: server.sendMC
+                        timeout: server.timeout
 
                     },
                     getDS: function() { return server.ds.getDS(); },
@@ -418,6 +334,9 @@ module.exports = function(pgdata) {
                 var failmotive = '';
                 if (typeof plugins[i].name != "string") {
                     failmotive += ' name';
+                }
+                if (typeof plugins[i].description != "fuction") {
+                    failmotive += ' description';
                 }
                 if (typeof plugins[i].author != "string") {
                     failmotive += ' author';
@@ -485,7 +404,9 @@ module.exports = function(pgdata) {
                             }
                         }
 
-                        server.ds.sendMessage({ to: c.discord.channelID.rcon, message: response });
+                        if ((c.discord.channelID.rcon) && (response) && (response.replace(/ /g, "") != "")) {
+                            server.ds.sendMessage({ to: c.discord.channelID.rcon, message: response });
+                        }
 
                     }
                 },
@@ -514,7 +435,7 @@ module.exports = function(pgdata) {
                     server.first.rcon = false;
 
                     await startServer.plugins();
-                    globalds.start(c, lang, conn, server, plugins, log);
+                    globalds.start(c, lang, conn, server, plugins, log, tinypack, i18);
                     server.ds.start(server, lang, conn, c, plugins, i18, log, globalds, json_stringify);
                     startServer.logAPI();
                     startServer.query();
