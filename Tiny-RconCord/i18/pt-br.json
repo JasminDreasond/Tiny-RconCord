@@ -1,16 +1,19 @@
 {
 
     "connecting_rcon": "Conectando Rcon...",
-    "loadingplugins": "Carregando Plugins...",
-    "loadingpluginscomplete": "Os plugins foram carregados com sucesso",
+    "loading_plugins": "Carregando Plugins...",
+    "loading_plugins_complete": "Os plugins foram carregados com sucesso",
     "loading_discord": "Carregando Discord...",
+    "loading_webhook": "Carregando Webhook...",
+    "loading_webhook_complete": "O webhook foi carregado com sucesso",
+    "rcon_auth": "Autenticado com {0}:{1}",
     "loading_complete": "Tudo Pronto ({0} milissegundos)!",
 
-    "nopermission": "Você não tem permissão para executar este comando!",
+    "no_permission": "Você não tem permissão para executar este comando!",
 
-    "loadedplugin": "O plugin {0} foi carregado",
-    "failedplugin": "Os valores do plugin {0} estão incorretos:{1}",
-    "noneplugins": "Nenhum plugin foi carregado no sistema",
+    "loaded_plugin": "O plugin {0} foi carregado",
+    "failed_plugin": "Os valores do plugin {0} estão incorretos:{1}",
+    "no_plugins": "Nenhum plugin foi carregado no sistema",
 
     "error": "Error",
     "info": "Info",
@@ -19,28 +22,28 @@
     "debug": "Debug",
     "chat": "Chat",
 
-    "minecraftconnection": "Conexão do Minecraft",
+    "minecraft_connection": "Conexão do Minecraft",
     "connected": "Conectado",
-    "deconnectedDS": "Desconectado com erro de código {0}\nRazão: {1}",
+    "deconnected_ds": "Desconectado com erro de código {0}\nRazão: {1}",
 
-    "serverip": "IP do Servidor",
+    "server_ip": "IP do Servidor",
     "players": "Jogadores",
-    "mineversion": "Versão do Minecraft",
-    "gameid": "ID do Jogo",
-    "gametype": "Tipo do Jogo",
+    "mine_version": "Versão do Minecraft",
+    "game_id": "ID do Jogo",
+    "game_type": "Tipo do Jogo",
     "type": "Tipo",
     "plugins": "Plugins",
     "unknown": "Desconhecido",
     "bot": "Bot",
 
-    "dspage": "Página:",
-    "dsissues": "Problemas:",
+    "ds_page": "Página:",
+    "ds_issues": "Problemas:",
 
-    "minecraftserver": "Servidor de Minecraft:",
-    "offlineserver": "O servidor está offline!",
+    "minecraft_server": "Servidor de Minecraft:",
+    "offline_server": "O servidor está offline!",
 
-    "emptylist": "Vazio!",
-    "noneplayers": "Nenhum jogador está jogando. Que peninha, vem entrar :c",
+    "empty_list": "Vazio!",
+    "no_players": "Nenhum jogador está jogando. Que peninha, vem entrar :c",
 
     "no_game_folder": "A localização da pasta do seu servidor não está definida. Alguns recursos foram desabilitados",
     "no_game_log": "O arquivo de log do servidor não foi detectado. Alguns recursos foram desabilitados"

@@ -1,16 +1,19 @@
 {
 
     "connecting_rcon": "Connecting Rcon...",
-    "loadingplugins": "Loading Plugins...",
-    "loadingpluginscomplete": "The plugins were loaded successfully",
+    "loading_plugins": "Loading Plugins...",
+    "loading_plugins_complete": "The plugins were loaded successfully",
     "loading_discord": "Loading Discord...",
+    "loading_webhook": "Loading Webhook...",
+    "loading_webhook_complete": "The webhook were loaded successfully",
+    "rcon_auth": "Authenticated with {0}:{1}",
     "loading_complete": "Ready ({0} milliseconds)!",
 
-    "nopermission": "You do not have permission to run this command!",
+    "no_permission": "You do not have permission to run this command!",
 
-    "loadedplugin": "The plugin {0} is loaded",
-    "failedplugin": "The values from the plugin {0} is incorrect:{1}",
-    "noneplugins": "No plugins loaded into the system",
+    "loaded_plugin": "The plugin {0} is loaded",
+    "failed_plugin": "The values from the plugin {0} is incorrect:{1}",
+    "no_plugins": "No plugins loaded into the system",
 
     "error": "Error",
     "info": "Info",
@@ -19,28 +22,28 @@
     "debug": "Debug",
     "chat": "Chat",
 
-    "minecraftconnection": "Minecraft Connection",
+    "minecraft_connection": "Minecraft Connection",
     "connected": "Connected",
-    "deconnectedDS": "Disconnected with error code {0}\nReason: {1}",
+    "deconnected_ds": "Disconnected with error code {0}\nReason: {1}",
 
-    "serverip": "Server IP",
+    "server_ip": "Server IP",
     "players": "Players",
-    "mineversion": "Minecraft Version",
-    "gameid": "Game ID",
-    "gametype": "Game Type",
+    "mine_version": "Minecraft Version",
+    "game_id": "Game ID",
+    "game_type": "Game Type",
     "type": "Type",
     "plugins": "Plugins",
     "unknown": "Unknown",
     "bot": "Bot",
 
-    "dspage": "Page:",
-    "dsissues": "Issues:",
+    "ds_page": "Page:",
+    "ds_issues": "Issues:",
 
-    "minecraftserver": "Minecraft Server:",
-    "offlineserver": "The server is offline!",
+    "minecraft_server": "Minecraft Server:",
+    "offline_server": "The server is offline!",
 
-    "emptylist": "Empty!",
-    "noneplayers": "No player is playing. Please join game now :c",
+    "empty_list": "Empty!",
+    "no_players": "No player is playing. Please join game now :c",
 
     "no_game_folder": "The location of your server folder is not set. Some features have been disabled",
     "no_game_log": "The server log file was not detected. Some features have been disabled."

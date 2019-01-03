@@ -16,8 +16,16 @@ function Rcon(ip, port, calls, log) {
     self.restart = false;
 
     self.socket = net.connect(port, ip, function() {
+
         self.connected = true;
-        log.info('Authenticated with ' + ip + ':' + port);
+        if (debug) {
+            log.debug('Rcon Net Connected!');
+        }
+
+        if ((calls) && (typeof calls.net == "function")) {
+            calls.net(port, ip);
+        }
+
     });
 
     self.socket.on('data', function(data) {

@@ -13,8 +13,7 @@ module.exports = function(pgdata) {
     const Rcon = require('./lib/rcon.js');
     const c = require('./config.json');
     const globalds = require('./discord/global.js');
-    const webhook = require("webhook-discord");
-    const Hook = new webhook.Webhook(c.webhook.url);
+    const webhook = require("./discord/webhook.js");
     const mcauth = require('./lib/mcauth.js');
 
     const lang = require('./i18/' + c.lang + '.json');
@@ -200,23 +199,11 @@ module.exports = function(pgdata) {
 
                             if (c.webhook.use) {
 
-                                //mcauth.getMojangProfile(userchat[0], function(profile) {
-
-                                const tinymessage = new webhook.MessageBuilder()
-                                    .setName(userchat[0])
-                                    .setText(userchat[1])
-                                    //.setImage("Image url")
-                                ;
-
-                                tinymessage.data.avatar_url = c.minecraft.avatar_url.replace("%username%", userchat[0]);
-
-                                delete tinymessage.data.attachments;
-
-                                Hook.send(tinymessage);
-
-                                //console.log(profile);
-
-                                //});
+                                webhook.send(c.webhook, {
+                                    username: userchat[0],
+                                    content: userchat[1],
+                                    avatar_url: c.minecraft.avatar_url.replace("%username%", userchat[0])
+                                });
 
                             } else if (c.discord.channelID.chat) {
                                 server.ds.sendMessage({ to: c.discord.channelID.chat, message: makeDiscordMessage(userchat[0], userchat[1]) });
@@ -266,7 +253,7 @@ module.exports = function(pgdata) {
                     server.query = null;
                     log.error(err);
                     server.timeout(function() {
-                        server.ds.securePresence(lang.offlineserver, new Date(), 120000);
+                        server.ds.securePresence(lang.offline_server, new Date(), 120000);
                     }, 500);
                 }
                 server.query = stat;
@@ -343,7 +330,7 @@ module.exports = function(pgdata) {
                     getDS: function() { return server.ds.getDS(); },
                     folder: tinyfolder
                 });
-                log.info(i18(lang.loadedplugin, [plugins[i].name]));
+                log.info(i18(lang.loaded_plugin, [plugins[i].name]));
 
             }
 
@@ -363,7 +350,7 @@ module.exports = function(pgdata) {
                 if (typeof plugins[i].start != "fuction") {
                     failmotive += ' start';
                 }
-                log.warn(i18(lang.failedplugin, [pluginName, failmotive]));
+                log.warn(i18(lang.failed_plugin, [pluginName, failmotive]));
 
             }
 
@@ -376,7 +363,7 @@ module.exports = function(pgdata) {
 
             if ((pluginlist.length > 0) || ((c.npmPlugins) && (c.npmPlugins.length > 0))) {
 
-                log.info(lang.loadingplugins);
+                log.info(lang.loading_plugins);
 
                 if ((c.npmPlugins) && (c.npmPlugins.length > 0)) {
                     for (var i = 0; i < c.npmPlugins.length; i++) {
@@ -392,7 +379,7 @@ module.exports = function(pgdata) {
                     }
                 }
 
-                log.info(lang.loadingpluginscomplete);
+                log.info(lang.loading_plugins_complete);
 
             }
 
@@ -401,57 +388,93 @@ module.exports = function(pgdata) {
     };
 
 
+    // Start
     let conn;
+    const startBase = function() {
 
-    // Start with RCON
-    if (!pgdata) {
+        // Start with RCON
+        if (!pgdata) {
 
-        log.info(lang.connecting_rcon);
-        conn = new Rcon(c.minecraft.rcon.ip, c.minecraft.rcon.port, {
+            log.info(lang.connecting_rcon);
+            conn = new Rcon(c.minecraft.rcon.ip, c.minecraft.rcon.port, {
 
-            data: function(length, id, type, response) {
-                if ((response) && (response.replace(/ /g, "") != "")) {
+                data: function(length, id, type, response) {
+                    if ((response) && (response.replace(/ /g, "") != "")) {
 
-                    for (var i = 0; i < plugins.length; i++) {
-                        if (typeof plugins[i].rcon == "function") {
-                            response = plugins[i].rcon(response);
+                        for (var i = 0; i < plugins.length; i++) {
+                            if (typeof plugins[i].rcon == "function") {
+                                response = plugins[i].rcon(response);
+                            }
                         }
+
+                        server.ds.sendMessage({ to: c.discord.channelID.rcon, message: response });
+
                     }
+                },
 
-                    server.ds.sendMessage({ to: c.discord.channelID.rcon, message: response });
+                net: function(port, ip) {
+                    log.info(i18(lang.rcon_auth, [ip, port]));
+                },
+
+                connect: function() { server.online.mc = true; },
+                close: function() { server.online.mc = false; },
+
+                lookup: function(err, address, family, host) {
+                    if (!err) {
+                        log.info(lang.minecraft_connection, address, family, host);
+                    } else {
+                        log.error(lang.minecraft_connection, err);
+                    }
+                }
+
+            }, log);
+
+            // Auth RCON
+            conn.auth(c.minecraft.rcon.password, async function() {
+                if (server.first.rcon == true) {
+
+                    server.first.rcon = false;
+
+                    await startServer.plugins();
+                    globalds.start(c, lang, conn, server, plugins, log);
+                    server.ds.start(server, lang, conn, c, plugins, i18, log, globalds);
+                    startServer.logAPI();
+                    startServer.query();
 
                 }
-            },
+            });
 
-            connect: function() { server.online.mc = true; },
-            close: function() { server.online.mc = false; },
+        }
 
-            lookup: function(err, address, family, host) {
-                if (!err) {
-                    log.info(lang.minecraftconnection, address, family, host);
-                } else {
-                    log.error(lang.minecraftconnection, err);
-                }
-            }
+    };
 
-        }, log);
-
-        // Auth RCON
-        conn.auth(c.minecraft.rcon.password, async function() {
-            if (server.first.rcon == true) {
-
-                server.first.rcon = false;
-
-                await startServer.plugins();
-                globalds.start(c, lang, conn, server, plugins, log);
-                server.ds.start(server, lang, conn, c, plugins, i18, log, globalds);
-                startServer.logAPI();
-                startServer.query();
-
-            }
+    // Validate Webhook Config
+    if (
+        (c.webhook.use) && (
+            (typeof c.webhook.id != "string") ||
+            (typeof c.webhook.name != "string") ||
+            (typeof c.webhook.channel_id != "string") ||
+            (typeof c.webhook.token != "string") ||
+            (typeof c.webhook.avatar != "string") ||
+            (typeof c.webhook.guild_id != "string")
+        )) {
+        log.info(lang.loading_webhook);
+        webhook.get(c.webhook.url, log, function(data) {
+            try {
+                c.webhook.id = data.id;
+                c.webhook.name = data.name;
+                c.webhook.channel_id = data.channel_id;
+                c.webhook.token = data.token;
+                c.webhook.avatar = data.avatar;
+                c.webhook.guild_id = data.guild_id;
+                log.info(lang.loading_webhook_complete);
+                startBase();
+            } catch (e) {
+                log.error(e);
+            };
         });
-
+    } else {
+        startBase();
     }
-
 
 };

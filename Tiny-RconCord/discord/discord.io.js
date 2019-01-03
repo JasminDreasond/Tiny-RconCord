@@ -129,7 +129,7 @@ const discordio = {
             server.online.ds = false;
 
             // Console Info
-            log.info(i18(lang.deconnectedDS, [code, erMsg]));
+            log.info(i18(lang.deconnected_ds, [code, erMsg]));
 
             // Detect Shutdown 
 

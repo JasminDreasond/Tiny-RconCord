@@ -6,7 +6,7 @@
 
     "webhook": {
         "use": false,
-        "part": "/minecraft/hook",
+        "part": "",
         "url": ""
     },
 

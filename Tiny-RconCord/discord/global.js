@@ -4,7 +4,7 @@ const globalds = {
 
         globalds.message = function(data) {
 
-            if (c.webhook.use && data.webhookID) {
+            if ((c.webhook.use) && (data.webhookID == c.webhook.id)) {
                 return false; // ignore webhooks if using a webhook
             }
 
@@ -72,7 +72,7 @@ const globalds = {
                         if (server.query) {
 
                             const fields = [{
-                                    name: lang.serverip,
+                                    name: lang.server_ip,
                                     value: String(c.minecraft.serverIP) + ":" + String(c.minecraft.port),
                                     inline: true
                                 },
@@ -82,17 +82,17 @@ const globalds = {
                                     inline: true
                                 },
                                 {
-                                    name: lang.mineversion,
+                                    name: lang.mine_version,
                                     value: String(server.query.version),
                                     inline: true
                                 },
                                 {
-                                    name: lang.gameid,
-                                    value: String(server.query.game_id),
+                                    name: lang.game_id,
+                                    value: String(server.query.gameid),
                                     inline: true
                                 },
                                 {
-                                    name: lang.gametype,
+                                    name: lang.game_type,
                                     value: String(server.query.gametype),
                                     inline: true
                                 },
@@ -113,7 +113,7 @@ const globalds = {
                             sendMessage({
                                 "to": data.channelID,
                                 "embed": {
-                                    "title": lang.minecraftserver + " " + String(server.query.hostname),
+                                    "title": lang.minecraft_server + " " + String(server.query.hostname),
                                     "fields": fields
                                 }
                             });
@@ -121,7 +121,7 @@ const globalds = {
                         } else {
                             sendMessage({
                                 "to": data.channelID,
-                                "message": lang.offlineserver
+                                "message": lang.offline_server
                             });
                         }
 
@@ -151,15 +151,15 @@ const globalds = {
                                 }
                             } else {
                                 fields.push({
-                                    name: lang.emptylist,
-                                    value: lang.noneplayers
+                                    name: lang.empty_list,
+                                    value: lang.no_players
                                 });
                             }
 
                             sendMessage({
                                 "to": data.channelID,
                                 "embed": {
-                                    "title": lang.minecraftserver + " " + String(server.query.hostname),
+                                    "title": lang.minecraft_server + " " + String(server.query.hostname),
                                     "fields": fields
                                 }
                             });
@@ -167,7 +167,7 @@ const globalds = {
                         } else {
                             sendMessage({
                                 "to": data.channelID,
-                                "message": lang.offlineserver
+                                "message": lang.offline_server
                             });
                         }
 
@@ -194,8 +194,8 @@ const globalds = {
                                         fields.push({
                                             name: plugins[i].name + " (" + plugins[i].version + ")",
                                             value: plugins[i].author +
-                                                "\n" + lang.dspage + " " + +plugins[i].page +
-                                                "\n" + lang.dsissues + " " + +plugins[i].issues
+                                                "\n" + lang.ds_page + " " + +plugins[i].page +
+                                                "\n" + lang.ds_issues + " " + +plugins[i].issues
                                         });
 
                                     } else {
@@ -203,7 +203,7 @@ const globalds = {
                                         fields.push({
                                             name: plugins[i].name + " (" + plugins[i].version + ")",
                                             value: plugins[i].author +
-                                                "\n" + lang.dspage + " " + plugins[i].page
+                                                "\n" + lang.ds_page + " " + plugins[i].page
                                         });
 
                                     }
@@ -211,8 +211,8 @@ const globalds = {
                                 }
                             } else {
                                 fields.push({
-                                    name: lang.emptylist,
-                                    value: lang.noneplugins
+                                    name: lang.empty_list,
+                                    value: lang.no_plugins
                                 });
                             }
 
@@ -228,7 +228,7 @@ const globalds = {
 
                             sendMessage({
                                 "to": data.channelID,
-                                "message": lang.nopermission
+                                "message": lang.no_permission
                             });
 
                         }
