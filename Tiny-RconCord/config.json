@@ -1,6 +1,7 @@
 {
 
     "lang": "en",
+    "chatLog": true,
     "server_folder": "",
 
     "webhook": {
@@ -27,6 +28,7 @@
     },
     "minecraft": {
 
+        "debug": true,
         "serverIP": "",
         "port": 25574,
 

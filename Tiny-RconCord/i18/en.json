@@ -17,6 +17,7 @@
     "warn": "Warn",
     "minecraft": "Minecraft",
     "debug": "Debug",
+    "chat": "Chat",
 
     "minecraftconnection": "Minecraft Connection",
     "connected": "Connected",

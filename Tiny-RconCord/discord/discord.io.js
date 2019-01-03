@@ -1,14 +1,15 @@
 const discordio = {
 
-    start: function(server, lang, conn, c, plugins, i18, log) {
+    start: function(server, lang, conn, c, plugins, i18, log, globalds) {
 
+        // Console INFO and get the module
         log.info(lang.loading_discord + " (Discord.IO)");
-        const Discord = require(c.discord.lib);
+        const Discord = require('discord.io');
 
         // Start Bot
         discordio.bot = new Discord.Client({ autorun: true, token: c.discord.token });
 
-        // Send Message
+        // Send Message System API
         const sendMessage = function(themessage, callback, timer) {
 
             if (typeof timer != "number") {
@@ -105,234 +106,80 @@ const discordio = {
 
         // Ready
         discordio.bot.on('ready', function(event) {
+
+            // Discord Online
             server.online.ds = true;
+
+            // Log Info
             log.info(discordio.bot.username + ' - ' + discordio.bot.id + ' - ' + lang.connected);
+
+            // Remove First
             if (server.first.discord) {
                 server.first.discord = false;
                 log.info(i18(lang.loading_complete, [Date.now() - server.first.timestart]));
+
             }
+
         });
 
         // Reconnect
         discordio.bot.on('disconnect', function(erMsg, code) {
+
+            // Discord Offline
             server.online.ds = false;
+
+            // Console Info
             log.info(i18(lang.deconnectedDS, [code, erMsg]));
+
+            // Detect Shutdown 
+
+            // Free to reconnect
             if (server.shutdown == 0) {
                 discordio.bot.connect();
-            } else if (server.shutdown == 1) {
-                process.exit(1);
-            } else if (server.shutdown == 3) {
-                discordio.bot = {};
-                discordio.bot = new Discord.Client({ autorun: true, token: c.discord.token });
-                bot_generator();
             }
+
+            // Exit App
+            else if (server.shutdown == 1) {
+                process.exit(1);
+            }
+
         });
 
         // Receive Message
         discordio.bot.on('message', function(user, userID, channelID, message, event) {
             if ((userID !== discordio.bot.id) && (!event.d.bot)) {
 
-
-                if (c.webhook.part.use && event.d.webhookID) {
-                    return // ignore webhooks if using a webhook
+                // Detect if the message is from server or private message
+                if (
+                    (channelID == c.discord.channelID.bot) &&
+                    (typeof discordio.bot.channels[channelID] != "undefined") &&
+                    (discordio.bot.channels[channelID].guild_id)
+                ) {
+                    var guildID = discordio.bot.channels[channelID].guild_id;
+                } else {
+                    var guildID = null;
                 }
 
-                if (channelID == c.discord.channelID.chat) {
-                    if (message.replace(" ", "").length > 0) {
-                        server.sendMC(event);
-                    }
-                } else if ((channelID == c.discord.channelID.commands) && message.startsWith(c.discord.prefix)) {
-                    message = message.substring(1, message.length);
-                    conn.command(message, function(err) {
-                        if (err) {
-                            log.error(err);
-                            sendMessage({ to: c.discord.channelID.commands, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
-                        }
-                    });
-                } else if (
-                    (channelID == c.discord.channelID.bot) ||
-                    (
-                        (discordio.bot.channels[channelID] == undefined) ||
-                        (discordio.bot.channels[channelID].guild_id == undefined) ||
-                        (discordio.bot.channels[channelID].guild_id != null)
-                    )
-                ) {
+                // Send Data
+                if (globalds.message({
+                        webhookID: event.d.webhookID,
+                        ownerID: discordio.bot.internals.oauth.owner.id,
+                        userID: userID,
+                        botName: discordio.bot.username,
+                        guildID: guildID,
+                        channelID: channelID,
+                        message: message,
+                        username: event.d.author.username,
+                        discriminator: event.d.author.discriminator
+                    })) {
 
-                    if (message.startsWith(c.discord.prefix + "minecraftstatus")) {
-
-                        server.forceQuery();
-
-                        server.timeout(function() {
-                            if (server.query) {
-
-                                const fields = [{
-                                        name: lang.serverip,
-                                        value: String(c.minecraft.serverIP) + ":" + String(c.minecraft.port),
-                                        inline: true
-                                    },
-                                    {
-                                        name: lang.players,
-                                        value: String(server.query.numplayers) + "/" + String(server.query.maxplayers),
-                                        inline: true
-                                    },
-                                    {
-                                        name: lang.mineversion,
-                                        value: String(server.query.version),
-                                        inline: true
-                                    },
-                                    {
-                                        name: lang.gameid,
-                                        value: String(server.query.game_id),
-                                        inline: true
-                                    },
-                                    {
-                                        name: lang.gametype,
-                                        value: String(server.query.gametype),
-                                        inline: true
-                                    },
-                                    {
-                                        name: lang.type,
-                                        value: String(server.query.type),
-                                        inline: true
-                                    }
-                                ];
-
-                                if (server.query.plugins) {
-                                    fields.push({
-                                        name: lang.plugins,
-                                        value: String(server.query.plugins)
-                                    });
-                                }
-
-                                sendMessage({
-                                    "to": channelID,
-                                    "embed": {
-                                        "title": lang.minecraftserver + " " + String(server.query.hostname),
-                                        "fields": fields
-                                    }
-                                });
-
-                            } else {
-                                sendMessage({
-                                    "to": channelID,
-                                    "message": lang.offlineserver
-                                });
-                            }
-
-                        }, 500);
-
-                    } else if (message.startsWith(c.discord.prefix + "minecraftplayers")) {
-
-                        server.forceQuery();
-
-                        server.timeout(function() {
-                            if (server.query) {
-
-                                const fields = [];
-
-                                if (server.query.player_.length > 0) {
-                                    for (var i = 0; i < server.query.player_.length; i++) {
-                                        fields.push({
-                                            name: String(i + 1),
-                                            value: String(server.query.player_[i]),
-                                            inline: true
-                                        });
-                                    }
-                                } else {
-                                    fields.push({
-                                        name: lang.emptylist,
-                                        value: lang.noneplayers
-                                    });
-                                }
-
-                                sendMessage({
-                                    "to": channelID,
-                                    "embed": {
-                                        "title": lang.minecraftserver + " " + String(server.query.hostname),
-                                        "fields": fields
-                                    }
-                                });
-
-                            } else {
-                                sendMessage({
-                                    "to": channelID,
-                                    "message": lang.offlineserver
-                                });
-                            }
-
-                        }, 500);
-
-                    } else if (message.startsWith(c.discord.prefix + "nodeplugins")) {
-
-                        server.timeout(function() {
-
-                            if (userID == discordio.bot.internals.oauth.owner.id) {
-
-                                const fields = [];
-
-                                if (plugins.length > 0) {
-                                    for (var i = 0; i < plugins.length; i++) {
-
-                                        if (plugins.issues) {
-
-                                            fields.push({
-                                                name: plugins[i].name + " (" + plugins[i].version + ")",
-                                                value: plugins[i].author +
-                                                    "\n" + lang.dspage + " " + +plugins[i].page +
-                                                    "\n" + lang.dsissues + " " + +plugins[i].issues
-                                            });
-
-                                        } else {
-
-                                            fields.push({
-                                                name: plugins[i].name + " (" + plugins[i].version + ")",
-                                                value: plugins[i].author +
-                                                    "\n" + lang.dspage + " " + plugins[i].page
-                                            });
-
-                                        }
-
-                                    }
-                                } else {
-                                    fields.push({
-                                        name: lang.emptylist,
-                                        value: lang.noneplugins
-                                    });
-                                }
-
-                                sendMessage({
-                                    "to": channelID,
-                                    "embed": {
-                                        "title": lang.plugins + " - " + discordio.bot.username,
-                                        "fields": fields
-                                    }
-                                });
-
-                            } else {
-
-                                sendMessage({
-                                    "to": channelID,
-                                    "message": lang.nopermission
-                                });
-
-                            }
-
-                        }, 500);
-
-                    } else {
-                        for (var i = 0; i < plugins.length; i++) {
-                            if (typeof plugins[i].mc == "function") {
-                                plugins[i].ds(user, userID, channelID, message, event);
-                            }
-                        }
-                    }
-
-                } else {
+                    // If the message is a normal message... Send the message data to Plugins
                     for (var i = 0; i < plugins.length; i++) {
                         if (typeof plugins[i].mc == "function") {
                             plugins[i].ds(user, userID, channelID, message, event);
                         }
                     }
+
                 }
 
             }

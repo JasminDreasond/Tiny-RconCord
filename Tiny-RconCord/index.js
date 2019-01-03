@@ -1,10 +1,18 @@
 module.exports = function(pgdata) {
 
+    // FS
+    const fs = require('fs');
+
+    if (!fs.existsSync(__dirname + '/logs')) {
+        fs.mkdirSync(__dirname + '/logs');
+    }
+
     //const mineflayer = require('mineflayer');
     const moment = require('moment');
     const log = require('./lib/log.js');
     const Rcon = require('./lib/rcon.js');
     const c = require('./config.json');
+    const globalds = require('./discord/global.js');
 
     const lang = require('./i18/' + c.lang + '.json');
     moment.locale(c.lang);
@@ -25,21 +33,21 @@ module.exports = function(pgdata) {
         error: lang['error'],
         info: lang['info'],
         minecraft: lang['minecraft'],
-        debug: lang['debug']
+        debug: lang['debug'],
+        chat: lang['chat']
     });
 
     const emojiStrip = require('emoji-strip');
-    const fs = require('fs');
 
     if (c.server_folder) {
         var Tail = require('tail').Tail;
     }
 
-    function makeMinecraftTellraw(message) {
+    function makeMinecraftTellraw(data) {
 
-        const username = emojiStrip(message.d.author.username);
-        const discriminator = message.d.author.discriminator;
-        let text = emojiStrip(message.d.content);
+        const username = emojiStrip(data.username);
+        const discriminator = data.discriminator;
+        let text = emojiStrip(data.message);
 
         text = text.replace(/[ÀÁÂÃÄÅ]/, "A");
         text = text.replace(/[àáâãäå]/, "a");
@@ -107,13 +115,31 @@ module.exports = function(pgdata) {
         },
 
         //Send Minecraft
-        sendMC: function(message) {
-            conn.command('tellraw @a ' + makeMinecraftTellraw(message), function(err) {
+        sendMC: function(message, data) {
+
+            if (data) {
+                if (data.type == "user") {
+                    var cmd = makeMinecraftTellraw({
+                        message: message,
+                        username: data.username,
+                        discriminator: data.discriminator
+                    });
+                } else {
+                    var cmd = message;
+                }
+            } else {
+                var cmd = message;
+            }
+
+            conn.command('tellraw @a ' + cmd, function(err) {
                 if (err) {
                     log.error(err);
-                    server.ds.sendMessage({ to: c.discord.channelID.commands, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                    if (c.discord.channelID.rcon) {
+                        server.ds.sendMessage({ to: c.discord.channelID.rcon, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                    }
                 }
             });
+
         }
 
     };
@@ -157,7 +183,13 @@ module.exports = function(pgdata) {
                                 }
                             }
 
-                            server.ds.sendMessage({ to: c.discord.channelID.chat, message: makeDiscordMessage(userchat[0], userchat[1]) });
+                            if (c.chatLog) {
+                                log.chat(userchat[0], userchat[1]);
+                            }
+
+                            if (c.discord.channelID.chat) {
+                                server.ds.sendMessage({ to: c.discord.channelID.chat, message: makeDiscordMessage(userchat[0], userchat[1]) });
+                            }
 
                         }
 
@@ -170,7 +202,13 @@ module.exports = function(pgdata) {
                                 }
                             }
 
-                            log.minecraft(data);
+                            if (c.minecraft.debug) {
+                                log.minecraft(data);
+                            }
+
+                            if (c.discord.channelID.log) {
+
+                            }
 
                         }
 
@@ -208,110 +246,120 @@ module.exports = function(pgdata) {
 
         },
 
+        pluginLoader: async function(pluginName, pluginFolder) {
+
+            plugins.push(require(pluginFolder + pluginName));
+            var i = plugins.length - 1;
+            var tinyfolder = __dirname + "/plugins/" + pluginName.substring(0, pluginName.length - 3)
+
+            // Load Language
+            if ((fs.existsSync(tinyfolder + "/i18")) && (fs.existsSync(tinyfolder + "/i18/en.json"))) {
+
+                if ((c.lang != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.lang + ".json"))) {
+
+                    var tinylang = require(tinyfolder + "/i18/" + c.lang + ".json");
+                    for (items in tinylang) {
+                        if (typeof tinylang[items] == "string") {
+                            lang[items] = tinylang[items];
+                        }
+                    }
+
+                    var tinylang = require(tinyfolder + "/i18/en.json");
+                    for (items in tinylang) {
+                        if (typeof lang[items] != "string") {
+                            lang[items] = tinylang[items];
+                        }
+                    }
+
+                } else {
+                    var tinylang = require(tinyfolder + "/i18/en.json");
+                    for (items in tinylang) {
+                        if (typeof tinylang[items] == "string") {
+                            lang[items] = tinylang[items];
+                        }
+                    }
+                }
+
+            }
+
+            // Load System
+            if (
+                (typeof plugins[i].name == "string") &&
+                (typeof plugins[i].author == "string") &&
+                (typeof plugins[i].version == "string") &&
+                (typeof plugins[i].start == "function")
+            ) {
+
+                await plugins[i].start({
+                    moment: moment,
+                    lang: lang,
+                    log: log,
+                    connCommand: conn.command,
+                    i18: i18,
+                    c: c,
+                    server: {
+
+                        online: function() { return server.online; },
+                        first: function() { return server.first; },
+                        shutdown: function() { return server.shutdown; },
+                        query: function() { return server.query; },
+
+                        forceQuery: server.forceQuery,
+                        timeout: server.timeout,
+                        sendMC: server.sendMC
+
+                    },
+                    getDS: function() { return server.ds.getDS(); },
+                    folder: tinyfolder
+                });
+                log.info(i18(lang.loadedplugin, [plugins[i].name]));
+
+            }
+
+            // Fail Load
+            else {
+
+                var failmotive = '';
+                if (typeof plugins[i].name != "string") {
+                    failmotive += ' name';
+                }
+                if (typeof plugins[i].author != "string") {
+                    failmotive += ' author';
+                }
+                if (typeof plugins[i].version != "string") {
+                    failmotive += ' version';
+                }
+                if (typeof plugins[i].start != "fuction") {
+                    failmotive += ' start';
+                }
+                log.warn(i18(lang.failedplugin, [pluginName, failmotive]));
+
+            }
+
+        },
+
         // Loading Plugins
         plugins: async function() {
 
             const pluginlist = fs.readdirSync(__dirname + "/plugins", { withFileTypes: true });
 
-            if (pluginlist.length > 0) {
+            if ((pluginlist.length > 0) || ((c.npmPlugins) && (c.npmPlugins.length > 0))) {
 
                 log.info(lang.loadingplugins);
 
-                for (var i = 0; i < pluginlist.length; i++) {
-                    if (pluginlist[i].endsWith(".js")) {
-
-                        plugins.push(require('./plugins/' + pluginlist[i]));
-                        var tinyfolder = __dirname + "/plugins/" + pluginlist[i].substring(0, pluginlist[i].length - 3)
-
-                        // Load Language
-                        if ((fs.existsSync(tinyfolder + "/i18")) && (fs.existsSync(tinyfolder + "/i18/en.json"))) {
-
-                            if ((c.lang != "en") && (fs.existsSync(tinyfolder + "/i18/" + c.lang + ".json"))) {
-
-                                var tinylang = require(tinyfolder + "/i18/" + c.lang + ".json");
-                                for (items in tinylang) {
-                                    if (typeof tinylang[items] == "string") {
-                                        lang[items] = tinylang[items];
-                                    }
-                                }
-
-                                var tinylang = require(tinyfolder + "/i18/en.json");
-                                for (items in tinylang) {
-                                    if (typeof lang[items] != "string") {
-                                        lang[items] = tinylang[items];
-                                    }
-                                }
-
-                            } else {
-                                var tinylang = require(tinyfolder + "/i18/en.json");
-                                for (items in tinylang) {
-                                    if (typeof tinylang[items] == "string") {
-                                        lang[items] = tinylang[items];
-                                    }
-                                }
-                            }
-
-                        }
-
-                        // Load System
-                        if (
-                            (typeof plugins[i].name == "string") &&
-                            (typeof plugins[i].author == "string") &&
-                            (typeof plugins[i].version == "string") &&
-                            (typeof plugins[i].start == "function")
-                        ) {
-
-                            await plugins[i].start({
-                                moment: moment,
-                                lang: lang,
-                                log: log,
-                                connCommand: conn.command,
-                                i18: i18,
-                                c: c,
-                                server: {
-
-                                    online: function() { return server.online; },
-                                    first: function() { return server.first; },
-                                    shutdown: function() { return server.shutdown; },
-                                    query: function() { return server.query; },
-
-                                    forceQuery: server.forceQuery,
-                                    timeout: server.timeout,
-                                    sendMC: server.sendMC
-
-                                },
-                                getDS: function() { return server.ds.getDS(); },
-                                folder: tinyfolder
-                            });
-                            log.info(i18(lang.loadedplugin, [plugins[i].name]));
-
-                        }
-
-                        // Fail Load
-                        else {
-
-                            var failmotive = '';
-                            if (typeof plugins[i].name != "string") {
-                                failmotive += ' name';
-                            }
-                            if (typeof plugins[i].author != "string") {
-                                failmotive += ' author';
-                            }
-                            if (typeof plugins[i].version != "string") {
-                                failmotive += ' version';
-                            }
-                            if (typeof plugins[i].start != "fuction") {
-                                failmotive += ' start';
-                            }
-                            log.warn(i18(lang.failedplugin, [pluginlist[i], failmotive]));
-
-                        }
-
+                if ((c.npmPlugins) && (c.npmPlugins.length > 0)) {
+                    for (var i = 0; i < c.npmPlugins.length; i++) {
+                        await startServer.pluginLoader(c.npmPlugins[i], "");
                     }
                 }
 
-                delete tinyfolder;
-                delete tinylang;
+                if (pluginlist.length > 0) {
+                    for (var i = 0; i < pluginlist.length; i++) {
+                        if (pluginlist[i].endsWith(".js")) {
+                            await startServer.pluginLoader(pluginlist[i], "./plugins/");
+                        }
+                    }
+                }
 
                 log.info(lang.loadingpluginscomplete);
 
@@ -339,7 +387,7 @@ module.exports = function(pgdata) {
                         }
                     }
 
-                    server.ds.sendMessage({ to: c.discord.channelID.commands, message: response });
+                    server.ds.sendMessage({ to: c.discord.channelID.rcon, message: response });
 
                 }
             },
@@ -364,7 +412,8 @@ module.exports = function(pgdata) {
                 server.first.rcon = false;
 
                 await startServer.plugins();
-                server.ds.start(server, lang, conn, c, plugins, i18, log);
+                globalds.start(c, lang, conn, server, plugins, log);
+                server.ds.start(server, lang, conn, c, plugins, i18, log, globalds);
                 startServer.logAPI();
                 startServer.query();
 

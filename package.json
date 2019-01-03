@@ -10,6 +10,7 @@
         "emoji-strip": "^1.0.1",
         "mcquery": "^0.2.7",
         "moment": "^2.23.0",
+        "simple-node-logger": "^18.12.21",
         "tail": "^2.0.2"
     },
     "scripts": {
