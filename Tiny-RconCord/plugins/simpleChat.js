@@ -1,9 +1,13 @@
-/* 
-
-    Simple Chat Plugin
-    Made by Jasmin Dreasond
-
-*/
+/***************************************************************************
+ *
+ *  Tiny-RconCord
+ *  Author: Jasmin Dreasond
+ *  Copyright: © 2019 Jasmin Dreasond
+ *
+ *  Github: https://github.com/JasminDreasond
+ *  License: MIT
+ *
+ ***************************************************************************/
 
 const chat = {
     name: "Mine Discord Chat",
