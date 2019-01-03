@@ -150,16 +150,6 @@ module.exports = function(pgdata) {
 
                         // Log Lines
 
-                        // Prepare Regex
-                        if (c.regex) {
-
-                            if (c.regex.advancement_mc) { var useradvanc = data.match(new RegExp(c.regex.advancement_mc)); }
-                            if (c.regex.preparing_spawn_mc) { var prespawn = data.match(new RegExp(c.regex.preparing_spawn_mc)); }
-                            if (c.regex.left_mc) { var leftgame = data.match(new RegExp(c.regex.left_mc)); }
-                            if (c.regex.join_mc) { var joingame = data.match(new RegExp(c.regex.join_mc)); }
-
-                        }
-
                         for (var i = 0; i < plugins.length; i++) {
                             if (typeof plugins[i].mc_log == "function") {
                                 data = plugins[i].mc_log(data);

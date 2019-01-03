@@ -1,8 +1,8 @@
 {
 
     "regex": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
-    "everymine": "529850331904081950",
-    "channelID": "529507370301128715",
+    "everymine": "",
+    "channelID": "",
 
     "template": {
 
