@@ -31,6 +31,7 @@
     "type": "Tipo",
     "plugins": "Plugins",
     "unknown": "Desconhecido",
+    "bot": "Bot",
 
     "dspage": "Página:",
     "dsissues": "Problemas:",

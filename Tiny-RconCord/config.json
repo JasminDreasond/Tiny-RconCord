@@ -44,7 +44,9 @@
             "port": 25511
         },
 
-        "tellraw_template": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%> %message%\"}]"
+        "avatar_url": "https://minotar.net/helm/%username%/256.png",
+        "bot_discord_template": "[%text%]",
+        "tellraw_template": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%>%bot% %message%\"}]"
 
     },
 

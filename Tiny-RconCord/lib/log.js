@@ -30,7 +30,7 @@ const systemcons = {
             if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
         }
         console.log(colors.cyan(titles.info), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.info(systemcons.dateGen(false), arguments[0], arguments[1], arguments[2], arguments[3]);
+        log.info(systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
     },
 
     warn: function() {
@@ -38,7 +38,7 @@ const systemcons = {
             if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
         }
         console.warn(colors.yellow(titles.warn), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.warn(systemcons.dateGen(false), arguments[0], arguments[1], arguments[2], arguments[3]);
+        log.warn(systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
     },
 
     error: function() {
@@ -46,7 +46,7 @@ const systemcons = {
             if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
         }
         console.error(colors.red(titles.error), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.error(systemcons.dateGen(false), arguments[0], arguments[1], arguments[2], arguments[3]);
+        log.error(systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
     },
 
     debug: function() {
@@ -54,7 +54,7 @@ const systemcons = {
             if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
         }
         console.log(colors.magenta(titles.debug), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.info(titles.debug, systemcons.dateGen(false), arguments[0], arguments[1], arguments[2], arguments[3]);
+        log.info(titles.debug + " " + systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
     },
 
     chat: function() {
@@ -62,7 +62,7 @@ const systemcons = {
             if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
         }
         console.log(colors.green(titles.chat), systemcons.dateGen(), arguments[0] + ":", arguments[1], arguments[2], arguments[3]);
-        log.info(titles.chat, systemcons.dateGen(false), arguments[0] + ":", arguments[1], arguments[2], arguments[3]);
+        log.info(titles.chat + " " + systemcons.dateGen(false) + " " + arguments[0] + ": ", arguments[1], arguments[2], arguments[3]);
     },
 
     minecraft: function() {
@@ -70,7 +70,7 @@ const systemcons = {
             if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
         }
         console.log(colors.green(titles.minecraft), colors.gray("[" + moment().format("MM/DD/YYYY") + "]"), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.info(titles.minecraft, "[" + moment().format("MM/DD/YYYY") + "]", arguments[0], arguments[1], arguments[2], arguments[3]);
+        log.info(titles.minecraft + " [" + moment().format("MM/DD/YYYY") + "] " + arguments[0], arguments[1], arguments[2], arguments[3]);
     }
 
 };

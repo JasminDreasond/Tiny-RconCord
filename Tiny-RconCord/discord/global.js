@@ -4,23 +4,50 @@ const globalds = {
 
         globalds.message = function(data) {
 
-            if (c.webhook.part.use && data.webhookID) {
+            if (c.webhook.use && data.webhookID) {
                 return false; // ignore webhooks if using a webhook
             }
 
+            // Minecraft Chat Message
             if (data.channelID == c.discord.channelID.chat) {
+
                 if (data.message.replace(" ", "").length > 0) {
-                    if (c.chatLog) {
-                        log.chat(data.username + "#" + data.discriminator, data.message);
+
+                    if (!data.isBot) {
+
+                        if (c.chatLog) {
+                            log.chat(data.username + "#" + data.discriminator, data.message);
+                        }
+                        server.sendMC(data.message, {
+                            type: "user",
+                            username: data.username,
+                            discriminator: data.discriminator,
+                            bot: ""
+                        });
+
+                    } else {
+
+                        if (c.chatLog) {
+                            log.chat(data.username + "#" + data.discriminator + " (" + lang.bot.toUpperCase() + ")", data.message);
+                        }
+                        server.sendMC(data.message, {
+                            type: "user",
+                            username: data.username,
+                            discriminator: data.discriminator,
+                            bot: lang.bot.toUpperCase()
+                        });
+
                     }
-                    server.sendMC(data.message, {
-                        type: "user",
-                        username: data.username,
-                        discriminator: data.discriminator
-                    });
+
                 }
+
                 return false;
-            } else if ((data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
+
+            }
+
+            // RCON Message
+            else if ((data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
+
                 data.message = data.message.substring(1, data.message.length);
                 conn.command(data.message, function(err) {
                     if (err) {
@@ -28,9 +55,15 @@ const globalds = {
                         sendMessage({ to: c.discord.channelID.rcon, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
                     }
                 });
-                return false;
-            } else if ((data.channelID == c.discord.channelID.bot) || (!data.guildID)) {
 
+                return false;
+
+            }
+
+            // Chat Bot Message
+            else if ((data.channelID == c.discord.channelID.bot) || (!data.guildID)) {
+
+                // Server Status
                 if (data.message.startsWith(c.discord.prefix + "minecraftstatus")) {
 
                     server.forceQuery();
@@ -94,7 +127,12 @@ const globalds = {
 
                     }, 500);
 
-                } else if (data.message.startsWith(c.discord.prefix + "minecraftplayers")) {
+                    return false;
+
+                }
+
+                // Server Players
+                else if (data.message.startsWith(c.discord.prefix + "minecraftplayers")) {
 
                     server.forceQuery();
 
@@ -135,7 +173,12 @@ const globalds = {
 
                     }, 500);
 
-                } else if (data.message.startsWith(c.discord.prefix + "nodeplugins")) {
+                    return false;
+
+                }
+
+                // Node Plugins
+                else if (data.message.startsWith(c.discord.prefix + "nodeplugins")) {
 
                     server.timeout(function() {
 
@@ -192,11 +235,19 @@ const globalds = {
 
                     }, 500);
 
-                } else {
+                    return false;
+
+                }
+
+                // Nothing
+                else {
                     return true;
                 }
 
-            } else {
+            }
+
+            // Nothing
+            else {
                 return true;
             }
 

@@ -13,6 +13,9 @@ module.exports = function(pgdata) {
     const Rcon = require('./lib/rcon.js');
     const c = require('./config.json');
     const globalds = require('./discord/global.js');
+    const webhook = require("webhook-discord");
+    const Hook = new webhook.Webhook(c.webhook.url);
+    const mcauth = require('./lib/mcauth.js');
 
     const lang = require('./i18/' + c.lang + '.json');
     moment.locale(c.lang);
@@ -49,6 +52,12 @@ module.exports = function(pgdata) {
         const discriminator = data.discriminator;
         let text = emojiStrip(data.message);
 
+        let bot = '';
+
+        if (data.bot != "") {
+            bot = " " + c.minecraft.bot_discord_template.replace('%text%', data.bot);
+        }
+
         text = text.replace(/[ÀÁÂÃÄÅ]/, "A");
         text = text.replace(/[àáâãäå]/, "a");
         text = text.replace(/[ÈÉÊË]/, "E");
@@ -63,6 +72,7 @@ module.exports = function(pgdata) {
         return c.minecraft.tellraw_template
             .replace('%username%', username)
             .replace('%discriminator%', discriminator)
+            .replace('%bot%', bot)
             .replace('%message%', text);
 
     };
@@ -122,7 +132,8 @@ module.exports = function(pgdata) {
                     var cmd = makeMinecraftTellraw({
                         message: message,
                         username: data.username,
-                        discriminator: data.discriminator
+                        discriminator: data.discriminator,
+                        bot: data.bot
                     });
                 } else {
                     var cmd = message;
@@ -187,7 +198,27 @@ module.exports = function(pgdata) {
                                 log.chat(userchat[0], userchat[1]);
                             }
 
-                            if (c.discord.channelID.chat) {
+                            if (c.webhook.use) {
+
+                                //mcauth.getMojangProfile(userchat[0], function(profile) {
+
+                                const tinymessage = new webhook.MessageBuilder()
+                                    .setName(userchat[0])
+                                    .setText(userchat[1])
+                                    //.setImage("Image url")
+                                ;
+
+                                tinymessage.data.avatar_url = c.minecraft.avatar_url.replace("%username%", userchat[0]);
+
+                                delete tinymessage.data.attachments;
+
+                                Hook.send(tinymessage);
+
+                                //console.log(profile);
+
+                                //});
+
+                            } else if (c.discord.channelID.chat) {
                                 server.ds.sendMessage({ to: c.discord.channelID.chat, message: makeDiscordMessage(userchat[0], userchat[1]) });
                             }
 

@@ -162,7 +162,8 @@ const discordio = {
 
                 // Send Data
                 if (globalds.message({
-                        webhookID: event.d.webhookID,
+                        isBot: event.d.author.bot,
+                        webhookID: event.d.webhook_id,
                         ownerID: discordio.bot.internals.oauth.owner.id,
                         userID: userID,
                         botName: discordio.bot.username,
