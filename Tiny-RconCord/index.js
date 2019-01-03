@@ -57,6 +57,8 @@ module.exports = function(pgdata) {
 
     }
 
+    log.info(i18(lang.loading_app, [tinypack.name, tinypack.version, tinypack.author]));
+
     // Server
     const server = {
 
@@ -284,7 +286,7 @@ module.exports = function(pgdata) {
                     getDS: function() { return server.ds.getDS(); },
                     folder: tinyfolder
                 });
-                log.info(i18(lang.loaded_plugin, [plugins[i].name]));
+                log.info(i18(lang.loaded_plugin, [plugins[i].name, plugins[i].version]));
 
             }
 

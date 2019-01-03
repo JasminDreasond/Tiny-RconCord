@@ -12,7 +12,8 @@
     "no_permission": "You do not have permission to run this command!",
     "no_english": "The {0} plugin needs to have an English language!",
 
-    "loaded_plugin": "The plugin {0} is loaded",
+    "loading_app": "The application {0} ({1}) made by {2} is being initialized...",
+    "loaded_plugin": "The plugin {0} ({1}) is loaded",
     "failed_plugin": "The values from the plugin {0} is incorrect:{1}",
     "no_plugins": "No plugins loaded into the system",
 
@@ -57,8 +58,6 @@
     "madeby": "Made by: {0}",
     "help_minecraftstatus": "View information about the Minecraft server",
     "help_minecraftplayers": "View the player list",
-    "help_nodeplugins": "View the list of plugins installed on the rcon node",
-
-    "loading_world": "Loading the world's spawn: {0}"
+    "help_nodeplugins": "View the list of plugins installed on the rcon node"
 
 }
