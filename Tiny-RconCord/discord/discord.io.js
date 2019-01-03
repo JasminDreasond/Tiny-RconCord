@@ -1,3 +1,14 @@
+/***************************************************************************
+ *
+ *  Tiny-RconCord
+ *  Author: Jasmin Dreasond
+ *  Copyright: © 2019 Jasmin Dreasond
+ *
+ *  Github: https://github.com/JasminDreasond
+ *  License: MIT
+ *
+ ***************************************************************************/
+
 const discordio = {
 
     start: function(server, lang, conn, c, plugins, i18, log, globalds, json_stringify) {
