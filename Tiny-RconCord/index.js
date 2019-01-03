@@ -15,7 +15,6 @@ module.exports = function(pgdata) {
     const c = require('./config.json');
     const globalds = require('./discord/global.js');
     const webhook = require("./discord/webhook.js");
-    const mcauth = require('./lib/mcauth.js');
 
     const lang = require('./i18/' + c.lang + '.json');
     moment.locale(c.lang);
@@ -158,6 +157,47 @@ module.exports = function(pgdata) {
 
 
 
+    // Log Control
+    const log_control = {
+
+        // Data
+        timeout: 0,
+        storage: "",
+
+        // Main
+        send: function(data) {
+
+            if (typeof data == "string") {
+
+                log_control.timeout++;
+                setTimeout(function() {
+                    log_control.timeout--;
+                    log_control.send(false);
+                }, c.discord.log_delay);
+
+                if (log_control.timeout > 0) {
+                    log_control.storage += "\n" + data;
+                } else {
+                    log_control.storage = data;
+                }
+
+            }
+
+            if ((log_control.timeout < 1) || (log_control.timeout > 15)) {
+
+                if (log_control.storage != "") {
+                    server.ds.sendMessage({ to: c.discord.channelID.log, message: log_control.storage });
+                    log_control.storage = "";
+                    log_control.timeout = 0;
+                } else if (typeof data == "string") {
+                    server.ds.sendMessage({ to: c.discord.channelID.log, message: data });
+                }
+
+            }
+
+        }
+
+    };
 
 
 
@@ -176,9 +216,15 @@ module.exports = function(pgdata) {
 
                         // Log Lines
 
-                        // is Chat?
+                        // Prepare Regex
                         let userchat = data.match(new RegExp(c.regex.chat_mc));
-                        if (userchat) {
+                        let useradvanc = data.match(new RegExp(c.regex.advancement_mc));
+                        let prespawn = data.match(new RegExp(c.regex.preparing_spawn_mc));
+                        let leftgame = data.match(new RegExp(c.regex.left_mc));
+                        let joingame = data.match(new RegExp(c.regex.join_mc));
+
+                        // is Chat?
+                        if ((typeof c.regex.chat_mc == "string") && (userchat)) {
 
                             // Model Chat
                             userchat = [userchat[1], userchat[2]];
@@ -213,12 +259,40 @@ module.exports = function(pgdata) {
 
                         }
 
+                        // is Advancement?
+                        else if ((typeof c.regex.advancement_mc == "string") && (useradvanc)) {
+
+                            console.log(useradvanc[1], useradvanc[2]);
+
+                        }
+
+                        // is Player lefting?
+                        else if ((typeof c.regex.left_mc == "string") && (leftgame)) {
+
+                            console.log(leftgame[1]);
+
+                        }
+
+                        // is New Player?
+                        else if ((typeof c.regex.join_mc == "string") && (joingame)) {
+
+                            console.log(joingame[1]);
+
+                        }
+
+                        // is Spawn Loading?
+                        else if ((typeof c.regex.preparing_spawn_mc == "string") && (prespawn)) {
+                            if (c.minecraft.debug) {
+                                log.minecraft(i18(lang.loading_world, [prespawn[1]]));
+                            }
+                        }
+
                         // Nope
                         else {
 
                             for (var i = 0; i < plugins.length; i++) {
-                                if (typeof plugins[i].mslog == "function") {
-                                    data = plugins[i].mslog(data);
+                                if (typeof plugins[i].mc_log == "function") {
+                                    data = plugins[i].mc_log(data);
                                 }
                             }
 
@@ -227,7 +301,7 @@ module.exports = function(pgdata) {
                             }
 
                             if (c.discord.channelID.log) {
-
+                                log_control.send(data);
                             }
 
                         }
@@ -250,7 +324,7 @@ module.exports = function(pgdata) {
             const mcquery = require('./lib/mcquery.js');
 
             // Query
-            server.forceQuery = mcquery(c.minecraft.rcon.ip, c.minecraft.query.port, 120000, function(err, stat) {
+            server.forceQuery = mcquery(c.minecraft.rcon.ip, c.minecraft.query.port, c.minecraft.query.delay, function(err, stat) {
                 if (err) {
                     server.query = null;
                     log.error(err);

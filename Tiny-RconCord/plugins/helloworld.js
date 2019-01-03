@@ -39,7 +39,7 @@ const helloworld = {
         };
 
         // Minecraft Log
-        helloworld.mslog = function(log) {
+        helloworld.mc_log = function(log) {
 
             return log;
 

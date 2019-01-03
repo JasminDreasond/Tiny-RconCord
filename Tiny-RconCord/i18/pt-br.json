@@ -55,6 +55,8 @@
     "help": "Ajuda",
     "help_minecraftstatus": "Ver informação sobre o servidor do Minecraft",
     "help_minecraftplayers": "Ver a lista de jogadores",
-    "help_nodeplugins": "Ver a lista de plugins instalados no rcon node"
+    "help_nodeplugins": "Ver a lista de plugins instalados no rcon node",
+
+    "loading_world": "Carregando o spawn do mundo: {0}"
 
 }

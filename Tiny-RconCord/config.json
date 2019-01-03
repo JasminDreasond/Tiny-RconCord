@@ -12,6 +12,7 @@
 
     "discord": {
 
+        "log_delay": 5000,
         "debug": false,
         "prefix": "/",
         "lib": "discord.io",
@@ -42,7 +43,8 @@
         },
 
         "query": {
-            "port": 25511
+            "port": 25511,
+            "delay": 120000
         },
 
         "avatar_url": "https://minotar.net/helm/%username%/256.png",
