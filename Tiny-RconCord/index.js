@@ -300,6 +300,7 @@ module.exports = function(pgdata) {
 
             // Load System
             if (
+                (typeof plugins[i].index == "number") &&
                 (typeof plugins[i].name == "string") &&
                 (typeof plugins[i].description == "string") &&
                 (typeof plugins[i].author == "string") &&
@@ -342,6 +343,9 @@ module.exports = function(pgdata) {
             else {
 
                 var failmotive = '';
+                if (typeof plugins[i].index != "number") {
+                    failmotive += ' index';
+                }
                 if (typeof plugins[i].name != "string") {
                     failmotive += ' name';
                 }
@@ -358,6 +362,7 @@ module.exports = function(pgdata) {
                     failmotive += ' start';
                 }
                 log.warn(i18(lang.failed_plugin, [pluginName, failmotive]));
+                plugins.splice(i, 1);
 
             }
 
@@ -385,6 +390,11 @@ module.exports = function(pgdata) {
                         }
                     }
                 }
+
+                // Sort Array
+                plugins.sort(function sortfunction(a, b) {
+                    return (a.index - b.index)
+                });
 
                 log.info(lang.loading_plugins_complete);
 
