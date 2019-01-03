@@ -145,6 +145,7 @@ module.exports = function(pgdata) {
             if (c.server_folder) {
 
                 if (fs.existsSync(c.server_folder + '/logs/latest.log')) {
+
                     const tail = new Tail(c.server_folder + '/logs/latest.log');
                     tail.on("line", function(data) {
 
@@ -158,53 +159,22 @@ module.exports = function(pgdata) {
 
                         if ((typeof data == "string") && (data != "")) {
 
-                            // is Advancement?
-                            if ((typeof c.regex.advancement_mc == "string") && (useradvanc)) {
-
-                                console.log(useradvanc[1], useradvanc[2]);
-
+                            if (c.minecraft.debug) {
+                                log.minecraft(data);
                             }
 
-                            // is Player lefting?
-                            else if ((typeof c.regex.left_mc == "string") && (leftgame)) {
-
-                                console.log(leftgame[1]);
-
-                            }
-
-                            // is New Player?
-                            else if ((typeof c.regex.join_mc == "string") && (joingame)) {
-
-                                console.log(joingame[1]);
-
-                            }
-
-                            // is Spawn Loading?
-                            else if ((typeof c.regex.preparing_spawn_mc == "string") && (prespawn)) {
-                                if (c.minecraft.debug) {
-                                    log.minecraft(i18(lang.loading_world, [prespawn[1]]));
-                                }
-                            }
-
-                            // Nope
-                            else {
-
-                                if (c.minecraft.debug) {
-                                    log.minecraft(data);
-                                }
-
-                                if (c.discord.channelID.log) {
-                                    log_control.send(data);
-                                }
-
+                            if (c.discord.channelID.log) {
+                                log_control.send(data);
                             }
 
                         }
 
                     });
+
                     tail.on("error", function(error) {
                         log.error(error);
                     });
+
                 } else {
                     log.warn(lang.no_game_log);
                 }
