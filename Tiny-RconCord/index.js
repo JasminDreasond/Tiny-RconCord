@@ -8,6 +8,7 @@ module.exports = function(pgdata) {
     }
 
     //const mineflayer = require('mineflayer');
+    const json_stringify = require("json-beautify");
     const moment = require('moment');
     const log = require('./lib/log.js');
     const Rcon = require('./lib/rcon.js');
@@ -36,7 +37,8 @@ module.exports = function(pgdata) {
         info: lang['info'],
         minecraft: lang['minecraft'],
         debug: lang['debug'],
-        chat: lang['chat']
+        chat: lang['chat'],
+        discord: lang['discord']
     });
 
     const emojiStrip = require('emoji-strip');
@@ -253,13 +255,14 @@ module.exports = function(pgdata) {
                     server.query = null;
                     log.error(err);
                     server.timeout(function() {
-                        server.ds.securePresence(lang.offline_server, new Date(), 120000);
+                        server.ds.securePresence(lang.offline + " | " + i18(lang.help_presence, [c.discord.prefix + "help"]), new Date(), 120000);
+                    }, 500);
+                } else {
+                    server.query = stat;
+                    server.timeout(function() {
+                        server.ds.securePresence(lang.players + " " + String(server.query.numplayers) + "/" + String(server.query.maxplayers) + " | " + i18(lang.help_presence, [c.discord.prefix + "help"]), new Date(), 120000);
                     }, 500);
                 }
-                server.query = stat;
-                server.timeout(function() {
-                    server.ds.securePresence(lang.players + " " + String(server.query.numplayers) + "/" + String(server.query.maxplayers), new Date(), 120000);
-                }, 500);
             });
 
         },
@@ -309,6 +312,7 @@ module.exports = function(pgdata) {
             ) {
 
                 await plugins[i].start({
+                    json_stringify: json_stringify,
                     moment: moment,
                     lang: lang,
                     log: log,
@@ -437,7 +441,7 @@ module.exports = function(pgdata) {
 
                     await startServer.plugins();
                     globalds.start(c, lang, conn, server, plugins, log);
-                    server.ds.start(server, lang, conn, c, plugins, i18, log, globalds);
+                    server.ds.start(server, lang, conn, c, plugins, i18, log, globalds, json_stringify);
                     startServer.logAPI();
                     startServer.query();
 

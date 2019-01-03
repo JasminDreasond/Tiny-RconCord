@@ -21,6 +21,7 @@
     "minecraft": "Minecraft",
     "debug": "Debug",
     "chat": "Chat",
+    "discord": "Discord",
 
     "minecraft_connection": "Minecraft Connection",
     "connected": "Connected",
@@ -35,6 +36,7 @@
     "plugins": "Plugins",
     "unknown": "Unknown",
     "bot": "Bot",
+    "offline": "Offline",
 
     "ds_page": "Page:",
     "ds_issues": "Issues:",
@@ -46,6 +48,13 @@
     "no_players": "No player is playing. Please join game now :c",
 
     "no_game_folder": "The location of your server folder is not set. Some features have been disabled",
-    "no_game_log": "The server log file was not detected. Some features have been disabled."
+    "no_game_log": "The server log file was not detected. Some features have been disabled.",
+
+    "help_presence": "Say {0} for help",
+
+    "help": "Help",
+    "help_minecraftstatus": "View information about the Minecraft server",
+    "help_minecraftplayers": "View the player list",
+    "help_nodeplugins": "View the list of plugins installed on the rcon node"
 
 }

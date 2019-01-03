@@ -21,6 +21,7 @@
     "minecraft": "Minecraft",
     "debug": "Debug",
     "chat": "Chat",
+    "discord": "Discord",
 
     "minecraft_connection": "Conexão do Minecraft",
     "connected": "Conectado",
@@ -35,6 +36,7 @@
     "plugins": "Plugins",
     "unknown": "Desconhecido",
     "bot": "Bot",
+    "offline": "Offline",
 
     "ds_page": "Página:",
     "ds_issues": "Problemas:",
@@ -46,6 +48,13 @@
     "no_players": "Nenhum jogador está jogando. Que peninha, vem entrar :c",
 
     "no_game_folder": "A localização da pasta do seu servidor não está definida. Alguns recursos foram desabilitados",
-    "no_game_log": "O arquivo de log do servidor não foi detectado. Alguns recursos foram desabilitados"
+    "no_game_log": "O arquivo de log do servidor não foi detectado. Alguns recursos foram desabilitados",
+
+    "help_presence": "Diga {0} para obter ajuda",
+
+    "help": "Ajuda",
+    "help_minecraftstatus": "Ver informação sobre o servidor do Minecraft",
+    "help_minecraftplayers": "Ver a lista de jogadores",
+    "help_nodeplugins": "Ver a lista de plugins instalados no rcon node"
 
 }

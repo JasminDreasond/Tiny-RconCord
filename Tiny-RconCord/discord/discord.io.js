@@ -1,6 +1,6 @@
 const discordio = {
 
-    start: function(server, lang, conn, c, plugins, i18, log, globalds) {
+    start: function(server, lang, conn, c, plugins, i18, log, globalds, json_stringify) {
 
         // Console INFO and get the module
         log.info(lang.loading_discord + " (Discord.IO)");
@@ -184,6 +184,22 @@ const discordio = {
                 }
 
             }
+        });
+
+        // Discord Events
+        discordio.bot.on('any', function(event) {
+
+            if (c.discord.debug) {
+                log.discord(json_stringify(event, null, 2, 100));
+            }
+
+            // All the Discord Events will be send to plugins here
+            for (var i = 0; i < plugins.length; i++) {
+                if (typeof plugins[i].ds_any == "function") {
+                    plugins[i].ds_any(event);
+                }
+            }
+
         });
 
     }

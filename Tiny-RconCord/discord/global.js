@@ -52,7 +52,7 @@ const globalds = {
                 conn.command(data.message, function(err) {
                     if (err) {
                         log.error(err);
-                        sendMessage({ to: c.discord.channelID.rcon, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                        server.ds.sendMessage({ to: c.discord.channelID.rcon, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
                     }
                 });
 
@@ -110,7 +110,7 @@ const globalds = {
                                 });
                             }
 
-                            sendMessage({
+                            server.ds.sendMessage({
                                 "to": data.channelID,
                                 "embed": {
                                     "title": lang.minecraft_server + " " + String(server.query.hostname),
@@ -119,7 +119,7 @@ const globalds = {
                             });
 
                         } else {
-                            sendMessage({
+                            server.ds.sendMessage({
                                 "to": data.channelID,
                                 "message": lang.offline_server
                             });
@@ -156,7 +156,7 @@ const globalds = {
                                 });
                             }
 
-                            sendMessage({
+                            server.ds.sendMessage({
                                 "to": data.channelID,
                                 "embed": {
                                     "title": lang.minecraft_server + " " + String(server.query.hostname),
@@ -165,7 +165,7 @@ const globalds = {
                             });
 
                         } else {
-                            sendMessage({
+                            server.ds.sendMessage({
                                 "to": data.channelID,
                                 "message": lang.offline_server
                             });
@@ -216,7 +216,7 @@ const globalds = {
                                 });
                             }
 
-                            sendMessage({
+                            server.ds.sendMessage({
                                 "to": data.channelID,
                                 "embed": {
                                     "title": lang.plugins + " - " + data.botName,
@@ -226,12 +226,73 @@ const globalds = {
 
                         } else {
 
-                            sendMessage({
+                            server.ds.sendMessage({
                                 "to": data.channelID,
                                 "message": lang.no_permission
                             });
 
                         }
+
+                    }, 500);
+
+                    return false;
+
+                }
+
+                // Help
+                else if (data.message.startsWith(c.discord.prefix + "help")) {
+
+                    server.timeout(function() {
+
+                        const fields = [];
+
+                        if (server.query) {
+
+                            fields.push({
+                                name: c.discord.prefix + "minecraftstatus",
+                                value: lang.help_minecraftstatus
+                            });
+
+                            fields.push({
+                                name: c.discord.prefix + "minecraftplayers",
+                                value: lang.help_minecraftplayers
+                            });
+
+                        }
+
+                        if (data.userID == data.ownerID) {
+
+                            fields.push({
+                                name: c.discord.prefix + "nodeplugins",
+                                value: lang.help_nodeplugins
+                            });
+
+                        }
+
+                        if (plugins.length > 0) {
+                            for (var i = 0; i < plugins.length; i++) {
+                                if (typeof plugins[i].help == "function") {
+                                    var tinyhelp = plugins[i].help();
+                                    if (tinyhelp.length > 0) {
+                                        for (var x = 0; x < tinyhelp.length; x++) {
+                                            fields.push({
+                                                name: tinyhelp[x].name,
+                                                value: tinyhelp[x].value,
+                                                inline: tinyhelp[x].inline
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        server.ds.sendMessage({
+                            "to": data.channelID,
+                            "embed": {
+                                "title": lang.help,
+                                "fields": fields
+                            }
+                        });
 
                     }, 500);
 

@@ -12,6 +12,7 @@
 
     "discord": {
 
+        "debug": false,
         "prefix": "/",
         "lib": "discord.io",
         "everymine": "",
@@ -53,8 +54,7 @@
     "regex": {
 
         "chat_mc": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
-        "advancement_mc": "\\[Server thread/INFO\\]: (.*) has made the advancement [(.*)]",
-        "ignored_chat": "packets too frequently"
+        "advancement_mc": "\\[Server thread/INFO\\]: (.*) has made the advancement [(.*)]"
 
     },
 

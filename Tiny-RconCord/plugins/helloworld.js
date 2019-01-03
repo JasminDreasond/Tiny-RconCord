@@ -52,6 +52,23 @@ const helloworld = {
 
         };
 
+        // Add items into the Help Command
+        helloworld.help = function() {
+
+            return [
+                { name: "Test", value: "test again", inline: true },
+                { name: "Test 2", value: "test again 2", inline: true }
+            ];
+
+        };
+
+        // Add items into the Help Command
+        helloworld.ds_any = function(event) {
+
+            // Debug Discord Events
+
+        };
+
 
     }
 };
