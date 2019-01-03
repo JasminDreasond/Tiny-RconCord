@@ -1,8 +1,8 @@
 {
-    "name": "tiny-dsmine-root",
+    "name": "Tiny-RconCord",
     "version": "1.0.0",
     "description": "Minecraft and Discord connected in a application :D",
-    "homepage": "https://github.com/JasminDreasond",
+    "homepage": "https://github.com/JasminDreasond/Tiny-RconCord",
     "main": "index.js",
     "dependencies": {
         "colors": "^1.3.3",
@@ -18,9 +18,13 @@
     "scripts": {
         "start": "node index.js"
     },
+    "bugs": {
+        "url": "https://github.com/JasminDreasond/Tiny-RconCord/issues",
+        "email": "tinypudding@outlook.com.br"
+    },
     "devDependencies": {},
     "author": "Jasmin Dreasond",
     "license": "MIT",
-    "repository": "github:user/repo",
-    "private": true
+    "repository": "github:JasminDreasond/Tiny-RconCord",
+    "private": false
 }

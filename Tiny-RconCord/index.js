@@ -7,7 +7,7 @@ module.exports = function(pgdata) {
         fs.mkdirSync(__dirname + '/logs');
     }
 
-    //const mineflayer = require('mineflayer');
+    // Starting Modules
     const json_stringify = require("json-beautify");
     const moment = require('moment');
     const log = require('./lib/log.js');
@@ -57,7 +57,44 @@ module.exports = function(pgdata) {
 
     }
 
+    // Start Message
+
+    if (!tinypack.name) {
+        tinypack.name = lang.unknown;
+    }
+
+    if (!tinypack.version) {
+        tinypack.version = "0.0.0";
+    }
+
+    if (!tinypack.author) {
+        tinypack.author = lang.unknown;
+    }
+
+    log.info('----------------------------------------------------');
     log.info(i18(lang.loading_app, [tinypack.name, tinypack.version, tinypack.author]));
+
+    if (tinypack.repository) {
+
+        if (typeof tinypack.repository == "string") {
+            log.info(i18(lang.show_repository, [tinypack.repository]));
+        } else {
+            log.info(i18(lang.show_repository, [tinypack.repository.type + " - " + tinypack.repository.url]));
+        }
+
+    }
+
+    if (tinypack.bugs) {
+
+        if (typeof tinypack.bugs.url == "string") {
+            log.info(i18(lang.issues_url, [tinypack.bugs.url]));
+        }
+
+        if (typeof tinypack.bugs.email == "string") {
+            log.info(i18(lang.issues_email, [tinypack.bugs.email]));
+        }
+
+    }
 
     // Server
     const server = {

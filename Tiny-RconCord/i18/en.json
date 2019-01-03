@@ -12,7 +12,12 @@
     "no_permission": "You do not have permission to run this command!",
     "no_english": "The {0} plugin needs to have an English language!",
 
+    "issues_url": "Bugs reporting page: {0}",
+    "issues_email": "Email for reporting bugs: {0}",
+
+    "show_repository": "Application Repository: {0}",
     "loading_app": "The application {0} ({1}) made by {2} is being initialized...",
+
     "loaded_plugin": "The plugin {0} ({1}) is loaded",
     "failed_plugin": "The values from the plugin {0} is incorrect:{1}",
     "no_plugins": "No plugins loaded into the system",
