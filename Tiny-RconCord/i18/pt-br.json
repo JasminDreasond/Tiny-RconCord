@@ -12,7 +12,7 @@
     "no_permission": "Você não tem permissão para executar este comando!",
     "no_english": "O plugin {0} precisa ter um idioma inglês definido!",
 
-    "issues_url": "Página para reportagem de bugs:{0}",
+    "issues_url": "Página para reportagem de bugs: {0}",
     "issues_email": "Email para reportagem de bugs: {0}",
 
     "show_repository": "Repositório do Aplicativo: {0}",
