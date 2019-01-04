@@ -15,8 +15,8 @@ const helloworld = {
     start: function(pg) {
 
 
-        pg.log.info("Hello World started using the Discord Lib: " + pg.c.discord.lib);
-        pg.log.info("Plugin Folder: " + pg.folder);
+        pg.log.info(pg.i18(pg.lang.example_text_1, [helloworld.name, pg.c.discord.lib]));
+        pg.log.info(pg.i18(pg.lang.example_text_2, [pg.folder]));
 
         // pg.log.info( pg.getDS()); Wait the Discord API is ready before you use it...
 
