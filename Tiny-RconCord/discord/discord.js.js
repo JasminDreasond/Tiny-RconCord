@@ -51,14 +51,14 @@ const discordjs = {
 
                     if (server.online.ds == true) {
                         if (timer != undefined) {
-                            discordjs.bot.channels.get(themessage.to).send({ message: themessage.message, embed: themessage.embed }).then(function(mymessage) {
+                            discordjs.bot.channels.get(themessage.to).send(themessage.message, { embed: themessage.embed }).then(function(mymessage) {
 
                                 if (typeof callback == "function") { callback(); }
                                 mymessage.delete(timer);
 
                             }).catch(log.info);
                         } else {
-                            discordjs.bot.channels.get(themessage.to).send({ message: themessage.message, embed: themessage.embed }).then(function() {
+                            discordjs.bot.channels.get(themessage.to).send(themessage.message, { embed: themessage.embed }).then(function() {
                                 if (typeof callback == "function") { callback(); }
                             }).catch(log.info);
                         }

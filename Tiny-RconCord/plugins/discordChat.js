@@ -96,7 +96,7 @@ const chat = {
         // Discord Special Chat
         chat.ds_special_chat = function(data) {
 
-            if (data.channelID == c.channelID) {
+            if ((data.channelID == c.channelID) && (data.userID == pg.dsBot().id)) {
 
                 if (data.message.replace(" ", "").length > 0) {
 
@@ -206,6 +206,11 @@ const chat = {
 
                 // Model Chat
                 userjoin = userjoin[1];
+
+                if (pg.c.chatLog) {
+                    pg.log.chat(pg.i18(pg.lang.user_join, [userjoin]));
+                }
+
                 pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
 
                 // Finish the Log Get
@@ -218,6 +223,11 @@ const chat = {
 
                 // Model Chat
                 userleave = userleave[1];
+
+                if (pg.c.chatLog) {
+                    pg.log.chat(pg.i18(pg.lang.user_leave, [userleave]));
+                }
+
                 pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
 
                 // Finish the Log Get
@@ -230,6 +240,11 @@ const chat = {
 
                 // Model Chat
                 adv = [adv[1], adv[2]];
+
+                if (pg.c.chatLog) {
+                    pg.log.chat(pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]));
+                }
+
                 pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
 
                 // Finish the Log Get
