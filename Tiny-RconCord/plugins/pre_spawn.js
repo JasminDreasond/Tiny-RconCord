@@ -31,7 +31,7 @@ const helloworld = {
                 if ((!c.show_complete_only) || (Number(prespawn[1].replace(" ", "").replace("%", "")) == 100)) {
 
                     if (c.showConsole) {
-                        pg.log.minecraft(pg.i18(lang.loading_world, [prespawn[1]]));
+                        pg.log.minecraft(pg.i18(pg.lang.loading_world, [prespawn[1]]));
                     }
 
                     // Finish the Log Get
