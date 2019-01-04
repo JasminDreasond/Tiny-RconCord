@@ -1,0 +1,5 @@
+{
+
+    "regex": "\\[Server thread/INFO\\]: (.*) has made the advancement \\[(.*)\\]"
+
+}

@@ -1,0 +1,6 @@
+{
+
+    "join": "\\[Server thread/INFO\\]: (.*) left the game",
+    "leave": "\\[Server thread/INFO\\]: (.*) joined the game"
+
+}

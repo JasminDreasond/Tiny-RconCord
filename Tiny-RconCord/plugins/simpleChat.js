@@ -174,10 +174,12 @@ const chat = {
                     pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
                 }
 
-            }
+                // Finish the Log Get
+                return null;
 
-            // Finish the Log Get
-            return null;
+            } else {
+                return data;
+            }
 
         };
 

@@ -1,0 +1,5 @@
+{
+
+    "regex": "\\[Server thread/INFO\\]: Preparing spawn area: (.*)"
+
+}
