@@ -204,6 +204,21 @@ const chat = {
             // Join User
             else if ((typeof c.join == "string") && (userjoin)) {
 
+                // Model Chat
+                userjoin = userjoin[1];
+
+                if (pg.c.webhook.use) {
+
+                    pg.webhook.send(pg.c.webhook, {
+                        username: userjoin,
+                        content: pg.lang.user_join,
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userjoin)
+                    });
+
+                } else if (c.channelID) {
+                    pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userjoin, pg.lang.user_join) });
+                }
+
                 // Finish the Log Get
                 return null;
 
@@ -212,6 +227,21 @@ const chat = {
             // Leave User
             else if ((typeof c.leave == "string") && (userleave)) {
 
+                // Model Chat
+                userleave = userleave[1];
+
+                if (pg.c.webhook.use) {
+
+                    pg.webhook.send(pg.c.webhook, {
+                        username: userleave,
+                        content: pg.lang.user_leave,
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userleave)
+                    });
+
+                } else if (c.channelID) {
+                    pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userleave, pg.lang.user_leave) });
+                }
+
                 // Finish the Log Get
                 return null;
 
@@ -219,6 +249,21 @@ const chat = {
 
             // Advancement
             else if ((typeof c.advancement == "string") && (adv)) {
+
+                // Model Chat
+                adv = [adv[1], adv[2]];
+
+                if (pg.c.webhook.use) {
+
+                    pg.webhook.send(pg.c.webhook, {
+                        username: adv[0],
+                        content: i18(pg.lang.advancement_receive, adv[1]),
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", adv[0])
+                    });
+
+                } else if (c.channelID) {
+                    pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(adv[0], i18(pg.lang.advancement_receive, adv[1])) });
+                }
 
                 // Finish the Log Get
                 return null;
