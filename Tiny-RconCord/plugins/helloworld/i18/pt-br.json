@@ -1,1 +1,6 @@
-{}
+{
+
+    "example_text_1": "{0} começou usando o Discord Lib: {1}",
+    "example_text_2": "Pasta do Plugin: {0}"
+
+}
