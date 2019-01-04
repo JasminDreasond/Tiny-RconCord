@@ -1,0 +1,5 @@
+{
+    "user_join": "{0} entrou no jogo",
+    "user_leave": "{0} saiu do jogo",
+    "advancement_receive": "{0} fez uma conquista **[{1}]**"
+}
