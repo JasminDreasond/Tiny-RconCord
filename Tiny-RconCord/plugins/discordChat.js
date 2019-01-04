@@ -96,7 +96,7 @@ const chat = {
         // Discord Special Chat
         chat.ds_special_chat = function(data) {
 
-            if ((data.channelID == c.channelID) && (data.userID == pg.dsBot().id)) {
+            if ((data.channelID == c.channelID) && (data.userID != pg.getDS().id)) {
 
                 if (data.message.replace(" ", "").length > 0) {
 
@@ -208,10 +208,22 @@ const chat = {
                 userjoin = userjoin[1];
 
                 if (pg.c.chatLog) {
-                    pg.log.chat(pg.i18(pg.lang.user_join, [userjoin]));
+                    pg.log.minecraft(pg.i18(pg.lang.user_join, [userjoin]));
                 }
 
-                pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
+                if (pg.c.webhook.use) {
+
+                    pg.webhook.send(pg.c.webhook, {
+                        username: pg.getDS().username,
+                        content: pg.i18(pg.lang.user_join, [userjoin]),
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userjoin)
+                    });
+
+                } else if (c.channelID) {
+
+                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
+
+                }
 
                 // Finish the Log Get
                 return null;
@@ -225,10 +237,20 @@ const chat = {
                 userleave = userleave[1];
 
                 if (pg.c.chatLog) {
-                    pg.log.chat(pg.i18(pg.lang.user_leave, [userleave]));
+                    pg.log.minecraft(pg.i18(pg.lang.user_leave, [userleave]));
                 }
 
-                pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
+                if (pg.c.webhook.use) {
+
+                    pg.webhook.send(pg.c.webhook, {
+                        username: pg.getDS().username,
+                        content: pg.i18(pg.lang.user_leave, [userleave]),
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userleave)
+                    });
+
+                } else if (c.channelID) {
+                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
+                }
 
                 // Finish the Log Get
                 return null;
@@ -242,10 +264,20 @@ const chat = {
                 adv = [adv[1], adv[2]];
 
                 if (pg.c.chatLog) {
-                    pg.log.chat(pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]));
+                    pg.log.minecraft(pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]));
                 }
 
-                pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
+                if (pg.c.webhook.use) {
+
+                    pg.webhook.send(pg.c.webhook, {
+                        username: pg.getDS().username,
+                        content: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]),
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", adv[0])
+                    });
+
+                } else if (c.channelID) {
+                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
+                }
 
                 // Finish the Log Get
                 return null;
