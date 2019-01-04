@@ -260,7 +260,12 @@ module.exports = function(pgdata) {
 
             plugins.push(require(pluginFolder + pluginName));
             var i = plugins.length - 1;
-            var tinyfolder = __dirname + "/plugins/" + pluginName.substring(0, pluginName.length - 3)
+
+            if (pluginFolder != "") {
+                var tinyfolder = __dirname + "/plugins/" + pluginName.substring(0, pluginName.length - 3);
+            } else {
+                var tinyfolder = __dirname + "/plugins/" + pluginName;
+            }
 
             // Load Language
             if (fs.existsSync(tinyfolder + "/i18")) {
@@ -456,7 +461,7 @@ module.exports = function(pgdata) {
 
                     await startServer.plugins();
                     globalds.start(c, lang, conn, server, plugins, log, tinypack, i18);
-                    server.ds.start(server, lang, conn, c, plugins, i18, log, globalds, json_stringify);
+                    server.ds.start(server, lang, c, plugins, i18, log, globalds, json_stringify);
                     startServer.logAPI();
                     startServer.query();
 

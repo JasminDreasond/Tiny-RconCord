@@ -11,7 +11,7 @@
 
 const discordio = {
 
-    start: function(server, lang, conn, c, plugins, i18, log, globalds, json_stringify) {
+    start: function(server, lang, c, plugins, i18, log, globalds, json_stringify) {
 
         // Console INFO and get the module
         log.info(lang.loading_discord + " (Discord.IO)");
