@@ -1,7 +1,7 @@
 # Tiny-RconCord
 Minecraft and Discord connected in a application :D
 
-Module inspired by this repository https://github.com/destruc7i0n/shulker. This repository is still under development.
+Module inspired by this repository https://github.com/destruc7i0n/shulker.
 
 <hr>
 
