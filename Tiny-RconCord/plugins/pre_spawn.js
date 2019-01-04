@@ -10,8 +10,8 @@
  ***************************************************************************/
 
 const helloworld = {
-    name: "Example Plugin",
-    description: "Test Plugin",
+    name: "World Spawn Filter",
+    description: "Do not let the loading world flood your log",
     author: "Jasmin Dreasond",
     page: "https://github.com/JasminDreasond/Tiny-RconCord",
     issues: "https://github.com/JasminDreasond/Tiny-RconCord/issues",
@@ -24,7 +24,7 @@ const helloworld = {
         // Minecraft Log
         helloworld.mc_log = function(data) {
 
-            // Detect if the log is a chat message
+            // Detect if the log is a Spawn Message
             var prespawn = data.match(new RegExp(c.regex));
             if ((typeof c.regex == "string") && (prespawn)) {
 

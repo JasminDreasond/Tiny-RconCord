@@ -15,7 +15,7 @@
         "log_delay": 5000,
         "debug": false,
         "prefix": "/",
-        "lib": "discord.io",
+        "lib": "discord.js",
         "token": "",
 
         "channelID": {

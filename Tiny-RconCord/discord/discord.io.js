@@ -91,23 +91,15 @@ const discordio = {
                     bot: discordio.bot.bot,
                     channels: discordio.bot.channels,
                     connected: discordio.bot.connected,
-                    directMessages: discordio.bot.directMessages,
                     discriminator: discordio.bot.discriminator,
                     id: discordio.bot.id,
-                    inviteURL: discordio.bot.inviteURL,
                     mfa_enabled: discordio.bot.mfa_enabled,
                     presenceStatus: discordio.bot.presenceStatus,
                     servers: discordio.bot.servers,
                     username: discordio.bot.username,
                     users: discordio.bot.users,
                     verified: discordio.bot.verified,
-                    internals: {
-                        heartbeat: discordio.bot.internals.heartbeat,
-                        sequence: discordio.bot.internals.sequence,
-                        version: discordio.bot.internals.version,
-                        settings: discordio.bot.internals.settings,
-                        oauth: discordio.bot.internals.oauth
-                    }
+                    oauth: discordio.bot.internals.oauth
                 };
             } else {
                 return null;

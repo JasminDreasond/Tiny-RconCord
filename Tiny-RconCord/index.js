@@ -19,6 +19,7 @@ module.exports = function(pgdata) {
     }
 
     // Starting Modules
+    const request = require('request');
     const json_stringify = require("json-beautify");
     const moment = require('moment');
     const log = require('./lib/log.js');
@@ -28,6 +29,7 @@ module.exports = function(pgdata) {
     const webhook = require("./discord/webhook.js");
     const tinypack = require('../package.json');
 
+    webhook.start(request);
     const lang = require('./i18/' + c.lang + '.json');
     moment.locale(c.lang);
 
@@ -314,6 +316,7 @@ module.exports = function(pgdata) {
             ) {
 
                 await plugins[i].start({
+                    request: request,
                     plugins: plugins,
                     emojiStrip: emojiStrip,
                     webhook: webhook,
@@ -461,7 +464,7 @@ module.exports = function(pgdata) {
 
                     await startServer.plugins();
                     globalds.start(c, lang, conn, server, plugins, log, tinypack, i18);
-                    server.ds.start(server, lang, c, plugins, i18, log, globalds, json_stringify);
+                    server.ds.start(server, lang, c, plugins, i18, log, globalds, json_stringify, request);
                     startServer.logAPI();
                     startServer.query();
 
