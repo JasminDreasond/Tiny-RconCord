@@ -140,8 +140,26 @@ const chat = {
         chat.mc_log = function(data) {
 
             // Detect if the log is a chat message
-            var userchat = data.match(new RegExp(c.regex));
-            if ((typeof c.regex == "string") && (userchat)) {
+            if (typeof c.chat == "string") {
+                var userchat = data.match(new RegExp(c.chat));
+            }
+
+            if (typeof c.join == "string") {
+                var userjoin = data.match(new RegExp(c.join));
+            }
+
+            if (typeof c.leave == "string") {
+                var userleave = data.match(new RegExp(c.leave));
+            }
+
+            if (typeof c.advancement == "string") {
+                var adv = data.match(new RegExp(c.advancement));
+            }
+
+            // Start looking data
+
+            // Chat
+            if ((typeof c.chat == "string") && (userchat)) {
 
                 // Model Chat
                 userchat = [userchat[1], userchat[2]];
@@ -181,7 +199,34 @@ const chat = {
                 // Finish the Log Get
                 return null;
 
-            } else {
+            }
+
+            // Join User
+            else if ((typeof c.join == "string") && (userjoin)) {
+
+                // Finish the Log Get
+                return null;
+
+            }
+
+            // Leave User
+            else if ((typeof c.leave == "string") && (userleave)) {
+
+                // Finish the Log Get
+                return null;
+
+            }
+
+            // Advancement
+            else if ((typeof c.advancement == "string") && (adv)) {
+
+                // Finish the Log Get
+                return null;
+
+            }
+
+            // Nothing
+            else {
                 return data;
             }
 
