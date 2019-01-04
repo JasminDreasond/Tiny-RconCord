@@ -19,3 +19,15 @@ Open the folder Tiny-RconCord for more information...
 You just need to use the command `npm install` and edit the config.json inside the Tiny-RconCord folder. 
 
 If you have npm plugins to install inside the app, use npm commands here too.
+
+## Images
+
+### Discord Chat
+<img src="./docs/img/chat.png" />
+<img src="./docs/img/game.png" />
+
+### Log Chat
+<img src="./docs/img/log.png" />
+
+### Console Node
+<img src="./docs/img/console.png" />
