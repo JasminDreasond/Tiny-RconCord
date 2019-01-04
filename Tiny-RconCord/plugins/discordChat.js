@@ -84,7 +84,7 @@ const chat = {
                     if (err) {
                         pg.log.error(err);
                         if (pg.c.discord.channelID.rcon) {
-                            server.ds.sendMessage({ to: pg.c.discord.channelID.rcon, message: pg.lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                            pg.dsBot.sendMessage({ to: pg.c.discord.channelID.rcon, message: pg.lang['[ERROR]'] + ' ' + JSON.stringify(err) });
                         }
                     }
                 });
@@ -191,7 +191,7 @@ const chat = {
                         });
 
                     } else if (c.channelID) {
-                        pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
+                        pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
                     }
 
                 }
@@ -206,16 +206,7 @@ const chat = {
 
                 // Model Chat
                 userjoin = userjoin[1];
-
-                if (pg.c.webhook.use) {
-
-                    pg.webhook.send(pg.c.webhook, {
-                        content: pg.i18(pg.lang.user_join, [userjoin])
-                    });
-
-                } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
-                }
+                pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
 
                 // Finish the Log Get
                 return null;
@@ -227,16 +218,7 @@ const chat = {
 
                 // Model Chat
                 userleave = userleave[1];
-
-                if (pg.c.webhook.use) {
-
-                    pg.webhook.send(pg.c.webhook, {
-                        content: pg.i18(pg.lang.user_leave, [userleave])
-                    });
-
-                } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
-                }
+                pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
 
                 // Finish the Log Get
                 return null;
@@ -248,16 +230,7 @@ const chat = {
 
                 // Model Chat
                 adv = [adv[1], adv[2]];
-
-                if (pg.c.webhook.use) {
-
-                    pg.webhook.send(pg.c.webhook, {
-                        content: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]])
-                    });
-
-                } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
-                }
+                pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
 
                 // Finish the Log Get
                 return null;
