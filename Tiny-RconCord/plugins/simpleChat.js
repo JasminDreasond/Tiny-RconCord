@@ -152,26 +152,30 @@ const chat = {
                 // Send Bot Mode
                 if (pg.plugins.length > 0) {
                     for (var i = 0; i < pg.plugins.length; i++) {
-                        if (typeof pg.plugins[i].mc_chat == "function") {
+                        if ((typeof pg.plugins[i].mc_chat == "function") && (typeof userchat[1] == "string") && (userchat[1] != "")) {
                             userchat = pg.plugins[i].mc_chat(userchat[0], userchat[1]);
                         }
                     }
                 }
 
-                if (pg.c.chatLog) {
-                    pg.log.chat(userchat[0], userchat[1]);
-                }
+                if ((typeof userchat[1] == "string") && (userchat[1].replace(/ /g, "") != "")) {
 
-                if (pg.c.webhook.use) {
+                    if (pg.c.chatLog) {
+                        pg.log.chat(userchat[0], userchat[1]);
+                    }
 
-                    pg.webhook.send(pg.c.webhook, {
-                        username: userchat[0],
-                        content: userchat[1],
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userchat[0])
-                    });
+                    if (pg.c.webhook.use) {
 
-                } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
+                        pg.webhook.send(pg.c.webhook, {
+                            username: userchat[0],
+                            content: userchat[1],
+                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userchat[0])
+                        });
+
+                    } else if (c.channelID) {
+                        pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
+                    }
+
                 }
 
                 // Finish the Log Get

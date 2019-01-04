@@ -181,23 +181,27 @@ const discordio = {
                     return; // ignore webhooks if using a webhook
                 }
 
+                let special_channel = false;
+
                 // The message is for a special channel?
                 for (var i = 0; i < plugins.length; i++) {
                     if (typeof plugins[i].ds_special_chat == "function") {
 
                         // Wait the response from the special channel
-                        var special_channel = await plugins[i].ds_special_chat({
-                            isBot: event.d.author.bot,
-                            webhookID: event.d.webhook_id,
-                            ownerID: discordio.bot.internals.oauth.owner.id,
-                            userID: event.d.author.id,
-                            botName: discordio.bot.username,
-                            guildID: guildID,
-                            channelID: event.d.channel_id,
-                            message: event.d.content,
-                            username: event.d.author.username,
-                            discriminator: event.d.author.discriminator
-                        }, event);
+                        if (await plugins[i].ds_special_chat({
+                                isBot: event.d.author.bot,
+                                webhookID: event.d.webhook_id,
+                                ownerID: discordio.bot.internals.oauth.owner.id,
+                                userID: event.d.author.id,
+                                botName: discordio.bot.username,
+                                guildID: guildID,
+                                channelID: event.d.channel_id,
+                                message: event.d.content,
+                                username: event.d.author.username,
+                                discriminator: event.d.author.discriminator
+                            }, event)) {
+                            special_channel = true;
+                        };
 
                     }
                 }

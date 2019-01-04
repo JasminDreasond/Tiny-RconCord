@@ -202,12 +202,12 @@ module.exports = function(pgdata) {
                         // Log Lines
 
                         for (var i = 0; i < plugins.length; i++) {
-                            if (typeof plugins[i].mc_log == "function") {
+                            if ((typeof plugins[i].mc_log == "function") && (typeof data == "string") && (data != "")) {
                                 data = plugins[i].mc_log(data);
                             }
                         }
 
-                        if ((typeof data == "string") && (data != "")) {
+                        if ((typeof data == "string") && (data.replace(/ /g, "") != "")) {
 
                             if (c.minecraft.debug) {
                                 log.minecraft(data);
@@ -419,12 +419,12 @@ module.exports = function(pgdata) {
                     if ((response) && (response.replace(/ /g, "") != "")) {
 
                         for (var i = 0; i < plugins.length; i++) {
-                            if (typeof plugins[i].rcon == "function") {
+                            if ((typeof plugins[i].rcon == "function") && (typeof response == "string") && (response != "")) {
                                 response = plugins[i].rcon(response);
                             }
                         }
 
-                        if ((c.discord.channelID.rcon) && (response) && (response.replace(/ /g, "") != "")) {
+                        if ((c.discord.channelID.rcon) && (typeof response == "string") && (response.replace(/ /g, "") != "")) {
                             server.ds.sendMessage({ to: c.discord.channelID.rcon, message: response });
                         }
 
