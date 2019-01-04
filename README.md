@@ -1,5 +1,6 @@
 # Tiny-RconCord
 Minecraft and Discord connected in a application :D
+Tested in the Minecraft Version: 1.13.*
 
 Module inspired by this repository https://github.com/destruc7i0n/shulker.
 
