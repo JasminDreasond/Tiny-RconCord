@@ -29,7 +29,6 @@ module.exports = function(pgdata) {
     const webhook = require("./discord/webhook.js");
     const tinypack = require('../package.json');
 
-    webhook.start(request);
     const lang = require('./i18/' + c.lang + '.json');
     moment.locale(c.lang);
 
@@ -53,6 +52,8 @@ module.exports = function(pgdata) {
         chat: lang['chat'],
         discord: lang['discord']
     });
+
+    webhook.start(request, log);
 
     const emojiStrip = require('emoji-strip');
 

@@ -11,9 +11,9 @@
 
 const webhook = {
 
-    start: function(request) {
+    start: function(request, log) {
 
-        webhook.get = function(id, log, callback) {
+        webhook.get = function(id, callback) {
 
             request('https://discordapp.com/api/webhooks/' + id.replace('https://discordapp.com/api/webhooks/', ''), function(error, response, body) {
                 if (!error && response.statusCode == 200) {
