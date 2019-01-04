@@ -512,7 +512,7 @@ module.exports = function(pgdata) {
                 (typeof c.webhook.guild_id != "string")
             )) {
             log.info(lang.loading_webhook);
-            webhook.get(c.webhook.url, log, function(data) {
+            webhook.get(c.webhook.url, function(data) {
                 try {
                     c.webhook.id = data.id;
                     c.webhook.name = data.name;
