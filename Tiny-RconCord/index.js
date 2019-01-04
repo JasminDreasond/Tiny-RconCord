@@ -316,6 +316,7 @@ module.exports = function(pgdata) {
             ) {
 
                 await plugins[i].start({
+                    dsBot: server.ds,
                     request: request,
                     plugins: plugins,
                     emojiStrip: emojiStrip,
@@ -343,6 +344,7 @@ module.exports = function(pgdata) {
                     getDS: function() { return server.ds.getDS(); },
                     folder: tinyfolder
                 });
+
                 log.info(i18(lang.loaded_plugin, [plugins[i].name, plugins[i].version]));
 
             }

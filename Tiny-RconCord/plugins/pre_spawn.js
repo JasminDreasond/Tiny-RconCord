@@ -28,8 +28,22 @@ const helloworld = {
             var prespawn = data.match(new RegExp(c.regex));
             if ((typeof c.regex == "string") && (prespawn)) {
 
-                // Finish the Log Get
-                return null;
+                if ((!c.show_complete_only) || (Number(prespawn[1].replace(" ", "").replace("%", "")) == 100)) {
+
+                    if (c.showConsole) {
+                        pg.log.minecraft(pg.i18(lang.loading_world, [prespawn[1]]));
+                    }
+
+                    // Finish the Log Get
+                    if (!c.showDiscord) {
+                        return null;
+                    } else {
+                        return data;
+                    }
+
+                } else {
+                    return null;
+                }
 
             } else {
                 return data;

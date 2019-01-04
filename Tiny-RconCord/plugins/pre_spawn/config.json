@@ -1,5 +1,10 @@
 {
 
-    "regex": "\\[Server thread/INFO\\]: Preparing spawn area: (.*)"
+    "regex": "\\[Server thread/INFO\\]: Preparing spawn area: (.*)",
+
+    "showConsole": true,
+    "showDiscord": false,
+
+    "show_complete_only": true
 
 }

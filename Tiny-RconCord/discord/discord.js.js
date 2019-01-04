@@ -24,6 +24,7 @@ const discordjs = {
 
                 try {
                     oauth = JSON.parse(oauth);
+                    discordjs.oauth = oauth;
                 } catch (e) {
                     log.error(e);
                     return;
@@ -88,7 +89,7 @@ const discordjs = {
                 // Get Discord Data for plugins (Secure Mode)
                 discordjs.getDS = function() {
 
-                    if (discordjs.bot.id) {
+                    if (discordjs.bot.user.id) {
                         return {
                             avatar: discordjs.bot.user.avatar,
                             bot: discordjs.bot.user.bot,
