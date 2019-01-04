@@ -210,11 +210,11 @@ const chat = {
                 if (pg.c.webhook.use) {
 
                     pg.webhook.send(pg.c.webhook, {
-                        content: i18(pg.lang.pg.lang.user_join, [userjoin])
+                        content: pg.i18(pg.lang.user_join, [userjoin])
                     });
 
                 } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: i18(pg.lang.pg.lang.user_join, [userjoin]) });
+                    pg.server.ds.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
                 }
 
                 // Finish the Log Get
@@ -231,11 +231,11 @@ const chat = {
                 if (pg.c.webhook.use) {
 
                     pg.webhook.send(pg.c.webhook, {
-                        content: i18(pg.lang.user_leave, [userleave])
+                        content: pg.i18(pg.lang.user_leave, [userleave])
                     });
 
                 } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: i18(pg.lang.user_leave, [userleave]) });
+                    pg.server.ds.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
                 }
 
                 // Finish the Log Get
@@ -252,11 +252,11 @@ const chat = {
                 if (pg.c.webhook.use) {
 
                     pg.webhook.send(pg.c.webhook, {
-                        content: i18(pg.lang.advancement_receive, [adv[0], adv[1]])
+                        content: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]])
                     });
 
                 } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
+                    pg.server.ds.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
                 }
 
                 // Finish the Log Get
