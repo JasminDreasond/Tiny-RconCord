@@ -1,5 +1,7 @@
 {
 
+    "new_version": "New app update {0} is available for download: {1}",
+
     "connecting_rcon": "Connecting Rcon...",
     "loading_plugins": "Loading Plugins...",
     "loading_plugins_complete": "The plugins were loaded successfully",
