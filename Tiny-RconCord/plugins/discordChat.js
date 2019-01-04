@@ -210,13 +210,11 @@ const chat = {
                 if (pg.c.webhook.use) {
 
                     pg.webhook.send(pg.c.webhook, {
-                        username: userjoin,
-                        content: pg.lang.user_join,
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userjoin)
+                        content: i18(pg.lang.pg.lang.user_join, [userjoin])
                     });
 
                 } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userjoin, pg.lang.user_join) });
+                    pg.server.ds.sendMessage({ to: c.channelID, message: i18(pg.lang.pg.lang.user_join, [userjoin]) });
                 }
 
                 // Finish the Log Get
@@ -233,13 +231,11 @@ const chat = {
                 if (pg.c.webhook.use) {
 
                     pg.webhook.send(pg.c.webhook, {
-                        username: userleave,
-                        content: pg.lang.user_leave,
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userleave)
+                        content: i18(pg.lang.user_leave, [userleave])
                     });
 
                 } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userleave, pg.lang.user_leave) });
+                    pg.server.ds.sendMessage({ to: c.channelID, message: i18(pg.lang.user_leave, [userleave]) });
                 }
 
                 // Finish the Log Get
@@ -256,13 +252,11 @@ const chat = {
                 if (pg.c.webhook.use) {
 
                     pg.webhook.send(pg.c.webhook, {
-                        username: adv[0],
-                        content: i18(pg.lang.advancement_receive, adv[1]),
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", adv[0])
+                        content: i18(pg.lang.advancement_receive, [adv[0], adv[1]])
                     });
 
                 } else if (c.channelID) {
-                    pg.server.ds.sendMessage({ to: c.channelID, message: chat_st.discordMessage(adv[0], i18(pg.lang.advancement_receive, adv[1])) });
+                    pg.server.ds.sendMessage({ to: c.channelID, message: i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
                 }
 
                 // Finish the Log Get
