@@ -10,6 +10,7 @@
         "discord.js": "^11.4.2",
         "emoji-strip": "^1.0.1",
         "json-beautify": "^1.0.1",
+        "json-store": "^1.0.0",
         "mcquery": "^0.2.7",
         "moment": "^2.23.0",
         "request": "^2.88.0",
