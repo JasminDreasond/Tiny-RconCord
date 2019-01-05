@@ -45,7 +45,8 @@
             "delay": 120000
         },
 
-        "avatar_url": "https://minotar.net/helm/%username%/256.png"
+        "avatar_url": "https://minotar.net/helm/%username%/256.png",
+        "chat_regex": "\\[Server thread/INFO\\]: <([^>]*)> (.*)"
 
     },
 

@@ -239,22 +239,63 @@ module.exports = function(pgdata) {
                         const tail = new Tail(c.server_folder + '/logs/latest.log');
                         tail.on("line", function(data) {
 
-                            // Log Lines
-
-                            for (var i = 0; i < plugins.length; i++) {
-                                if ((typeof plugins[i].mc_log == "function") && (typeof data == "string") && (data != "")) {
-                                    data = plugins[i].mc_log(data);
-                                }
+                            // Detect if the log is a chat message
+                            if (typeof c.minecraft.chat_regex == "string") {
+                                var userchat = data.match(new RegExp(c.minecraft.chat_regex));
                             }
 
-                            if ((typeof data == "string") && (data.replace(/ /g, "") != "")) {
+                            // Chat
+                            if ((typeof c.minecraft.chat_regex == "string") && (userchat)) {
 
-                                if (c.minecraft.debug) {
-                                    log.minecraft(data);
+                                // Model Chat
+                                userchat = [userchat[1], userchat[2]];
+
+                                // Send Bot Mode
+                                if (plugins.length > 0) {
+                                    for (var i = 0; i < plugins.length; i++) {
+                                        if (
+                                            (typeof plugins[i].mc_chat == "function") && (userchat) &&
+                                            (typeof userchat[1] == "string") && (userchat[1] != "")
+                                        ) {
+                                            userchat = plugins[i].mc_chat(userchat[0], userchat[1]);
+                                        } else if ((!userchat) || (typeof userchat[0] != "string") || (userchat[0] == "")) {
+                                            return;
+                                        }
+                                    }
                                 }
 
-                                if (c.discord.channelID.log) {
-                                    log_control.send(data);
+                                if (
+                                    (typeof userchat[0] == "string") &&
+                                    (typeof userchat[1] == "string") &&
+                                    (userchat[1].replace(/ /g, "") != "") &&
+                                    (userchat[0].replace(/ /g, "") != "")
+                                ) {
+
+                                    if (c.chatLog) {
+                                        log.chat(userchat[0], userchat[1]);
+                                    }
+
+                                }
+
+                            } else {
+
+                                // Log Lines
+                                for (var i = 0; i < plugins.length; i++) {
+                                    if ((typeof plugins[i].mc_log == "function") && (typeof data == "string") && (data != "")) {
+                                        data = plugins[i].mc_log(data);
+                                    }
+                                }
+
+                                if ((typeof data == "string") && (data.replace(/ /g, "") != "")) {
+
+                                    if (c.minecraft.debug) {
+                                        log.minecraft(data);
+                                    }
+
+                                    if (c.discord.channelID.log) {
+                                        log_control.send(data);
+                                    }
+
                                 }
 
                             }

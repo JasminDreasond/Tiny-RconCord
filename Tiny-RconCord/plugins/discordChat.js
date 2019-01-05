@@ -16,7 +16,7 @@ const chat = {
     page: "https://github.com/JasminDreasond/Tiny-RconCord",
     issues: "https://github.com/JasminDreasond/Tiny-RconCord/issues",
     version: "1.0",
-    index: -1,
+    index: 100,
     start: function(pg) {
 
         const c = require(pg.folder + "/config.json");
@@ -136,13 +136,35 @@ const chat = {
 
         };
 
-        // Minecraft Chat
-        chat.mc_log = function(data) {
+        // Chat Minecraft
+        chat.mc_chat = function(user, message) {
 
-            // Detect if the log is a chat message
-            if (typeof c.chat == "string") {
-                var userchat = data.match(new RegExp(c.chat));
+            console.log();
+            if (user) {
+
+                // Add everymine
+                message = message.replace(/\@everymine/g, "<@&" + c.everymine + ">");
+
+                if (pg.c.webhook.use) {
+
+                    pg.webhook.send(pg.c.webhook, {
+                        username: user,
+                        content: message,
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
+                    });
+
+                } else if (c.channelID) {
+                    pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(user, message) });
+                }
+
             }
+
+            return [user, message];
+
+        };
+
+        // Minecraft Log
+        chat.mc_log = function(data) {
 
             if (typeof c.join == "string") {
                 var userjoin = data.match(new RegExp(c.join));
@@ -157,69 +179,6 @@ const chat = {
             }
 
             // Start looking data
-
-            // Chat
-            if ((typeof c.chat == "string") && (userchat)) {
-
-                // Model Chat
-                userchat = [userchat[1], userchat[2]];
-
-                // Add everymine
-                userchat[1] = userchat[1].replace(/\@everymine/g, "<@&" + c.everymine + ">");
-
-                // Send Bot Mode
-                if (pg.plugins.length > 0) {
-                    for (var i = 0; i < pg.plugins.length; i++) {
-                        if (
-                            (typeof pg.plugins[i].mc_chat == "function") && (userchat) &&
-                            (
-                                (typeof userchat[1] == "string") && (userchat[1] != "") &&
-                                (typeof userchat[0] == "string") && (userchat[0] != "")
-                            )
-                        ) {
-                            userchat = pg.plugins[i].mc_chat(userchat[0], userchat[1]);
-                        }
-                    }
-                }
-
-                if (userchat) {
-
-                    if ((typeof userchat[1] == "string") && (userchat[1].replace(/ /g, "") != "")) {
-
-                        if (pg.c.chatLog) {
-                            pg.log.chat(userchat[0], userchat[1]);
-                        }
-
-                        if (pg.c.webhook.use) {
-
-                            pg.webhook.send(pg.c.webhook, {
-                                username: userchat[0],
-                                content: userchat[1],
-                                avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userchat[0])
-                            });
-
-                        } else if (c.channelID) {
-                            pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
-                        }
-
-                    } else if ((userchat[1].replace(/ /g, "") != "")) {
-
-                        if (pg.c.minecraft.debug) {
-                            pg.log.minecraft(userchat[1]);
-                        }
-
-                        if (c.channelID) {
-                            pg.dsBot.sendMessage({ to: c.channelID, message: userchat[1] });
-                        }
-
-                    }
-
-                }
-
-                // Finish the Log Get
-                return null;
-
-            }
 
             // Join User
             else if ((typeof c.join == "string") && (userjoin)) {
