@@ -36,28 +36,20 @@ const chat = {
                     bot = " " + c.template.bot_discord.replace('%text%', data.bot);
                 }
 
-                text = text.replace(/[ÀÁÂÃÄÅ]/g, "A");
-                text = text.replace(/[àáâãäå]/g, "a");
-                text = text.replace(/[ÈÉÊË]/g, "E");
-                text = text.replace(/[èéêë]/g, "e");
-                text = text.replace(/[ÒÓôö]/g, "O");
-                text = text.replace(/[òóôö]/g, "o");
-                text = text.replace(/[ÙÚûü]/g, "U");
-                text = text.replace(/[ùúûü]/g, "u");
-                text = text.replace(/[Ç]/g, "C");
-                text = text.replace(/[ç]/g, "c");
-
                 const message_template = [];
 
                 for (var i = 0; i < c.template.tellraw.length; i++) {
-                    if (c.template.tellraw[i].text) {
-                        c.template.tellraw[i].text = c.template.tellraw[i].text
+                    message_template.push(Object.create(c.template.tellraw[i]));
+                    if (
+                        (message_template[i].text) &&
+                        (c.template.tellraw[i].text)
+                    ) {
+                        message_template[i].text = c.template.tellraw[i].text
                             .replace('%username%', username)
                             .replace('%discriminator%', discriminator)
                             .replace('%bot%', bot)
                             .replace('%message%', text);
                     }
-                    message_template.push(c.template.tellraw[i]);
                 }
 
                 return message_template;
@@ -74,22 +66,12 @@ const chat = {
             //Send Minecraft
             sendMC: function(message, data) {
 
-                if (data) {
-                    if (data.type == "user") {
-                        var cmd = chat_st.minecraftTellraw({
-                            message: message,
-                            username: data.username,
-                            discriminator: data.discriminator,
-                            bot: data.bot
-                        });
-                    } else {
-                        var cmd = message;
-                    }
-                } else {
-                    var cmd = message;
-                }
-
-                new pg.minecraft.send(cmd).exe(function(err) {
+                new pg.minecraft.send(chat_st.minecraftTellraw({
+                    message: message,
+                    username: data.username,
+                    discriminator: data.discriminator,
+                    bot: data.bot
+                })).exe(function(err) {
                     if (err) {
                         pg.log.error(err);
                         if (pg.c.discord.channelID.rcon) {
@@ -115,7 +97,6 @@ const chat = {
                             pg.log.chat(data.username + "#" + data.discriminator, data.message);
                         }
                         chat_st.sendMC(data.message, {
-                            type: "user",
                             username: data.username,
                             discriminator: data.discriminator,
                             bot: ""
@@ -127,7 +108,6 @@ const chat = {
                             pg.log.chat(data.username + "#" + data.discriminator + " (" + pg.lang.bot.toUpperCase() + ")", data.message);
                         }
                         chat_st.sendMC(data.message, {
-                            type: "user",
                             username: data.username,
                             discriminator: data.discriminator,
                             bot: pg.lang.bot.toUpperCase()
@@ -148,7 +128,6 @@ const chat = {
         // Chat Minecraft
         chat.mc_chat = function(user, message) {
 
-            console.log();
             if (user) {
 
                 // Add everymine
@@ -190,7 +169,7 @@ const chat = {
             // Start looking data
 
             // Join User
-            else if ((typeof c.join == "string") && (userjoin)) {
+            if ((typeof c.join == "string") && (userjoin)) {
 
                 // Model Chat
                 userjoin = userjoin[1];

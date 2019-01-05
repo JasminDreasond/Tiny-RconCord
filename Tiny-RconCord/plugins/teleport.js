@@ -122,74 +122,37 @@ const setHome = {
         // Minecraft Chat
         setHome.mc_chat = function(user, message) {
 
-            if (c.enabled) {
+            // TEST
+            if ((message) && (message.startsWith(pg.c.minecraft.prefix + 'test'))) {
 
-                // Extra Slots
-                if ((c.extra_slots) && (c.extra_slots > 0)) {
-                    for (var i = 0; i < c.extra_slots + 1; i++) {
-                        message = slotGenerator(user, message, "home" + String(i));
-                    }
-                }
+                const tinytest = pg.minecraft.playerPosition(user).then(function(data) {
 
-                // Home
-                message = slotGenerator(user, message, "home");
+                    const tinytest = new pg.minecraft.sound({
 
-                // Extra Slots
-                if ((c.extra_slots) && (c.extra_slots > 0)) {
-                    for (var i = 0; i < c.extra_slots + 1; i++) {
-                        message = slotGenerator(user, message, "globalhome" + String(i), true);
-                    }
-                }
+                        sound: 'minecraft',
+                        source: 'entity.creeper.primed',
+                        targets: 'player',
+                        player: user,
+                        cords: String(data[0]) + " " + String(data[1]) + " " + String(data[2])
 
-                // Global Home
-                message = slotGenerator(user, message, "globalhome", true);
+                    });
 
-                // Final Result
-                if (message) {
-                    return [user, message];
-                } else {
-                    return null;
-                }
+                    console.log(tinytest);
 
-            } else {
+                    tinytest.exe(errorSend);
+
+                });
+
+                console.log(tinytest);
+                message = null;
+
+            }
+
+            // Final Result
+            if (message) {
                 return [user, message];
-            }
-
-        };
-
-        // Discord Command
-        const setDiscordGlobal = function(message, channelID, home) {
-
-            if (message.startsWith(pg.c.discord.prefix + "setglobal" + home)) {
-
-                db.set("global" + home, message.replace(pg.c.discord.prefix + "setglobal" + home + " ", ""));
-                pg.dsBot.sendMessage({ to: channelID, message: pg.i18(pg.lang.globalhome_saved, [pg.c.minecraft.prefix]) });
-                return false;
-
             } else {
-                return true;
-            }
-
-        }
-
-        // Discord Chat
-        setHome.ds_chat = function(data) {
-
-            if ((data.channelID == pg.c.discord.channelID.bot) || (!data.guildID)) {
-
-                let continuefor = true;
-                if ((c.extra_slots) && (c.extra_slots > 0)) {
-                    for (var i = 0; i < c.extra_slots + 1; i++) {
-                        if (continuefor) {
-                            continuefor = setDiscordGlobal(data.message, data.channelID, "home" + String(i));
-                        }
-                    }
-                }
-
-                if (continuefor) {
-                    setDiscordGlobal(data.message, data.channelID, "home");
-                }
-
+                return null;
             }
 
         };
