@@ -125,5 +125,14 @@ query.port=25511
 enable-query=true
 ```
 
+### avatar_url
+The URL template to send helm avatar from the minecraft account of the users
+
+### chat_regex
+Regex to catch all minecraft messages
+
+### logs
+Gamerules to set when the rcon server start
+
 ## npmPlugins
 Your plugin is a npm module? Insert the module name inside the array. The array will be used to make a `require('name');`.

@@ -52,11 +52,33 @@ const setHome = {
                 // Set Home
                 if ((!isglobal) && (message.startsWith(pg.c.minecraft.prefix + "set" + cmd))) {
 
-                    db.set(user + "_" + cmd, message.replace(pg.c.minecraft.prefix + "set" + cmd + " ", ""));
+                    message = message
+                        .replace(pg.c.minecraft.prefix + "set" + cmd + " ", "")
+                        .replace(pg.c.minecraft.prefix + "set" + cmd, "");
 
-                    pg.connCommand('tellraw @a ' + JSON.stringify(
-                        [{ color: 'gray', text: pg.i18(pg.lang.home_saved, [pg.c.minecraft.prefix, cmd]) }]
-                    ), errorSend);
+                    if (message.replace(/ /g, '').length > 0) {
+
+                        db.set(user + "_" + cmd, message);
+
+                        new pg.minecraft.send(
+                            [{ color: 'gray', text: pg.i18(pg.lang.home_saved, [pg.c.minecraft.prefix, cmd]) }],
+                            user
+                        ).exe(errorSend);
+
+                    } else {
+
+                        pg.minecraft.playerPosition(user).then(function(data) {
+
+                            db.set(user + "_" + cmd, String(data[0]) + " " + String(data[1]) + " " + String(data[2]));
+
+                            new pg.minecraft.send(
+                                [{ color: 'gray', text: pg.i18(pg.lang.home_saved, [pg.c.minecraft.prefix, cmd]) }],
+                                user
+                            ).exe(errorSend);
+
+                        });
+
+                    }
 
                     return null;
 
@@ -74,20 +96,14 @@ const setHome = {
                     // Send
                     if (cords) {
 
-                        pg.connCommand("tp " + user + " " + cords, function(err, data) {
+                        new pg.minecraft.execute("tp " + cords, user).exe(function(err, data) {
                             if (err) {
 
                                 pg.log.error(err);
-                                pg.connCommand('tellraw @a ' + JSON.stringify(
-                                    [{ color: 'gray', text: JSON.stringify(err) }]
-                                ), errorSend);
+                                new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
 
                             } else {
-
-                                pg.connCommand('tellraw @a ' + JSON.stringify(
-                                    [{ color: 'gray', text: data }]
-                                ), errorSend);
-
+                                new pg.minecraft.send([{ color: 'gray', text: data }], user).exe(errorSend);
                             }
                         });
 
@@ -96,9 +112,7 @@ const setHome = {
                     // No Home
                     else {
 
-                        pg.connCommand('tellraw @a ' + JSON.stringify(
-                            [{ color: 'gray', text: pg.lang.error_home }]
-                        ), errorSend);
+                        new pg.minecraft.send([{ color: 'gray', text: pg.lang.error_home }], user).exe(errorSend);
 
                     }
 
@@ -119,22 +133,53 @@ const setHome = {
 
             if (c.enabled) {
 
+                // Extra Slots
                 if ((c.extra_slots) && (c.extra_slots > 0)) {
                     for (var i = 0; i < c.extra_slots + 1; i++) {
                         message = slotGenerator(user, message, "home" + String(i));
                     }
                 }
 
+                // Home
                 message = slotGenerator(user, message, "home");
 
+                // Extra Slots
                 if ((c.extra_slots) && (c.extra_slots > 0)) {
                     for (var i = 0; i < c.extra_slots + 1; i++) {
                         message = slotGenerator(user, message, "globalhome" + String(i), true);
                     }
                 }
 
+                // Global Home
                 message = slotGenerator(user, message, "globalhome", true);
 
+                // TEST
+                if ((message) && (message.startsWith(pg.c.minecraft.prefix + 'test'))) {
+
+                    const tinytest = pg.minecraft.playerPosition(user).then(function(data) {
+
+                        const tinytest = new pg.minecraft.sound({
+
+                            sound: 'minecraft',
+                            source: 'entity.creeper.primed',
+                            targets: 'player',
+                            player: user,
+                            cords: String(data[0]) + " " + String(data[1]) + " " + String(data[2])
+
+                        });
+
+                        console.log(tinytest);
+
+                        tinytest.exe(errorSend);
+
+                    });
+
+                    console.log(tinytest);
+                    message = null;
+
+                }
+
+                // Final Result
                 if (message) {
                     return [user, message];
                 } else {

@@ -1,5 +1,11 @@
 {
 
+    "log": {
+        "commandBlockOutput": "false",
+        "sendCommandFeedback": "false",
+        "logAdminCommands": "true"
+    },
+
     "lang": "en",
     "chatLog": true,
     "server_folder": "",

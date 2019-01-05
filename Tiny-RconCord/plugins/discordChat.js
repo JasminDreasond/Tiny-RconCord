@@ -47,11 +47,20 @@ const chat = {
                 text = text.replace(/[Ç]/g, "C");
                 text = text.replace(/[ç]/g, "c");
 
-                return c.template.tellraw
-                    .replace('%username%', username)
-                    .replace('%discriminator%', discriminator)
-                    .replace('%bot%', bot)
-                    .replace('%message%', text);
+                const message_template = [];
+
+                for (var i = 0; i < c.template.tellraw.length; i++) {
+                    if (c.template.tellraw[i].text) {
+                        c.template.tellraw[i].text = c.template.tellraw[i].text
+                            .replace('%username%', username)
+                            .replace('%discriminator%', discriminator)
+                            .replace('%bot%', bot)
+                            .replace('%message%', text);
+                    }
+                    message_template.push(c.template.tellraw[i]);
+                }
+
+                return message_template;
 
             },
 
@@ -80,7 +89,7 @@ const chat = {
                     var cmd = message;
                 }
 
-                pg.connCommand('tellraw @a ' + cmd, function(err) {
+                new pg.minecraft.send(cmd).exe(function(err) {
                     if (err) {
                         pg.log.error(err);
                         if (pg.c.discord.channelID.rcon) {

@@ -25,6 +25,7 @@ module.exports = function(pgdata) {
     const moment = require('moment');
     const log = require('./lib/log.js');
     const Rcon = require('./lib/rcon.js');
+    const minecraft = require('./lib/minecraft.js');
     const c = require('./config.json');
     const globalds = require('./discord/global.js');
     const webhook = require("./discord/webhook.js");
@@ -395,6 +396,7 @@ module.exports = function(pgdata) {
                 ) {
 
                     await plugins[i].start({
+                        minecraft: minecraft,
                         JSONStore: JSONStore,
                         dsBot: server.ds,
                         request: request,
@@ -497,61 +499,93 @@ module.exports = function(pgdata) {
 
         // Start
         let conn;
-        const startBase = function() {
+        const startBase = {
 
-            // Start with RCON
-            if (!pgdata) {
+            start: async function() {
 
-                log.info(lang.connecting_rcon);
-                conn = new Rcon(c.minecraft.rcon.ip, c.minecraft.rcon.port, {
+                await startServer.plugins();
+                globalds.start(c, lang, conn, server, plugins, log, tinypack, i18);
+                server.ds.start(server, lang, c, plugins, i18, log, globalds, json_stringify, request);
+                startServer.logAPI();
+                startServer.query();
 
-                    data: function(length, id, type, response) {
-                        if ((response) && (response.replace(/ /g, "") != "")) {
+            },
 
-                            for (var i = 0; i < plugins.length; i++) {
-                                if ((typeof plugins[i].mc_log == "function") && (typeof response == "string") && (response != "")) {
-                                    response = plugins[i].mc_log(response);
+            fire: function() {
+
+                // Start with RCON
+                if (!pgdata) {
+
+                    log.info(lang.connecting_rcon);
+                    conn = new Rcon(c.minecraft.rcon.ip, c.minecraft.rcon.port, {
+
+                        data: function(length, id, type, response) {
+                            if ((response) && (response.replace(/ /g, "") != "")) {
+
+                                for (var i = 0; i < plugins.length; i++) {
+                                    if ((typeof plugins[i].mc_log == "function") && (typeof response == "string") && (response != "")) {
+                                        response = plugins[i].mc_log(response);
+                                    }
                                 }
-                            }
 
-                            if ((typeof response == "string") && (response.replace(/ /g, "") != "")) {
-                                log_control.send("[RCON] " + response);
+                                if ((typeof response == "string") && (response.replace(/ /g, "") != "")) {
+                                    log_control.send("[RCON] " + response);
+                                }
+
+                            }
+                        },
+
+                        net: function(port, ip) {
+                            log.info(i18(lang.rcon_auth, [ip, port]));
+                        },
+
+                        connect: function() { server.online.mc = true; },
+                        close: function() { server.online.mc = false; },
+
+                        lookup: function(err, address, family, host) {
+                            if (!err) {
+                                log.info(lang.minecraft_connection, address, family, host);
+                            } else {
+                                log.error(lang.minecraft_connection, err);
+                            }
+                        }
+
+                    }, log);
+
+                    // Auth RCON
+                    conn.auth(c.minecraft.rcon.password, async function() {
+                        if (server.first.rcon == true) {
+
+                            server.first.rcon = false;
+                            minecraft.start(log, function(cmd, callback) { conn.command(cmd, callback); });
+
+                            if (c.logs) {
+                                conn.command('gamerule sendCommandFeedback ' + c.log.sendCommandFeedback, function(err, data1) {
+                                    if (err) { log.error(err); } else {
+                                        log.info(data1);
+                                        conn.command('gamerule commandBlockOutput ' + c.log.commandBlockOutput, function(err, data2) {
+                                            if (err) { log.error(err); } else {
+                                                log.info(data2);
+                                                conn.command('gamerule logAdminCommands ' + c.log.logAdminCommands, function(err, data3) {
+                                                    if (err) { log.error(err); } else {
+                                                        log.info(data3);
+                                                        log.info(lang.rcon_connected);
+                                                        startBase.start();
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            } else {
+                                log.info(lang.rcon_connected);
+                                startBase.start();
                             }
 
                         }
-                    },
+                    });
 
-                    net: function(port, ip) {
-                        log.info(i18(lang.rcon_auth, [ip, port]));
-                    },
-
-                    connect: function() { server.online.mc = true; },
-                    close: function() { server.online.mc = false; },
-
-                    lookup: function(err, address, family, host) {
-                        if (!err) {
-                            log.info(lang.minecraft_connection, address, family, host);
-                        } else {
-                            log.error(lang.minecraft_connection, err);
-                        }
-                    }
-
-                }, log);
-
-                // Auth RCON
-                conn.auth(c.minecraft.rcon.password, async function() {
-                    if (server.first.rcon == true) {
-
-                        server.first.rcon = false;
-
-                        await startServer.plugins();
-                        globalds.start(c, lang, conn, server, plugins, log, tinypack, i18);
-                        server.ds.start(server, lang, c, plugins, i18, log, globalds, json_stringify, request);
-                        startServer.logAPI();
-                        startServer.query();
-
-                    }
-                });
+                }
 
             }
 
@@ -577,13 +611,13 @@ module.exports = function(pgdata) {
                     c.webhook.avatar = data.avatar;
                     c.webhook.guild_id = data.guild_id;
                     log.info(lang.loading_webhook_complete);
-                    startBase();
+                    startBase.fire();
                 } catch (e) {
                     log.error(e);
                 };
             });
         } else {
-            startBase();
+            startBase.fire();
         }
 
     });

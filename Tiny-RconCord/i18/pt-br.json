@@ -3,6 +3,7 @@
     "new_version": "Nova atualização {0} do aplicativo está disponível para ser baixado: {1}",
 
     "connecting_rcon": "Conectando Rcon...",
+    "rcon_connected": "Rcon foi conectado com sucesso",
     "loading_plugins": "Carregando Plugins...",
     "loading_plugins_complete": "Os plugins foram carregados com sucesso",
     "loading_discord": "Carregando Discord...",

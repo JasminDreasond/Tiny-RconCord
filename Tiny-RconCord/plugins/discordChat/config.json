@@ -11,7 +11,7 @@
 
         "bot_discord": "[%text%]",
         "discord": "`%username%`: %message%",
-        "tellraw": "[{\"color\": \"white\", \"text\": \"<%username%#%discriminator%>%bot% %message%\"}]"
+        "tellraw": [{ "color": "white", "text": "<%username%#%discriminator%>%bot% %message%" }]
 
     }
 
