@@ -354,6 +354,7 @@ module.exports = function(pgdata) {
                 ) {
 
                     await plugins[i].start({
+                        JSONStore: JSONStore,
                         dsBot: server.ds,
                         request: request,
                         plugins: plugins,
