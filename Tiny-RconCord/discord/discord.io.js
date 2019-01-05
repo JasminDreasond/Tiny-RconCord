@@ -39,6 +39,7 @@ const discordio = {
                         if (error) {
                             log.info(error);
                         } else {
+                            globalds.last_message = themessage.message;
                             if (typeof callback == "function") {
                                 callback();
                             }
@@ -51,6 +52,7 @@ const discordio = {
                         if (error) {
                             log.info(error);
                         } else if (typeof callback == "function") {
+                            globalds.last_message = themessage.message;
                             callback();
                         }
                     });

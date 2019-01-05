@@ -71,12 +71,23 @@ const helloworld = {
         };
 
         // Add items into the Help Command
-        helloworld.help = function() {
+        setHome.help = function(data) {
 
-            return [
-                { name: "Test", value: "test again", inline: true },
-                { name: "Test 2", value: "test again 2", inline: true }
-            ];
+            // Check if the userID is the app owner
+            if (data.userID == data.ownerID) {
+
+                // Yes? Insert the help
+                return [
+                    { name: "Test", value: "test again", inline: true },
+                    { name: "Test 2", value: "test again 2", inline: true }
+                ];
+
+            }
+
+            // Nope? Send a empty array
+            else {
+                return [];
+            }
 
         };
 

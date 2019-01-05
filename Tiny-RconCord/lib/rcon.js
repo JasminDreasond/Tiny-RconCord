@@ -155,6 +155,10 @@ Rcon.prototype.sendPackage = function(type, payload, cb) {
         if (debug) {
             log.debug('Recieved response: ' + response);
         }
-        cb(err, response, type);
+
+        if (typeof cb == "function") {
+            cb(err, response, type);
+        }
+
     };
 };

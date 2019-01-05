@@ -36,16 +36,16 @@ const chat = {
                     bot = " " + c.template.bot_discord.replace('%text%', data.bot);
                 }
 
-                text = text.replace(/[ÀÁÂÃÄÅ]/, "A");
-                text = text.replace(/[àáâãäå]/, "a");
-                text = text.replace(/[ÈÉÊË]/, "E");
-                text = text.replace(/[èéêë]/, "e");
-                text = text.replace(/[ÒÓôö]/, "O");
-                text = text.replace(/[òóôö]/, "o");
-                text = text.replace(/[ÙÚûü]/, "U");
-                text = text.replace(/[ùúûü]/, "u");
-                text = text.replace(/[Ç]/, "C");
-                text = text.replace(/[ç]/, "c");
+                text = text.replace(/[ÀÁÂÃÄÅ]/g, "A");
+                text = text.replace(/[àáâãäå]/g, "a");
+                text = text.replace(/[ÈÉÊË]/g, "E");
+                text = text.replace(/[èéêë]/g, "e");
+                text = text.replace(/[ÒÓôö]/g, "O");
+                text = text.replace(/[òóôö]/g, "o");
+                text = text.replace(/[ÙÚûü]/g, "U");
+                text = text.replace(/[ùúûü]/g, "u");
+                text = text.replace(/[Ç]/g, "C");
+                text = text.replace(/[ç]/g, "c");
 
                 return c.template.tellraw
                     .replace('%username%', username)
@@ -170,28 +170,48 @@ const chat = {
                 // Send Bot Mode
                 if (pg.plugins.length > 0) {
                     for (var i = 0; i < pg.plugins.length; i++) {
-                        if ((typeof pg.plugins[i].mc_chat == "function") && (typeof userchat[1] == "string") && (userchat[1] != "")) {
+                        if (
+                            (typeof pg.plugins[i].mc_chat == "function") && (userchat) &&
+                            (
+                                (typeof userchat[1] == "string") && (userchat[1] != "") &&
+                                (typeof userchat[0] == "string") && (userchat[0] != "")
+                            )
+                        ) {
                             userchat = pg.plugins[i].mc_chat(userchat[0], userchat[1]);
                         }
                     }
                 }
 
-                if ((typeof userchat[1] == "string") && (userchat[1].replace(/ /g, "") != "")) {
+                if (userchat) {
 
-                    if (pg.c.chatLog) {
-                        pg.log.chat(userchat[0], userchat[1]);
-                    }
+                    if ((typeof userchat[1] == "string") && (userchat[1].replace(/ /g, "") != "")) {
 
-                    if (pg.c.webhook.use) {
+                        if (pg.c.chatLog) {
+                            pg.log.chat(userchat[0], userchat[1]);
+                        }
 
-                        pg.webhook.send(pg.c.webhook, {
-                            username: userchat[0],
-                            content: userchat[1],
-                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userchat[0])
-                        });
+                        if (pg.c.webhook.use) {
 
-                    } else if (c.channelID) {
-                        pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
+                            pg.webhook.send(pg.c.webhook, {
+                                username: userchat[0],
+                                content: userchat[1],
+                                avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userchat[0])
+                            });
+
+                        } else if (c.channelID) {
+                            pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(userchat[0], userchat[1]) });
+                        }
+
+                    } else if ((userchat[1].replace(/ /g, "") != "")) {
+
+                        if (pg.c.minecraft.debug) {
+                            pg.log.minecraft(userchat[1]);
+                        }
+
+                        if (c.channelID) {
+                            pg.dsBot.sendMessage({ to: c.channelID, message: userchat[1] });
+                        }
+
                     }
 
                 }
@@ -207,7 +227,7 @@ const chat = {
                 // Model Chat
                 userjoin = userjoin[1];
 
-                if (pg.c.chatLog) {
+                if (pg.c.minecraft.debug) {
                     pg.log.minecraft(pg.i18(pg.lang.user_join, [userjoin]));
                 }
 
@@ -236,7 +256,7 @@ const chat = {
                 // Model Chat
                 userleave = userleave[1];
 
-                if (pg.c.chatLog) {
+                if (pg.c.minecraft.debug) {
                     pg.log.minecraft(pg.i18(pg.lang.user_leave, [userleave]));
                 }
 
@@ -263,7 +283,7 @@ const chat = {
                 // Model Chat
                 adv = [adv[1], adv[2]];
 
-                if (pg.c.chatLog) {
+                if (pg.c.minecraft.debug) {
                     pg.log.minecraft(pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]));
                 }
 

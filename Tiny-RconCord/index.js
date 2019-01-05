@@ -19,6 +19,7 @@ module.exports = function(pgdata) {
     }
 
     // Starting Modules
+    const JSONStore = require('json-store');
     const request = require('request');
     const json_stringify = require("json-beautify");
     const moment = require('moment');
@@ -196,11 +197,24 @@ module.exports = function(pgdata) {
                 if ((log_control.timeout < 1) || (log_control.timeout > 15)) {
 
                     if (log_control.storage != "") {
-                        server.ds.sendMessage({ to: c.discord.channelID.log, message: log_control.storage });
+
+                        if (log_control.storage.length < 900) {
+                            server.ds.sendMessage({ to: c.discord.channelID.log, message: log_control.storage });
+                        } else {
+                            server.ds.sendMessage({ to: c.discord.channelID.log, message: lang.long_message });
+                        }
+
                         log_control.storage = "";
                         log_control.timeout = 0;
+
                     } else if (typeof data == "string") {
-                        server.ds.sendMessage({ to: c.discord.channelID.log, message: data });
+
+                        if (data.length < 900) {
+                            server.ds.sendMessage({ to: c.discord.channelID.log, message: data });
+                        } else {
+                            server.ds.sendMessage({ to: c.discord.channelID.log, message: lang.long_message });
+                        }
+
                     }
 
                 }
@@ -340,6 +354,7 @@ module.exports = function(pgdata) {
                 ) {
 
                     await plugins[i].start({
+                        JSONStore: JSONStore,
                         dsBot: server.ds,
                         request: request,
                         plugins: plugins,
@@ -453,13 +468,13 @@ module.exports = function(pgdata) {
                         if ((response) && (response.replace(/ /g, "") != "")) {
 
                             for (var i = 0; i < plugins.length; i++) {
-                                if ((typeof plugins[i].rcon == "function") && (typeof response == "string") && (response != "")) {
-                                    response = plugins[i].rcon(response);
+                                if ((typeof plugins[i].mc_log == "function") && (typeof response == "string") && (response != "")) {
+                                    response = plugins[i].mc_log(response);
                                 }
                             }
 
-                            if ((c.discord.channelID.rcon) && (typeof response == "string") && (response.replace(/ /g, "") != "")) {
-                                server.ds.sendMessage({ to: c.discord.channelID.rcon, message: response });
+                            if ((typeof response == "string") && (response.replace(/ /g, "") != "")) {
+                                log_control.send("[RCON] " + response);
                             }
 
                         }

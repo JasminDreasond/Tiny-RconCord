@@ -1,0 +1,9 @@
+{
+
+    "home_saved": "Sua casa foi salva com sucesso. Para teleportar, use o comando {0}{1}",
+    "globalhome_saved": "Sua casa foi salva com sucesso. Para teleportar, use o comando {0}globalhome no Minecraft",
+    "error_home": "Nenhuma casa foi encontrada",
+
+    "setglobalhome_help": "Definir as coordenadas da localização global"
+
+}

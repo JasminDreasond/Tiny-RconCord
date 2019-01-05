@@ -13,16 +13,35 @@ const globalds = {
 
     start: function(c, lang, conn, server, plugins, log, tinypack, i18) {
 
+        globalds.last_message = '';
+
         globalds.message = function(data) {
 
             // RCON Message
             if ((data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
 
                 data.message = data.message.substring(1, data.message.length);
-                conn.command(data.message, function(err) {
+                conn.command(data.message, function(err, cdata) {
                     if (err) {
+
                         log.error(err);
-                        server.ds.sendMessage({ to: c.discord.channelID.rcon, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+
+                        if (cdata.length < 900) {
+                            server.ds.sendMessage({ to: c.discord.channelID.rcon, message: lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                        } else {
+                            server.ds.sendMessage({ to: c.discord.channelID.rcon, message: lang.long_message });
+                        }
+
+                    } else {
+
+                        log.info(cdata);
+
+                        if (cdata.length < 900) {
+                            server.ds.sendMessage({ to: c.discord.channelID.rcon, message: cdata });
+                        } else {
+                            server.ds.sendMessage({ to: c.discord.channelID.rcon, message: lang.long_message });
+                        }
+
                     }
                 });
 
@@ -244,7 +263,7 @@ const globalds = {
                         if (plugins.length > 0) {
                             for (var i = 0; i < plugins.length; i++) {
                                 if (typeof plugins[i].help == "function") {
-                                    var tinyhelp = plugins[i].help();
+                                    var tinyhelp = plugins[i].help(data);
                                     if (tinyhelp.length > 0) {
                                         for (var x = 0; x < tinyhelp.length; x++) {
                                             fields.push({

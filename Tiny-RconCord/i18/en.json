@@ -13,6 +13,7 @@
 
     "no_permission": "You do not have permission to run this command!",
     "no_english": "The {0} plugin needs to have an English language!",
+    "long_message": "Message is too long to be displayed in Discord. But it was printed on the console",
 
     "issues_url": "Bugs reporting page: {0}",
     "issues_email": "Email for reporting bugs: {0}",

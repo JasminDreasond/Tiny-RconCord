@@ -53,12 +53,14 @@ const discordjs = {
                         if (timer != undefined) {
                             discordjs.bot.channels.get(themessage.to).send(themessage.message, { embed: themessage.embed }).then(function(mymessage) {
 
+                                globalds.last_message = themessage.message;
                                 if (typeof callback == "function") { callback(); }
                                 mymessage.delete(timer);
 
                             }).catch(log.info);
                         } else {
                             discordjs.bot.channels.get(themessage.to).send(themessage.message, { embed: themessage.embed }).then(function() {
+                                globalds.last_message = themessage.message;
                                 if (typeof callback == "function") { callback(); }
                             }).catch(log.info);
                         }
@@ -74,6 +76,7 @@ const discordjs = {
                 const securePresence = function(value, timenow, timesize) {
 
                     if (
+                        (!discordjs.bot.user.presence) ||
                         (!discordjs.bot.user.presence.game) ||
                         (discordjs.bot.user.presence.game.name != value)
                     ) {
