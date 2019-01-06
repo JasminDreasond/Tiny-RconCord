@@ -48,11 +48,35 @@ const helloworld = {
 
         }
 
-        // Minecraft Chat (You need the chat.js installed)
+        // Minecraft Chat
         helloworld.mc_chat = function(user, message) {
 
             // Return the message before it enter into Discord
             return [user, message];
+
+        };
+
+        // Minecraft Join
+        helloworld.mc_join = function(userjoin) {
+
+            // Return the join value for another plugins
+            return userjoin;
+
+        };
+
+        // Minecraft Leave
+        helloworld.mc_leave = function(userleave) {
+
+            // Return the leave value for another plugins
+            return userleave;
+
+        };
+
+        // Minecraft Advancement
+        helloworld.mc_advancement = function(adv) {
+
+            // Return the advancement value for another plugins
+            return adv;
 
         };
 

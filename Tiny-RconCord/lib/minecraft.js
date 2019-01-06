@@ -1,3 +1,14 @@
+/***************************************************************************
+ *
+ *  Tiny-RconCord
+ *  Author: Jasmin Dreasond
+ *  Copyright: © 2019 Jasmin Dreasond
+ *
+ *  Github: https://github.com/JasminDreasond
+ *  License: MIT
+ *
+ ***************************************************************************/
+
 const minecraft = {
 
     start: function(log, connCommand) {

@@ -10,8 +10,8 @@
  ***************************************************************************/
 
 const setHome = {
-    name: "Set Home",
-    description: "Simple sethome for Minecraft Vanilla",
+    name: "Teleport",
+    description: "TP Commands for non-op users",
     author: "Jasmin Dreasond",
     page: "https://github.com/JasminDreasond/Tiny-RconCord",
     issues: "https://github.com/JasminDreasond/Tiny-RconCord/issues",
