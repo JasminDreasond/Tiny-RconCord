@@ -13,7 +13,24 @@
 
         "bot_discord": "[%text%]",
         "discord": "`%username%`: %message%",
-        "tellraw": [{ "color": "white", "text": "<%username%#%discriminator%>%bot% %message%" }]
+        "tellraw": {
+
+            "message": [{ "color": "white", "text": "%message%" }],
+
+            "user": [
+                { "color": "white", "text": "<" },
+                { "color": "white", "text": "%username%#%discriminator%" },
+                { "color": "white", "text": ">%bot% " }
+            ],
+
+            "url": [{
+                "color": "white",
+                "clickEvent": {
+                    "action": "open_url"
+                }
+            }]
+
+        }
 
     }
 

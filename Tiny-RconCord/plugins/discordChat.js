@@ -24,11 +24,23 @@ const chat = {
         // Scripts base
         const chat_st = {
 
+            // URL Regex
+            regex: /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g,
+
+            // Minecraft Message
             minecraftTellraw: function(data) {
 
+                // Prepare
+                let removelast = false;
                 const username = pg.emojiStrip(data.username);
                 const discriminator = data.discriminator;
-                let text = pg.emojiStrip(data.message);
+                data.message = pg.emojiStrip(data.message);
+                let text = {
+                    msg: data.message.split(chat_st.regex),
+                    urls: data.message.match(chat_st.regex),
+                    result: ""
+                };
+                console.log(text);
 
                 let bot = '';
 
@@ -36,26 +48,110 @@ const chat = {
                     bot = " " + c.template.bot_discord.replace('%text%', data.bot);
                 }
 
+                // Message
                 const message_template = [];
 
-                for (var i = 0; i < c.template.tellraw.length; i++) {
-                    message_template.push(Object.create(c.template.tellraw[i]));
-                    if (
-                        (message_template[i].text) &&
-                        (c.template.tellraw[i].text)
-                    ) {
-                        message_template[i].text = c.template.tellraw[i].text
-                            .replace('%username%', username)
-                            .replace('%discriminator%', discriminator)
-                            .replace('%bot%', bot)
-                            .replace('%message%', text);
+                // Get Username
+                for (var i = 0; i < c.template.tellraw.user.length; i++) {
+                    if (c.template.tellraw.user[i].text) {
+
+                        message_template.push(Object.create(c.template.tellraw.user[i]));
+                        if (message_template[i].text) {
+                            message_template[i].text = message_template[i].text
+                                .replace('%username%', username)
+                                .replace('%discriminator%', discriminator)
+                                .replace('%bot%', bot);
+                        }
+
                     }
+                }
+
+                // Prepare Message
+                let y = 0;
+                for (var i = 0; i < text.msg.length; i++) {
+
+                    if (typeof text.msg[i] == "string") {
+
+                        if (
+                            (removelast) &&
+                            (text.msg[i].startsWith('/'))
+                        ) {
+                            text.result += text.msg[i].substring(1, text.msg[i].length);
+                        } else {
+                            text.result += text.msg[i];
+                        }
+
+                        removelast = false;
+
+                    } else {
+
+                        if (text.urls[y].endsWith('/')) {
+                            removelast = true;
+                        }
+
+                        // Insert Text
+                        for (var i = 0; i < c.template.tellraw.message.length; i++) {
+                            if (c.template.tellraw.message[i].text) {
+
+                                message_template.push(Object.create(c.template.tellraw.message[i]));
+
+                                var x = message_template.length - 1;
+                                if (message_template[x].text) {
+                                    message_template[x].text = message_template[x].text.replace('%message%', text.result);
+                                }
+
+                            }
+                        }
+
+                        text.result = '';
+
+                        // Insert URL
+                        if (text.urls) {
+
+                            for (var i = 0; i < c.template.tellraw.url.length; i++) {
+                                if ((c.template.tellraw.url[i].clickEvent) && (c.template.tellraw.url[i].clickEvent.action == "open_url")) {
+
+                                    message_template.push(Object.create(c.template.tellraw.url[i]));
+
+                                    var x = message_template.length - 1;
+
+                                    message_template[x].text = text.urls[y];
+                                    message_template[x].clickEvent.value = text.urls[y];
+
+
+                                }
+                            }
+
+                            y++;
+                        }
+
+                    }
+
+                }
+
+                if (text.result != "") {
+
+                    // Insert Text
+                    for (var i = 0; i < c.template.tellraw.message.length; i++) {
+                        if (c.template.tellraw.message[i].text) {
+
+                            message_template.push(Object.create(c.template.tellraw.message[i]));
+
+                            var x = message_template.length - 1;
+                            if (message_template[x].text) {
+                                message_template[x].text = message_template[x].text.replace('%message%', text.result);
+                            }
+
+                        }
+                    }
+
                 }
 
                 return message_template;
 
             },
 
+            // Discord Message
             discordMessage: function(username, message) {
                 // make a discord message string by formatting the configured template with the given parameters
                 return c.template.discord
@@ -85,9 +181,23 @@ const chat = {
         };
 
         // Discord Special Chat
-        chat.ds_special_chat = function(data) {
+        chat.ds_special_chat = function(data, event) {
 
             if ((data.channelID == c.channelID) && (data.userID != pg.getDS().id)) {
+
+                if (event.d.attachments.length > 0) {
+
+                    const tinynb = data.message.replace(" ", "").length;
+
+                    for (var i = 0; i < event.d.attachments.length; i++) {
+                        if (tinynb > 0) {
+                            data.message += '\n' + event.d.attachments[i].url;
+                        } else {
+                            data.message += event.d.attachments[i].url;
+                        }
+                    }
+
+                }
 
                 if (data.message.replace(" ", "").length > 0) {
 
