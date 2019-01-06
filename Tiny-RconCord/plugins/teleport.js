@@ -66,7 +66,6 @@ const setHome = {
                             pg.log.error(err);
                             new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
                         } else {
-                            console.log(data);
                             tpEffect(user, cords);
                         }
                     });

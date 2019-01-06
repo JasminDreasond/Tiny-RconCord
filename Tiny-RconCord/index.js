@@ -319,6 +319,7 @@ module.exports = function(pgdata) {
                                 userchat = await startServer.sendPlugin(userchat, 'mc_chat');
 
                                 if (
+                                    (userchat) &&
                                     (typeof userchat[0] == "string") &&
                                     (typeof userchat[1] == "string") &&
                                     (userchat[1].replace(/ /g, "") != "") &&
