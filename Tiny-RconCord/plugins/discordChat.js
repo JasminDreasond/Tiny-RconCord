@@ -24,23 +24,29 @@ const chat = {
         // Scripts base
         const chat_st = {
 
+            clone: function(obj) {
+                if (null == obj || "object" != typeof obj) return obj;
+                var copy = obj.constructor();
+                for (var attr in obj) {
+                    if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr];
+                }
+                return copy;
+            },
+
             // URL Regex
-            regex: /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g,
+            regex: /(https?:\/\/[^\s]+)/g,
 
             // Minecraft Message
             minecraftTellraw: function(data) {
 
                 // Prepare
-                let removelast = false;
                 const username = pg.emojiStrip(data.username);
                 const discriminator = data.discriminator;
                 data.message = pg.emojiStrip(data.message);
                 let text = {
                     msg: data.message.split(chat_st.regex),
-                    urls: data.message.match(chat_st.regex),
                     result: ""
                 };
-                console.log(text);
 
                 let bot = '';
 
@@ -55,7 +61,7 @@ const chat = {
                 for (var i = 0; i < c.template.tellraw.user.length; i++) {
                     if (c.template.tellraw.user[i].text) {
 
-                        message_template.push(Object.create(c.template.tellraw.user[i]));
+                        message_template.push(chat_st.clone(c.template.tellraw.user[i]));
                         if (message_template[i].text) {
                             message_template[i].text = message_template[i].text
                                 .replace('%username%', username)
@@ -67,33 +73,18 @@ const chat = {
                 }
 
                 // Prepare Message
-                let y = 0;
                 for (var i = 0; i < text.msg.length; i++) {
 
-                    if (typeof text.msg[i] == "string") {
-
-                        if (
-                            (removelast) &&
-                            (text.msg[i].startsWith('/'))
-                        ) {
-                            text.result += text.msg[i].substring(1, text.msg[i].length);
-                        } else {
-                            text.result += text.msg[i];
-                        }
-
-                        removelast = false;
-
-                    } else {
-
-                        if (text.urls[y].endsWith('/')) {
-                            removelast = true;
-                        }
+                    if ((typeof text.msg[i] == "string") && (
+                            (!text.msg[i].startsWith('https')) ||
+                            (!text.msg[i].startsWith('https'))
+                        )) { text.result += text.msg[i]; } else {
 
                         // Insert Text
-                        for (var i = 0; i < c.template.tellraw.message.length; i++) {
-                            if (c.template.tellraw.message[i].text) {
+                        for (var y = 0; y < c.template.tellraw.message.length; y++) {
+                            if (c.template.tellraw.message[y].text) {
 
-                                message_template.push(Object.create(c.template.tellraw.message[i]));
+                                message_template.push(chat_st.clone(c.template.tellraw.message[y]));
 
                                 var x = message_template.length - 1;
                                 if (message_template[x].text) {
@@ -106,23 +97,18 @@ const chat = {
                         text.result = '';
 
                         // Insert URL
-                        if (text.urls) {
 
-                            for (var i = 0; i < c.template.tellraw.url.length; i++) {
-                                if ((c.template.tellraw.url[i].clickEvent) && (c.template.tellraw.url[i].clickEvent.action == "open_url")) {
+                        for (var y = 0; y < c.template.tellraw.url.length; y++) {
+                            if ((c.template.tellraw.url[y].clickEvent) && (c.template.tellraw.url[y].clickEvent.action == "open_url")) {
 
-                                    message_template.push(Object.create(c.template.tellraw.url[i]));
+                                message_template.push(chat_st.clone(c.template.tellraw.url[y]));
 
-                                    var x = message_template.length - 1;
+                                var x = message_template.length - 1;
 
-                                    message_template[x].text = text.urls[y];
-                                    message_template[x].clickEvent.value = text.urls[y];
+                                message_template[x].text = text.msg[i];
+                                message_template[x].clickEvent.value = text.msg[i];
 
-
-                                }
                             }
-
-                            y++;
                         }
 
                     }
@@ -135,7 +121,7 @@ const chat = {
                     for (var i = 0; i < c.template.tellraw.message.length; i++) {
                         if (c.template.tellraw.message[i].text) {
 
-                            message_template.push(Object.create(c.template.tellraw.message[i]));
+                            message_template.push(chat_st.clone(c.template.tellraw.message[i]));
 
                             var x = message_template.length - 1;
                             if (message_template[x].text) {
@@ -147,6 +133,7 @@ const chat = {
 
                 }
 
+                console.log(message_template);
                 return message_template;
 
             },
