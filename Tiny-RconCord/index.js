@@ -138,6 +138,19 @@ module.exports = function(pgdata) {
         // Server
         const server = {
 
+            // Send Commands
+            connCommand: async function(cmd, callback) {
+                if (typeof callback != "function") {
+                    return await new Promise(function(resolve, reject) {
+                        conn.command(cmd, function(err, data) {
+                            if (!err) { resolve(data); } else { reject(err); }
+                        });
+                    });
+                } else {
+                    conn.command(cmd, callback);
+                }
+            },
+
             // Basic
             online: { ds: false, mc: false },
             first: {
@@ -238,7 +251,7 @@ module.exports = function(pgdata) {
                     if (fs.existsSync(c.server_folder + '/logs/latest.log')) {
 
                         const tail = new Tail(c.server_folder + '/logs/latest.log');
-                        tail.on("line", function(data) {
+                        tail.on("line", async function(data) {
 
                             // Detect if the log is a chat message
                             if (typeof c.minecraft.chat_regex == "string") {
@@ -258,7 +271,7 @@ module.exports = function(pgdata) {
                                             (typeof plugins[i].mc_chat == "function") && (userchat) &&
                                             (typeof userchat[1] == "string") && (userchat[1] != "")
                                         ) {
-                                            userchat = plugins[i].mc_chat(userchat[0], userchat[1]);
+                                            userchat = await plugins[i].mc_chat(userchat[0], userchat[1]);
                                         } else if ((!userchat) || (typeof userchat[0] != "string") || (userchat[0] == "")) {
                                             return;
                                         }
@@ -283,7 +296,7 @@ module.exports = function(pgdata) {
                                 // Log Lines
                                 for (var i = 0; i < plugins.length; i++) {
                                     if ((typeof plugins[i].mc_log == "function") && (typeof data == "string") && (data != "")) {
-                                        data = plugins[i].mc_log(data);
+                                        data = await plugins[i].mc_log(data);
                                     }
                                 }
 
@@ -407,9 +420,7 @@ module.exports = function(pgdata) {
                         moment: moment,
                         lang: lang,
                         log: log,
-                        connCommand: function(cmd, callback) {
-                            conn.command(cmd, callback);
-                        },
+                        connCommand: server.connCommand,
                         i18: i18,
                         c: c,
                         server: {
@@ -504,7 +515,7 @@ module.exports = function(pgdata) {
             start: async function() {
 
                 await startServer.plugins();
-                globalds.start(c, lang, conn, server, plugins, log, tinypack, i18);
+                globalds.start(c, lang, server, plugins, log, tinypack, i18);
                 server.ds.start(server, lang, c, plugins, i18, log, globalds, json_stringify, request);
                 startServer.logAPI();
                 startServer.query();
@@ -557,7 +568,7 @@ module.exports = function(pgdata) {
                         if (server.first.rcon == true) {
 
                             server.first.rcon = false;
-                            minecraft.start(log, function(cmd, callback) { conn.command(cmd, callback); });
+                            minecraft.start(log, server.connCommand);
 
                             if (c.logs) {
                                 conn.command('gamerule sendCommandFeedback ' + c.log.sendCommandFeedback, function(err, data1) {

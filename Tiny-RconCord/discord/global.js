@@ -11,7 +11,7 @@
 
 const globalds = {
 
-    start: function(c, lang, conn, server, plugins, log, tinypack, i18) {
+    start: function(c, lang, server, plugins, log, tinypack, i18) {
 
         globalds.last_message = '';
 
@@ -21,7 +21,7 @@ const globalds = {
             if ((data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
 
                 data.message = data.message.substring(1, data.message.length);
-                conn.command(data.message, function(err, cdata) {
+                server.connCommand(data.message, function(err, cdata) {
                     if (err) {
 
                         log.error(err);

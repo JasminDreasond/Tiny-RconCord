@@ -25,8 +25,8 @@ const minecraft = {
             this.cmd = 'execute ' + cmd;
         };
 
-        minecraft.execute.prototype.exe = function(callback) {
-            connCommand(this.cmd, callback);
+        minecraft.execute.prototype.exe = async function(callback) {
+            return await connCommand(this.cmd, callback);
         };
 
         // Command
@@ -34,8 +34,8 @@ const minecraft = {
             this.cmd = 'execute as ' + player + ' run ' + cmd;
         };
 
-        minecraft.command.prototype.exe = function(callback) {
-            connCommand(this.cmd, callback);
+        minecraft.command.prototype.exe = async function(callback) {
+            return await connCommand(this.cmd, callback);
         };
 
         // Send Message
@@ -43,8 +43,8 @@ const minecraft = {
             this.cmd = 'tellraw ' + player + ' ' + minecraft.fixMessage(JSON.stringify(cmd));
         };
 
-        minecraft.send.prototype.exe = function(callback) {
-            connCommand(this.cmd, callback);
+        minecraft.send.prototype.exe = async function(callback) {
+            return await connCommand(this.cmd, callback);
         };
 
         // Play Sound
@@ -78,8 +78,8 @@ const minecraft = {
 
         };
 
-        minecraft.sound.prototype.exe = function(callback) {
-            connCommand(this.cmd, callback);
+        minecraft.sound.prototype.exe = async function(callback) {
+            return await connCommand(this.cmd, callback);
         };
 
         // Team
@@ -116,27 +116,29 @@ const minecraft = {
             return this.cmd + 'remove ' + id;
         };
 
-        minecraft.team.prototype.exe = function(callback) {
-            connCommand(this.cmd, callback);
+        minecraft.team.prototype.exe = async function(callback) {
+            return await connCommand(this.cmd, callback);
         };
 
         // Get User Position
-        minecraft.playerPosition = async function(user) {
-            return await new Promise(function(resolve, reject) {
-                connCommand("data get entity " + user + " Pos", function(err, data) {
-                    if (err) {
-                        log.error(err);
-                        reject();
-                    } else {
-                        var tinyresult = JSON.parse(data.replace(user + " has the following entity data: ", "")
-                            .replace(/d\,/g, ',')
-                            .replace(/d\]/g, ']')
-                            .replace(/d\)/g, ')')
-                        );
-                        resolve(tinyresult);
-                    }
+        minecraft.playerPosition = async function(user, callback) {
+            if (typeof callback != "function") {
+                return await new Promise(function(resolve, reject) {
+                    connCommand("data get entity " + user + " Pos", function(err, data) {
+                        if (err) {
+                            log.error(err);
+                            reject();
+                        } else {
+                            var tinyresult = JSON.parse(data.replace(user + " has the following entity data: ", "")
+                                .replace(/d\,/g, ',')
+                                .replace(/d\]/g, ']')
+                                .replace(/d\)/g, ')')
+                            );
+                            resolve(tinyresult);
+                        }
+                    });
                 });
-            });
+            }
         };
 
     }

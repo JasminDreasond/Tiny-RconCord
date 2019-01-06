@@ -143,7 +143,6 @@ const setHome = {
 
                 });
 
-                console.log(tinytest);
                 message = null;
 
             }

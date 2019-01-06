@@ -97,6 +97,10 @@ const setHome = {
                             if (err) {
                                 pg.log.error(err);
                                 new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
+                            } else {
+
+
+
                             }
                         });
 
