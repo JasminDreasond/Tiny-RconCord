@@ -128,7 +128,7 @@ enable-query=true
 ### avatar_url
 The URL template to send helm avatar from the minecraft account of the users
 
-### chat_regex
+### regex
 Regex to catch all minecraft messages
 
 ### logs

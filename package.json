@@ -1,6 +1,6 @@
 {
     "name": "Tiny-RconCord",
-    "version": "1.1.2",
+    "version": "1.2.0",
     "description": "Minecraft and Discord connected in a application :D",
     "homepage": "https://github.com/JasminDreasond/Tiny-RconCord",
     "main": "index.js",

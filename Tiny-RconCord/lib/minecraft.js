@@ -58,6 +58,7 @@ const minecraft = {
             ) {
 
                 if (typeof data.cords != "string") { data.cords = '~ ~ ~'; }
+                if (typeof data.object != "string") { data.object = '@a'; }
                 if (typeof data.volume != "string") { data.volume = ''; } else {
                     data.volume = ' ' + data.volume;
                 }
@@ -70,7 +71,7 @@ const minecraft = {
                     data.minimumVolume = ' ' + data.minimumVolume;
                 }
 
-                this.cmd = 'execute as ' + data.player + ' run playsound ' + data.sound + ':' + data.source + ' ' + data.targets + ' ' + data.player + ' ' + data.cords + data.volume + data.pitch + data.minimumVolume;
+                this.cmd = 'execute as ' + data.player + ' run playsound ' + data.sound + ':' + data.source + ' ' + data.targets + ' ' + data.object + ' ' + data.cords + data.volume + data.pitch + data.minimumVolume;
 
             } else {
                 this.cmd = null;
@@ -79,6 +80,33 @@ const minecraft = {
         };
 
         minecraft.sound.prototype.exe = async function(callback) {
+            return await connCommand(this.cmd, callback);
+        };
+
+        // Play Sound
+        minecraft.particle = function(data) {
+
+            if (
+                (typeof data.name == "string") &&
+                (typeof data.source == "string")
+            ) {
+
+                if (typeof data.cords != "string") { data.cords = '~ ~ ~'; }
+                if (typeof data.delta != "string") { data.delta = '0 0 0'; }
+                if ((typeof data.speed != "string") && (typeof data.speed != "number")) { data.speed = '0'; }
+                if ((typeof data.count != "string") && (typeof data.count != "number")) { data.count = '1000'; }
+                if (typeof data.type != "string") { data.type = 'normal'; }
+                if (typeof data.player != "string") { data.player = '@a'; }
+
+                this.cmd = 'particle ' + data.name + ':' + data.source + ' ' + data.cords + ' ' + data.delta + ' ' + data.speed + ' ' + data.count + ' ' + data.type + ' ' + data.player;
+
+            } else {
+                this.cmd = null;
+            }
+
+        };
+
+        minecraft.particle.prototype.exe = async function(callback) {
             return await connCommand(this.cmd, callback);
         };
 
@@ -121,24 +149,31 @@ const minecraft = {
         };
 
         // Get User Position
-        minecraft.playerPosition = async function(user, callback) {
-            if (typeof callback != "function") {
-                return await new Promise(function(resolve, reject) {
-                    connCommand("data get entity " + user + " Pos", function(err, data) {
-                        if (err) {
-                            log.error(err);
-                            reject();
-                        } else {
+        minecraft.playerPosition = async function(user) {
+            return await new Promise(function(resolve, reject) {
+                connCommand("data get entity " + user + " Pos", function(err, data) {
+                    if (err) {
+                        log.error(err);
+                        reject(err);
+                    } else {
+
+                        try {
                             var tinyresult = JSON.parse(data.replace(user + " has the following entity data: ", "")
                                 .replace(/d\,/g, ',')
                                 .replace(/d\]/g, ']')
                                 .replace(/d\)/g, ')')
                             );
-                            resolve(tinyresult);
+
+                            resolve([tinyresult, tinyresult[0] + ' ' + tinyresult[1] + ' ' + tinyresult[2]]);
+                        } catch (e) {
+                            log.error(err);
+                            reject(err);
                         }
-                    });
+
+
+                    }
                 });
-            }
+            });
         };
 
     }

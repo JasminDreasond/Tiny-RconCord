@@ -147,36 +147,12 @@ const chat = {
 
             }
 
-            return [user, message];
-
         };
 
-        // Minecraft Log
-        chat.mc_log = function(data) {
+        // Minecraft Join
+        chat.mc_join = function(userjoin) {
 
-            if (typeof c.join == "string") {
-                var userjoin = data.match(new RegExp(c.join));
-            }
-
-            if (typeof c.leave == "string") {
-                var userleave = data.match(new RegExp(c.leave));
-            }
-
-            if (typeof c.advancement == "string") {
-                var adv = data.match(new RegExp(c.advancement));
-            }
-
-            // Start looking data
-
-            // Join User
-            if ((typeof c.join == "string") && (userjoin)) {
-
-                // Model Chat
-                userjoin = userjoin[1];
-
-                if (pg.c.minecraft.debug) {
-                    pg.log.minecraft(pg.i18(pg.lang.user_join, [userjoin]));
-                }
+            if (c.show.join) {
 
                 if (pg.c.webhook.use) {
 
@@ -192,20 +168,18 @@ const chat = {
 
                 }
 
-                // Finish the Log Get
                 return null;
 
+            } else {
+                return userjoin;
             }
 
-            // Leave User
-            else if ((typeof c.leave == "string") && (userleave)) {
+        };
 
-                // Model Chat
-                userleave = userleave[1];
+        // Minecraft Leave
+        chat.mc_leave = function(userleave) {
 
-                if (pg.c.minecraft.debug) {
-                    pg.log.minecraft(pg.i18(pg.lang.user_leave, [userleave]));
-                }
+            if (c.show.leave) {
 
                 if (pg.c.webhook.use) {
 
@@ -219,20 +193,18 @@ const chat = {
                     pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
                 }
 
-                // Finish the Log Get
                 return null;
 
+            } else {
+                return userleave;
             }
 
-            // Advancement
-            else if ((typeof c.advancement == "string") && (adv)) {
+        };
 
-                // Model Chat
-                adv = [adv[1], adv[2]];
+        // Minecraft Advancement
+        chat.mc_advancement = function(adv) {
 
-                if (pg.c.minecraft.debug) {
-                    pg.log.minecraft(pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]));
-                }
+            if (c.show.advancement) {
 
                 if (pg.c.webhook.use) {
 
@@ -246,15 +218,9 @@ const chat = {
                     pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
                 }
 
-                // Finish the Log Get
-                return null;
-
             }
 
-            // Nothing
-            else {
-                return data;
-            }
+            return adv;
 
         };
 

@@ -243,6 +243,47 @@ module.exports = function(pgdata) {
         const plugins = [];
         const startServer = {
 
+            sendPlugin: async function(data, type) {
+
+                // Send Bot Mode
+                if (plugins.length > 0) {
+
+                    for (var i = 0; i < plugins.length; i++) {
+
+                        if (
+                            (typeof plugins[i][type] == "function") && (data) &&
+                            (
+                                ((Array.isArray(data)) && (typeof data[1] == "string") && (data[1] != "")) ||
+                                (typeof data == "string") && (data != "")
+                            )
+                        ) {
+
+                            if (Array.isArray(data)) {
+                                data = await plugins[i][type].apply(this, data);
+                            } else {
+                                data = await plugins[i][type].apply(this, [data]);
+                            }
+
+                        } else if (typeof data != "string") {
+                            if ((!data) || (typeof data[0] != "string") || (data[0] == "")) {
+                                return;
+                            }
+                        } else {
+                            if ((typeof data != "string") || (data == "")) {
+                                return;
+                            }
+                        }
+
+                    }
+
+                    return data;
+
+                } else {
+                    return data;
+                }
+
+            },
+
             logAPI: function() {
 
                 // Read Log
@@ -254,41 +295,90 @@ module.exports = function(pgdata) {
                         tail.on("line", async function(data) {
 
                             // Detect if the log is a chat message
-                            if (typeof c.minecraft.chat_regex == "string") {
-                                var userchat = data.match(new RegExp(c.minecraft.chat_regex));
+                            if (typeof c.minecraft.regex.chat == "string") {
+                                var userchat = data.match(new RegExp(c.minecraft.regex.chat));
+                            }
+
+                            if (typeof c.minecraft.regex.join == "string") {
+                                var userjoin = data.match(new RegExp(c.minecraft.regex.join));
+                            }
+
+                            if (typeof c.minecraft.regex.leave == "string") {
+                                var userleave = data.match(new RegExp(c.minecraft.regex.leave));
+                            }
+
+                            if (typeof c.minecraft.regex.advancement == "string") {
+                                var adv = data.match(new RegExp(c.minecraft.regex.advancement));
                             }
 
                             // Chat
-                            if ((typeof c.minecraft.chat_regex == "string") && (userchat)) {
+                            if ((typeof c.minecraft.regex.chat == "string") && (userchat)) {
 
                                 // Model Chat
                                 userchat = [userchat[1], userchat[2]];
-
-                                // Send Bot Mode
-                                if (plugins.length > 0) {
-                                    for (var i = 0; i < plugins.length; i++) {
-                                        if (
-                                            (typeof plugins[i].mc_chat == "function") && (userchat) &&
-                                            (typeof userchat[1] == "string") && (userchat[1] != "")
-                                        ) {
-                                            userchat = await plugins[i].mc_chat(userchat[0], userchat[1]);
-                                        } else if ((!userchat) || (typeof userchat[0] != "string") || (userchat[0] == "")) {
-                                            return;
-                                        }
-                                    }
-                                }
+                                userchat = await startServer.sendPlugin(userchat, 'mc_chat');
 
                                 if (
                                     (typeof userchat[0] == "string") &&
                                     (typeof userchat[1] == "string") &&
                                     (userchat[1].replace(/ /g, "") != "") &&
-                                    (userchat[0].replace(/ /g, "") != "")
+                                    (userchat[0].replace(/ /g, "") != "") &&
+                                    (c.chatLog)
                                 ) {
+                                    log.chat(userchat[0], userchat[1]);
+                                }
 
-                                    if (c.chatLog) {
-                                        log.chat(userchat[0], userchat[1]);
-                                    }
+                            }
 
+                            // Join User
+                            else if ((typeof c.minecraft.regex.join == "string") && (userjoin)) {
+
+                                // Model Chat
+                                userjoin = userjoin[1];
+                                userjoin = await startServer.sendPlugin(userjoin, 'mc_join');
+
+                                if (
+                                    (typeof userjoin == "string") &&
+                                    (userjoin.replace(/ /g, "") != "") &&
+                                    (c.minecraft.debug)
+                                ) {
+                                    log.minecraft(i18(lang.user_join, [userjoin]));
+                                }
+
+                            }
+
+                            // Leave User
+                            else if ((typeof c.minecraft.regex.leave == "string") && (userleave)) {
+
+                                // Model Chat
+                                userleave = userleave[1];
+                                userleave = await startServer.sendPlugin(userleave, 'mc_leave');
+
+                                if (
+                                    (typeof userleave == "string") &&
+                                    (userleave.replace(/ /g, "") != "") &&
+                                    (c.minecraft.debug)
+                                ) {
+                                    log.minecraft(i18(lang.user_leave, [userleave]));
+                                }
+
+                            }
+
+                            // Advancement
+                            else if ((typeof c.minecraft.regex.advancement == "string") && (adv)) {
+
+                                // Model Chat
+                                adv = [adv[1], adv[2]];
+                                adv = await startServer.sendPlugin(adv, 'mc_advancement');
+
+                                if (
+                                    (typeof adv[0] == "string") &&
+                                    (typeof adv[1] == "string") &&
+                                    (adv[1].replace(/ /g, "") != "") &&
+                                    (adv[0].replace(/ /g, "") != "") &&
+                                    (c.minecraft.debug)
+                                ) {
+                                    log.minecraft(i18(lang.advancement_receive, [adv[0], adv[1]]));
                                 }
 
                             } else {

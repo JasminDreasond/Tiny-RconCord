@@ -52,7 +52,13 @@
         },
 
         "avatar_url": "https://minotar.net/helm/%username%/256.png",
-        "chat_regex": "\\[Server thread/INFO\\]: <([^>]*)> (.*)"
+
+        "regex": {
+            "chat": "\\[Server thread/INFO\\]: <([^>]*)> (.*)",
+            "join": "\\[Server thread/INFO\\]: (.*) joined the game",
+            "leave": "\\[Server thread/INFO\\]: (.*) left the game",
+            "advancement": "\\[Server thread/INFO\\]: (.*) has made the advancement \\[(.*)\\]"
+        }
 
     },
 

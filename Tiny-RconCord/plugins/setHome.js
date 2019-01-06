@@ -45,6 +45,33 @@ const setHome = {
 
         };
 
+        // Effect
+        const tpEffect = function(user, cords, callback = function() {}) {
+
+            new pg.minecraft.sound({
+
+                sound: 'minecraft',
+                source: 'entity.enderman.teleport',
+                targets: 'player',
+                player: user,
+                cords: cords
+
+            }).exe(function() {
+
+                new pg.minecraft.particle({
+
+                    name: 'minecraft',
+                    source: 'portal',
+                    delta: '0.5 1.5 0.5',
+                    count: 150,
+                    cords: cords
+
+                }).exe(callback);
+
+            });
+
+        };
+
         // Home Slot Generator
         const slotGenerator = function(user, message, cmd, isglobal) {
             if (typeof message == "string") {
@@ -69,7 +96,7 @@ const setHome = {
 
                         pg.minecraft.playerPosition(user).then(function(data) {
 
-                            db.set(user + "_" + cmd, String(data[0]) + " " + String(data[1]) + " " + String(data[2]));
+                            db.set(user + "_" + cmd, data[1]);
 
                             new pg.minecraft.send(
                                 [{ color: 'gray', text: pg.i18(pg.lang.home_saved, [pg.c.minecraft.prefix, cmd]) }],
@@ -93,15 +120,17 @@ const setHome = {
                     // Send
                     if (cords) {
 
-                        new pg.minecraft.command("teleport " + cords, user).exe(function(err, data) {
-                            if (err) {
-                                pg.log.error(err);
-                                new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
-                            } else {
-
-
-
-                            }
+                        pg.minecraft.playerPosition(user).then(function(data) {
+                            tpEffect(user, data[1], function() {
+                                new pg.minecraft.command("teleport " + cords, user).exe(function(err, data) {
+                                    if (err) {
+                                        pg.log.error(err);
+                                        new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
+                                    } else {
+                                        tpEffect(user, cords);
+                                    }
+                                });
+                            });
                         });
 
                     }
