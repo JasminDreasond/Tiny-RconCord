@@ -18,7 +18,7 @@ const globalds = {
         globalds.message = function(data) {
 
             // RCON Message
-            if ((data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
+            if ((!data.isBot) && (data.channelID == c.discord.channelID.rcon) && data.message.startsWith(c.discord.prefix)) {
 
                 data.message = data.message.substring(1, data.message.length);
                 server.connCommand(data.message, function(err, cdata) {
@@ -262,8 +262,8 @@ const globalds = {
 
                         if (plugins.length > 0) {
                             for (var i = 0; i < plugins.length; i++) {
-                                if (typeof plugins[i].help == "function") {
-                                    var tinyhelp = plugins[i].help(data);
+                                if (typeof plugins[i].ds_help == "function") {
+                                    var tinyhelp = plugins[i].ds_help(data);
                                     if (tinyhelp.length > 0) {
                                         for (var x = 0; x < tinyhelp.length; x++) {
                                             fields.push({

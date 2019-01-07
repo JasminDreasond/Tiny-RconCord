@@ -4,6 +4,7 @@
     "globalhome_saved": "Your global location has been saved successfully. To teleport, use the command {0}globalhome in Minecraft",
     "error_home": "No houses found",
 
-    "setglobalhome_help": "Define the Global Home coordinates"
+    "setglobalhome_help": "Define the Global Home coordinates",
+    "sethome_help": "Define the Home coordinates"
 
 }

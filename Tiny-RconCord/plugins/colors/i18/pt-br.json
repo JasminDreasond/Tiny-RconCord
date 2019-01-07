@@ -1,0 +1,9 @@
+{
+
+    "colors_list_help": "Lista de todas as cores disponíveis",
+    "colors_set_help": "Definir uma cor para o seu nome",
+
+    "colors": "Cores",
+    "set_color": "Sua cor foi definida para {0}"
+
+}

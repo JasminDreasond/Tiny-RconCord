@@ -1,5 +1,10 @@
 {
+
     "user_join": "{0} joined the game",
     "user_leave": "{0} left the game",
-    "advancement_receive": "{0} has made the advancement **[{1}]**"
+    "advancement_receive": "{0} has made the advancement **[{1}]**",
+
+    "discord_account": "Discord Account: {0}",
+    "ds_message_cut": "The rest of the message is in the Discord"
+
 }

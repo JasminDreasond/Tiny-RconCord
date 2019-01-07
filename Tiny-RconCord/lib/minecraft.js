@@ -11,25 +11,9 @@
 
 const minecraft = {
 
-    start: function(log, connCommand) {
+    start: function(log, connCommand, hexC, plugins) {
 
-        minecraft.fixMessage = function(text) {
 
-            return text
-                .replace(/[ÀÁÂÃÄÅ]/g, "A")
-                .replace(/[àáâãäå]/g, "a")
-                .replace(/[ÈÉÊË]/g, "E")
-                .replace(/[èéêë]/g, "e")
-                .replace(/[ÒÓÔÖÕ]/g, "O")
-                .replace(/[òóôöõ]/g, "o")
-                .replace(/[ÙÚûü]/g, "U")
-                .replace(/[ùúûü]/g, "u")
-                .replace(/[ÌÍÎÏ]/g, "I")
-                .replace(/[ìíîï]/g, "i")
-                .replace(/[Ç]/g, "C")
-                .replace(/[ç]/g, "c");
-
-        };
 
         // Execute
         minecraft.execute = function(cmd) {
@@ -49,9 +33,20 @@ const minecraft = {
             return await connCommand(this.cmd, callback);
         };
 
+        // Fix JSON Message
+        minecraft.fixMessageJSON = function(cmd) {
+
+            for (var items in cmd) {
+                cmd[items].text = hexC.controlled(cmd[items].text, true);
+            }
+
+            return JSON.stringify(cmd).replace(/\\\\u/g, '\\u');
+
+        };
+
         // Send Message
         minecraft.send = function(cmd, player = "@a") {
-            this.cmd = 'tellraw ' + player + ' ' + minecraft.fixMessage(JSON.stringify(cmd));
+            this.cmd = 'tellraw ' + player + ' ' + minecraft.fixMessageJSON(cmd);
         };
 
         minecraft.send.prototype.exe = async function(callback) {
@@ -147,8 +142,8 @@ const minecraft = {
             return this.cmd + 'list' + team;
         };
 
-        minecraft.team.prototype.modify = function(id) {
-            return this.cmd + 'modify ' + id;
+        minecraft.team.prototype.modify = function(type, id) {
+            return this.cmd + 'modify ' + type + ' ' + id;
         };
 
         minecraft.team.prototype.remove = function(id) {
@@ -157,6 +152,18 @@ const minecraft = {
 
         minecraft.team.prototype.exe = async function(callback) {
             return await connCommand(this.cmd, callback);
+        };
+
+        // Kill User
+        minecraft.kill = async function(user) {
+            return await new Promise(function(resolve, reject) {
+                connCommand("kill " + user, function(err, data) {
+                    if (err) {
+                        log.error(err);
+                        reject(err);
+                    } else { resolve(data); }
+                });
+            });
         };
 
         // Get User Position

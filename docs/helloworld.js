@@ -95,7 +95,7 @@ const helloworld = {
         };
 
         // Add items into the Help Command
-        setHome.help = function(data) {
+        setHome.ds_help = function(data) {
 
             // Check if the userID is the app owner
             if (data.userID == data.ownerID) {

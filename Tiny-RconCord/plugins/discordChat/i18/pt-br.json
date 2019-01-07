@@ -1,5 +1,10 @@
 {
+
     "user_join": "{0} entrou no jogo",
     "user_leave": "{0} saiu do jogo",
-    "advancement_receive": "{0} fez uma conquista **[{1}]**"
+    "advancement_receive": "{0} fez uma conquista **[{1}]**",
+
+    "discord_account": "Conta do Discord: {0}",
+    "ds_message_cut": "O restante da mensagem está no Discord"
+
 }

@@ -26,6 +26,7 @@ module.exports = function(pgdata) {
     const log = require('./lib/log.js');
     const Rcon = require('./lib/rcon.js');
     const minecraft = require('./lib/minecraft.js');
+    const hexC = require('./lib/hexCode.js');
     const c = require('./config.json');
     const globalds = require('./discord/global.js');
     const webhook = require("./discord/webhook.js");
@@ -500,6 +501,7 @@ module.exports = function(pgdata) {
                 ) {
 
                     await plugins[i].start({
+                        hexC: hexC,
                         minecraft: minecraft,
                         JSONStore: JSONStore,
                         dsBot: server.ds,
@@ -659,7 +661,7 @@ module.exports = function(pgdata) {
                         if (server.first.rcon == true) {
 
                             server.first.rcon = false;
-                            minecraft.start(log, server.connCommand);
+                            minecraft.start(log, server.connCommand, hexC, plugins);
 
                             if (c.logs) {
                                 conn.command('gamerule sendCommandFeedback ' + c.log.sendCommandFeedback, function(err, data1) {

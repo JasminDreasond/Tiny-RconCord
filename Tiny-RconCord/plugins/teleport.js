@@ -19,6 +19,18 @@ const setHome = {
     index: 0,
     start: function(pg) {
 
+        // Config
+        const c = require(pg.folder + "/config.json");
+
+        // Add items into the Minecraft Help Command
+        setHome.mine_help = function() {
+
+            return [
+                { name: pg.c.discord.prefix + "tp", value: pg.lang.sethome_help }
+            ];
+
+        };
+
         // Error
         const errorSend = function(err2) {
             if (err2) {
@@ -92,6 +104,7 @@ const setHome = {
 
                 // Single TP Cords
                 if (
+                    (c.user_to_cords) &&
                     (!isNaN(Number(message[1]))) &&
                     (!isNaN(Number(message[2]))) &&
                     (!isNaN(Number(message[3])))
@@ -99,6 +112,7 @@ const setHome = {
 
                 // User TP Cords
                 else if (
+                    (c.everyone_to_cords) &&
                     (isNaN(Number(message[1]))) &&
                     (!isNaN(Number(message[2]))) &&
                     (!isNaN(Number(message[3]))) &&
@@ -107,6 +121,7 @@ const setHome = {
 
                 // User TP User
                 else if (
+                    (c.everyone_to_user) &&
                     (isNaN(Number(message[1]))) && (typeof message[2] == "string") && (isNaN(Number(message[2])))
                 ) {
                     pg.minecraft.playerPosition(user).then(function(data) {
@@ -116,6 +131,7 @@ const setHome = {
 
                 // TP User
                 else if (
+                    (c.user_to_user) &&
                     (isNaN(Number(message[1])))
                 ) {
                     pg.minecraft.playerPosition(message[1]).then(function(data) {

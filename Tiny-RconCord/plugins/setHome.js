@@ -32,8 +32,8 @@ const setHome = {
             }
         };
 
-        // Add items into the Help Command
-        setHome.help = function(data) {
+        // Add items into the Discord Help Command
+        setHome.ds_help = function(data) {
 
             if (data.userID == data.ownerID) {
                 return [
@@ -42,6 +42,15 @@ const setHome = {
             } else {
                 return [];
             }
+
+        };
+
+        // Add items into the Minecraft Help Command
+        setHome.mine_help = function() {
+
+            return [
+                { name: pg.c.discord.prefix + "sethome", value: pg.lang.sethome_help }
+            ];
 
         };
 

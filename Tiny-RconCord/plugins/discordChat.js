@@ -36,8 +36,34 @@ const chat = {
             // URL Regex
             regex: /(https?:\/\/[^\s]+)/g,
 
+            curtmsg: function(message, repeat = false, number = 0) {
+                if ((message.length > 256) || (pg.hexC.controlled(message).length > 256)) {
+
+                    if (!repeat) {
+                        return [chat_st.curtmsg(message.substring(0, 256 - number), true, 50), true];
+                    } else {
+                        return chat_st.curtmsg(message.substring(0, 256 - number), true, number + 20);
+                    }
+
+                } else {
+                    if (!repeat) {
+                        return [message, false];
+                    } else {
+                        return message;
+                    }
+                }
+            },
+
             // Minecraft Message
             minecraftTellraw: function(data) {
+
+                data.message = chat_st.curtmsg(data.message);
+
+                if (data.message[1]) {
+                    data.message = data.message[0] + '(...) [' + pg.lang.ds_message_cut + ']'
+                } else {
+                    data.message = data.message[0];
+                }
 
                 // Prepare
                 const username = pg.emojiStrip(data.username);
@@ -60,15 +86,21 @@ const chat = {
                 // Get Username
                 for (var i = 0; i < c.template.tellraw.user.length; i++) {
                     if (c.template.tellraw.user[i].text) {
-
                         message_template.push(chat_st.clone(c.template.tellraw.user[i]));
                         if (message_template[i].text) {
+
                             message_template[i].text = message_template[i].text
                                 .replace('%username%', username)
                                 .replace('%discriminator%', discriminator)
                                 .replace('%bot%', bot);
-                        }
 
+                            message_template[i].hoverEvent = {
+                                "action": "show_text",
+                                "value": pg.hexC.controlled(pg.i18(pg.lang.discord_account, [username + "#" + discriminator]), true)
+                            };
+                            message_template[i].insertion = "<@" + pg.hexC.controlled(username + "#" + discriminator) + ">";
+
+                        }
                     }
                 }
 
@@ -76,7 +108,7 @@ const chat = {
                 for (var i = 0; i < text.msg.length; i++) {
 
                     if ((typeof text.msg[i] == "string") && (
-                            (!text.msg[i].startsWith('https')) ||
+                            (!text.msg[i].startsWith('http')) ||
                             (!text.msg[i].startsWith('https'))
                         )) { text.result += text.msg[i]; } else {
 
@@ -90,6 +122,11 @@ const chat = {
                                 if (message_template[x].text) {
                                     message_template[x].text = message_template[x].text.replace('%message%', text.result);
                                 }
+
+                                message_template[i].hoverEvent = {
+                                    "action": "none"
+                                };
+                                message_template[i].insertion = "";
 
                             }
                         }
@@ -107,6 +144,11 @@ const chat = {
 
                                 message_template[x].text = text.msg[i];
                                 message_template[x].clickEvent.value = text.msg[i];
+
+                                message_template[i].hoverEvent = {
+                                    "action": "none"
+                                };
+                                message_template[i].insertion = "";
 
                             }
                         }
@@ -128,12 +170,16 @@ const chat = {
                                 message_template[x].text = message_template[x].text.replace('%message%', text.result);
                             }
 
+                            message_template[i].hoverEvent = {
+                                "action": "none"
+                            };
+                            message_template[i].insertion = "";
+
                         }
                     }
 
                 }
 
-                console.log(message_template);
                 return message_template;
 
             },
@@ -150,6 +196,7 @@ const chat = {
             sendMC: function(message, data) {
 
                 new pg.minecraft.send(chat_st.minecraftTellraw({
+                    userID: data.userID,
                     message: message,
                     username: data.username,
                     discriminator: data.discriminator,
@@ -194,6 +241,7 @@ const chat = {
                             pg.log.chat(data.username + "#" + data.discriminator, data.message);
                         }
                         chat_st.sendMC(data.message, {
+                            userID: data.userID,
                             username: data.username,
                             discriminator: data.discriminator,
                             bot: ""
@@ -205,6 +253,7 @@ const chat = {
                             pg.log.chat(data.username + "#" + data.discriminator + " (" + pg.lang.bot.toUpperCase() + ")", data.message);
                         }
                         chat_st.sendMC(data.message, {
+                            userID: data.userID,
                             username: data.username,
                             discriminator: data.discriminator,
                             bot: pg.lang.bot.toUpperCase()

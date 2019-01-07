@@ -19,12 +19,14 @@
 
             "user": [
                 { "color": "white", "text": "<" },
-                { "color": "white", "text": "%username%#%discriminator%" },
+                { "color": "gray", "text": "%username%#%discriminator%" },
                 { "color": "white", "text": ">%bot% " }
             ],
 
             "url": [{
                 "color": "white",
+                "underlined": true,
+
                 "clickEvent": {
                     "action": "open_url"
                 }

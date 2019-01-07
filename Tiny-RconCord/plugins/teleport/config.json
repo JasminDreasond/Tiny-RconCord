@@ -1,3 +1,9 @@
 {
 
+    "user_to_cords": true,
+    "everyone_to_cords": true,
+
+    "user_to_user": true,
+    "everyone_to_user": true
+
 }
