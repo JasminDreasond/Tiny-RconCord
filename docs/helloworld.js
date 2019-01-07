@@ -73,10 +73,10 @@ const helloworld = {
         };
 
         // Minecraft Advancement
-        helloworld.mc_advancement = function(adv) {
+        helloworld.mc_advancement = function(user, advancement) {
 
             // Return the advancement value for another plugins
-            return adv;
+            return [user, advancement];
 
         };
 

@@ -94,11 +94,24 @@ const chat = {
                                 .replace('%discriminator%', discriminator)
                                 .replace('%bot%', bot);
 
-                            message_template[i].hoverEvent = {
-                                "action": "show_text",
-                                "value": pg.hexC.controlled(pg.i18(pg.lang.discord_account, [username + "#" + discriminator]), true)
-                            };
-                            message_template[i].insertion = "<@" + pg.hexC.controlled(username + "#" + discriminator) + ">";
+                            if ((message_template[i].hoverEvent) &&
+                                (typeof message_template[i].hoverEvent.action == "string") &&
+                                (message_template[i].hoverEvent.action == "show_text")) {
+
+                                message_template[i].hoverEvent = {
+                                    "action": "show_text",
+                                    "value": pg.hexC.controlled(pg.i18(pg.lang.discord_account, [username + "#" + discriminator]), true)
+                                };
+                                message_template[i].insertion = "<@" + pg.hexC.controlled(username + "#" + discriminator) + ">";
+
+                            } else {
+
+                                message_template[i].hoverEvent = {
+                                    "action": "none"
+                                };
+                                message_template[i].insertion = "";
+
+                            }
 
                         }
                     }
@@ -214,11 +227,13 @@ const chat = {
 
         };
 
-        // Discord Special Chat
+        // Discord to Minecraft Chat
         chat.ds_special_chat = function(data, event) {
 
-            if ((data.channelID == c.channelID) && (data.userID != pg.getDS().id)) {
+            const ds_data = pg.getDS();
+            if ((data.channelID == c.channelID) && (data.userID != ds_data.id)) {
 
+                // Attachments
                 if (event.d.attachments.length > 0) {
 
                     const tinynb = data.message.replace(" ", "").length;
@@ -233,6 +248,20 @@ const chat = {
 
                 }
 
+                // Mentions
+                if (event.d.mentions.length > 0) {
+
+                    for (var i = 0; i < event.d.mentions.length; i++) {
+
+                        data.message = data.message.replace(new RegExp(event.d.mentions[i].id),
+                            event.d.mentions[i].username + '#' +
+                            event.d.mentions[i].discriminator);
+
+                    }
+
+                }
+
+                // Send Message
                 if (data.message.replace(" ", "").length > 0) {
 
                     if (!data.isBot) {
@@ -293,6 +322,8 @@ const chat = {
 
             }
 
+            return [user, message];
+
         };
 
         // Minecraft Join
@@ -314,11 +345,9 @@ const chat = {
 
                 }
 
-                return null;
-
-            } else {
-                return userjoin;
             }
+
+            return userjoin;
 
         };
 
@@ -339,16 +368,14 @@ const chat = {
                     pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
                 }
 
-                return null;
-
-            } else {
-                return userleave;
             }
+
+            return userleave;
 
         };
 
         // Minecraft Advancement
-        chat.mc_advancement = function(adv) {
+        chat.mc_advancement = function(user, advancement) {
 
             if (c.show.advancement) {
 
@@ -356,17 +383,17 @@ const chat = {
 
                     pg.webhook.send(pg.c.webhook, {
                         username: pg.getDS().username,
-                        content: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]),
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", adv[0])
+                        content: pg.i18(pg.lang.advancement_receive, [user, advancement]),
+                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
                     });
 
                 } else if (c.channelID) {
-                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [adv[0], adv[1]]) });
+                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [user, advancement]) });
                 }
 
             }
 
-            return adv;
+            return [user, advancement];
 
         };
 

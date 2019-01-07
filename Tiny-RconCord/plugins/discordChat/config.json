@@ -19,7 +19,13 @@
 
             "user": [
                 { "color": "white", "text": "<" },
-                { "color": "gray", "text": "%username%#%discriminator%" },
+                {
+                    "color": "gray",
+                    "text": "%username%#%discriminator%",
+                    "hoverEvent": {
+                        "action": "show_text"
+                    }
+                },
                 { "color": "white", "text": ">%bot% " }
             ],
 
