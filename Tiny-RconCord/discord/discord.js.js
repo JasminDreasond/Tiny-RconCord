@@ -160,6 +160,14 @@ const discordjs = {
                         log.discord(json_stringify(event, null, 2, 100));
                     }
 
+                    if (event.t == "GUILD_CREATE") {
+
+                        for (var items in event.d.members) {
+                            tinyUpName.addUser(event.d.members[items].user.username, event.d.members[items].user.discriminator, event.d.members[items].user.id);
+                        }
+
+                    }
+
                     if ((event.t == "MESSAGE_CREATE") && (event.d.author.id !== discordjs.bot.id) && (!event.d.bot)) {
 
                         // Detect if the message is from server or private message
@@ -256,12 +264,64 @@ const discordjs = {
 
                 // Update Username
 
-                discordjs.bot.on('guildMemberAdd', function(user) {
-                    discordjs.bot.usernames[user.user.username + "#" + user.user.discriminator] = user.id;
+                const tinyUpName = {
+                    addUser: function(username, discriminator, id) {
+                        if (discriminator != "0000") {
+                            discordjs.bot.usernames[username + "#" + discriminator] = id;
+                        }
+                    },
+                    deleteUser: function(username, discriminator) {
+
+                        var confirmed = false;
+                        discordjs.bot.guilds.forEach(function(value, key, map) {
+
+                            if (!confirmed) {
+                                var members = discordjs.bot.guilds.get(value).members;
+                                members.forEach(function(value, key, map) {
+
+                                    if (!confirmed) {
+                                        var tinyvalue = members.get(value);
+
+                                        if ((tinyvalue.user.username == username) && (tinyvalue.user.discriminator == discriminator)) {
+                                            confirmed = true;
+                                        }
+                                    }
+
+                                });
+                            }
+
+                        });
+
+                        if (!confirmed) {
+                            delete discordjs.bot.usernames[username + "#" + discriminator];
+                        }
+
+                    },
+                    guildUser: function(user) {
+                        tinyUpName.addUser(user.user.username, user.user.discriminator, user.user.id);
+                    }
+                };
+
+                discordjs.bot.on('guildDelete', function(guild) {
+                    guild.members.forEach(function(value, key, map) {
+                        var tinyvalue = members.get(value);
+                        tinyUpName.deleteUser(tinyvalue.user.username, tinyvalue.user.discriminator);
+                    });
                 });
 
+                /*                 discordjs.bot.on('guildCreate', function(guild) {
+                                    guild.members.forEach(function(value, key, map) {
+                                        var tinyvalue = members.get(value);
+                                        tinyUpName.addUser(tinyvalue.user.username, tinyvalue.user.discriminator, tinyvalue.user.id);
+                                    });
+                                }); */
+
+                discordjs.bot.on('guildMemberAvailable', tinyUpName.guildUser);
+
+                discordjs.bot.on('guildMemberAdd', tinyUpName.guildUser);
+
                 discordjs.bot.on('guildMemberRemove', function(user) {
-                    delete discordjs.bot.usernames[user.user.username + "#" + user.user.discriminator];
+                    tinyUpName.deleteUser(user.user.username, user.user.discriminator);
                 });
 
                 /*                 discordjs.bot.on('guildMembersChunk', function(members) {
@@ -269,7 +329,7 @@ const discordjs = {
                                 }); */
 
                 discordjs.bot.on('guildMemberUpdate', function(old, newuser) {
-                    discordjs.bot.usernames[newuser.user.username + "#" + newuser.user.discriminator] = newuser.id;
+                    tinyUpName.addUser(newuser.user.username, newuser.user.discriminator, newuser.id);
                 });
 
                 /*                 discordjs.bot.on('clientUserSettingsUpdate', function() {
@@ -281,11 +341,11 @@ const discordjs = {
                                 }); */
 
                 discordjs.bot.on('userUpdate', function(old, newuser) {
-                    discordjs.bot.usernames[newuser.username + "#" + newuser.discriminator] = newuser.id;
+                    tinyUpName.addUser(newuser.username, newuser.discriminator, newuser.id);
                 });
 
                 discordjs.bot.on('message', function(user) {
-                    discordjs.bot.usernames[user.author.username + "#" + user.author.discriminator] = user.author.id;
+                    tinyUpName.addUser(user.author.username, user.author.discriminator, user.author.id);
                 });
 
                 discordjs.bot.login(c.discord.token);

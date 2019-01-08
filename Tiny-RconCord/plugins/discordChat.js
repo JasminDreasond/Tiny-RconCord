@@ -305,11 +305,15 @@ const chat = {
             if (user) {
 
                 const ds_data = pg.dsBot.getDS();
+                console.log(ds_data.usernames);
 
                 if (ds_data) {
 
                     // Add everymine
                     message = message.replace(/\@everymine/g, "<@&" + c.everymine + ">");
+                    message = message.replace(/<@(.+?)#(\d{4})>/g, function(e) {
+                        return "<@" + ds_data.usernames[e.substring(2, e.length - 1)] + ">";
+                    });
 
                     if (pg.c.webhook.use) {
 
@@ -331,8 +335,8 @@ const chat = {
 
         };
 
-        // Minecraft Join
-        chat.mc_join = function(userjoin) {
+        // Send Base
+        const sendNotiMine = function(username, tlang, extra) {
 
             if (c.show.join) {
 
@@ -344,13 +348,13 @@ const chat = {
 
                         pg.webhook.send(pg.c.webhook, {
                             username: ds_data.username,
-                            content: pg.i18(pg.lang.user_join, [userjoin]),
-                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userjoin)
+                            content: pg.i18(tlang, extra),
+                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", username)
                         });
 
                     } else if (c.channelID) {
 
-                        pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
+                        pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(tlang, extra) });
 
                     }
 
@@ -358,62 +362,23 @@ const chat = {
 
             }
 
-            return userjoin;
+            return username;
 
+        };
+
+        // Minecraft Join
+        chat.mc_join = function(userjoin) {
+            return sendNotiMine(userjoin, pg.lang.user_join, [userjoin]);
         };
 
         // Minecraft Leave
         chat.mc_leave = function(userleave) {
-
-            if (c.show.leave) {
-
-                const ds_data = pg.dsBot.getDS();
-
-                if (ds_data) {
-
-                    if (pg.c.webhook.use) {
-
-                        pg.webhook.send(pg.c.webhook, {
-                            username: ds_data.username,
-                            content: pg.i18(pg.lang.user_leave, [userleave]),
-                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userleave)
-                        });
-
-                    } else if (c.channelID) {
-                        pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
-                    }
-
-                }
-
-            }
-
-            return userleave;
-
+            return sendNotiMine(userleave, pg.lang.user_leave, [userleave]);
         };
 
         // Minecraft Advancement
         chat.mc_advancement = function(user, advancement) {
-
-            if ((c.show.advancement) && (user) && (advancement)) {
-
-                const ds_data = pg.dsBot.getDS();
-
-                if (pg.c.webhook.use) {
-
-                    pg.webhook.send(pg.c.webhook, {
-                        username: ds_data.username,
-                        content: pg.i18(pg.lang.advancement_receive, [user, advancement]),
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
-                    });
-
-                } else if (c.channelID) {
-                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.advancement_receive, [user, advancement]) });
-                }
-
-            }
-
-            return [user, advancement];
-
+            return [sendNotiMine(user, pg.lang.user_leave, [user, advancement]), advancement];
         };
 
 
