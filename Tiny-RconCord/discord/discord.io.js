@@ -19,6 +19,7 @@ const discordio = {
 
         // Start Bot
         discordio.bot = new Discord.Client({ autorun: true, token: c.discord.token });
+        discordio.bot.usernames = {};
 
         // Send Message System API
         const sendMessage = function(themessage, callback, timer) {
@@ -89,6 +90,7 @@ const discordio = {
 
             if (discordio.bot.id) {
                 return {
+                    usernames: discordio.bot.usernames,
                     avatar: discordio.bot.avatar,
                     bot: discordio.bot.bot,
                     channels: discordio.bot.channels,
@@ -249,6 +251,40 @@ const discordio = {
 
             }
 
+        });
+
+        // Update Username
+
+        discordio.bot.on('guildMemberAdd', function(user) {
+            discordio.bot.usernames[user.user.username + "#" + user.user.discriminator] = user.id;
+        });
+
+        discordio.bot.on('guildMemberRemove', function(user) {
+            delete discordio.bot.usernames[user.user.username + "#" + user.user.discriminator];
+        });
+
+        /*                 discordio.bot.on('guildMembersChunk', function(members) {
+
+                        }); */
+
+        discordio.bot.on('guildMemberUpdate', function(old, newuser) {
+            discordio.bot.usernames[newuser.user.username + "#" + newuser.user.discriminator] = newuser.id;
+        });
+
+        /*                 discordio.bot.on('clientUserSettingsUpdate', function() {
+
+                        }); */
+
+        /*                 discordio.bot.on('clientUserGuildSettingsUpdate', function(user) {
+
+                        }); */
+
+        discordio.bot.on('userUpdate', function(old, newuser) {
+            discordio.bot.usernames[newuser.username + "#" + newuser.discriminator] = newuser.id;
+        });
+
+        discordio.bot.on('message', function(user) {
+            discordio.bot.usernames[user.author.username + "#" + user.author.discriminator] = user.author.id;
         });
 
     }

@@ -230,8 +230,7 @@ const chat = {
         // Discord to Minecraft Chat
         chat.ds_special_chat = function(data, event) {
 
-            const ds_data = pg.getDS();
-            if ((data.channelID == c.channelID) && (data.userID != ds_data.id)) {
+            if ((data.channelID == c.channelID) && (data.userID != pg.dsBot.getDS().id)) {
 
                 // Attachments
                 if (event.d.attachments.length > 0) {
@@ -305,19 +304,25 @@ const chat = {
 
             if (user) {
 
-                // Add everymine
-                message = message.replace(/\@everymine/g, "<@&" + c.everymine + ">");
+                const ds_data = pg.dsBot.getDS();
 
-                if (pg.c.webhook.use) {
+                if (ds_data) {
 
-                    pg.webhook.send(pg.c.webhook, {
-                        username: user,
-                        content: message,
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
-                    });
+                    // Add everymine
+                    message = message.replace(/\@everymine/g, "<@&" + c.everymine + ">");
 
-                } else if (c.channelID) {
-                    pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(user, message) });
+                    if (pg.c.webhook.use) {
+
+                        pg.webhook.send(pg.c.webhook, {
+                            username: user,
+                            content: message,
+                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
+                        });
+
+                    } else if (c.channelID) {
+                        pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(user, message) });
+                    }
+
                 }
 
             }
@@ -331,17 +336,23 @@ const chat = {
 
             if (c.show.join) {
 
-                if (pg.c.webhook.use) {
+                const ds_data = pg.dsBot.getDS();
 
-                    pg.webhook.send(pg.c.webhook, {
-                        username: pg.getDS().username,
-                        content: pg.i18(pg.lang.user_join, [userjoin]),
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userjoin)
-                    });
+                if (ds_data) {
 
-                } else if (c.channelID) {
+                    if (pg.c.webhook.use) {
 
-                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
+                        pg.webhook.send(pg.c.webhook, {
+                            username: ds_data.username,
+                            content: pg.i18(pg.lang.user_join, [userjoin]),
+                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userjoin)
+                        });
+
+                    } else if (c.channelID) {
+
+                        pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_join, [userjoin]) });
+
+                    }
 
                 }
 
@@ -356,16 +367,22 @@ const chat = {
 
             if (c.show.leave) {
 
-                if (pg.c.webhook.use) {
+                const ds_data = pg.dsBot.getDS();
 
-                    pg.webhook.send(pg.c.webhook, {
-                        username: pg.getDS().username,
-                        content: pg.i18(pg.lang.user_leave, [userleave]),
-                        avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userleave)
-                    });
+                if (ds_data) {
 
-                } else if (c.channelID) {
-                    pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
+                    if (pg.c.webhook.use) {
+
+                        pg.webhook.send(pg.c.webhook, {
+                            username: ds_data.username,
+                            content: pg.i18(pg.lang.user_leave, [userleave]),
+                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", userleave)
+                        });
+
+                    } else if (c.channelID) {
+                        pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(pg.lang.user_leave, [userleave]) });
+                    }
+
                 }
 
             }
@@ -377,12 +394,14 @@ const chat = {
         // Minecraft Advancement
         chat.mc_advancement = function(user, advancement) {
 
-            if (c.show.advancement) {
+            if ((c.show.advancement) && (user) && (advancement)) {
+
+                const ds_data = pg.dsBot.getDS();
 
                 if (pg.c.webhook.use) {
 
                     pg.webhook.send(pg.c.webhook, {
-                        username: pg.getDS().username,
+                        username: ds_data.username,
                         content: pg.i18(pg.lang.advancement_receive, [user, advancement]),
                         avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
                     });

@@ -6,6 +6,7 @@
     "show": {
         "enter": true,
         "leave": true,
+        "join": true,
         "advancement": true
     },
 

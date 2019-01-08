@@ -527,7 +527,6 @@ module.exports = function(pgdata) {
                             timeout: server.timeout
 
                         },
-                        getDS: function() { return server.ds.getDS(); },
                         folder: tinyfolder
                     });
 

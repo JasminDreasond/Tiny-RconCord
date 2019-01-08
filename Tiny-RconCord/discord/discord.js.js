@@ -36,6 +36,7 @@ const discordjs = {
 
                 // Start Bot
                 discordjs.bot = new Discord.Client({ autoReconnect: true });
+                discordjs.bot.usernames = {};
 
                 // Send Message System API
                 const sendMessage = function(themessage, callback, timer) {
@@ -92,8 +93,9 @@ const discordjs = {
                 // Get Discord Data for plugins (Secure Mode)
                 discordjs.getDS = function() {
 
-                    if (discordjs.bot.user.id) {
+                    if ((discordjs.bot.user) && (discordjs.bot.user.id)) {
                         return {
+                            usernames: discordjs.bot.usernames,
                             avatar: discordjs.bot.user.avatar,
                             bot: discordjs.bot.user.bot,
                             channels: discordjs.bot.channels,
@@ -250,6 +252,40 @@ const discordjs = {
                     }
 
 
+                });
+
+                // Update Username
+
+                discordjs.bot.on('guildMemberAdd', function(user) {
+                    discordjs.bot.usernames[user.user.username + "#" + user.user.discriminator] = user.id;
+                });
+
+                discordjs.bot.on('guildMemberRemove', function(user) {
+                    delete discordjs.bot.usernames[user.user.username + "#" + user.user.discriminator];
+                });
+
+                /*                 discordjs.bot.on('guildMembersChunk', function(members) {
+
+                                }); */
+
+                discordjs.bot.on('guildMemberUpdate', function(old, newuser) {
+                    discordjs.bot.usernames[newuser.user.username + "#" + newuser.user.discriminator] = newuser.id;
+                });
+
+                /*                 discordjs.bot.on('clientUserSettingsUpdate', function() {
+
+                                }); */
+
+                /*                 discordjs.bot.on('clientUserGuildSettingsUpdate', function(user) {
+
+                                }); */
+
+                discordjs.bot.on('userUpdate', function(old, newuser) {
+                    discordjs.bot.usernames[newuser.username + "#" + newuser.discriminator] = newuser.id;
+                });
+
+                discordjs.bot.on('message', function(user) {
+                    discordjs.bot.usernames[user.author.username + "#" + user.author.discriminator] = user.author.id;
                 });
 
                 discordjs.bot.login(c.discord.token);
