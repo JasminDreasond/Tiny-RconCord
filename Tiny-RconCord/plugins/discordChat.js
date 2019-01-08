@@ -305,7 +305,6 @@ const chat = {
             if (user) {
 
                 const ds_data = pg.dsBot.getDS();
-                console.log(ds_data.usernames);
 
                 if (ds_data) {
 
