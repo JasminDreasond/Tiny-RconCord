@@ -160,6 +160,7 @@ const discordjs = {
                         log.discord(json_stringify(event, null, 2, 100));
                     }
 
+                    // Username
                     if ((event.t == "GUILD_CREATE") || (event.t == "GUILD_REMOVE")) {
 
                         for (var items in event.d.members) {
@@ -265,6 +266,12 @@ const discordjs = {
                 // Update Username
 
                 const tinyUpName = {
+                    add: function() {
+
+                    },
+                    remove: function() {
+
+                    },
                     addUser: function(username, discriminator, id) {
                         if (discriminator != "0000") {
                             discordjs.bot.usernames[username + "#" + discriminator] = id;

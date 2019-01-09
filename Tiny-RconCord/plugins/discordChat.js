@@ -310,9 +310,33 @@ const chat = {
 
                     // Add everymine
                     message = message.replace(/\@everymine/g, "<@&" + c.everymine + ">");
-                    message = message.replace(/<@(.+?)#(\d{4})>/g, function(e) {
-                        return "<@" + ds_data.usernames[e.substring(2, e.length - 1)] + ">";
-                    });
+
+                    // Channel
+                    try {
+                        message = message.replace(/<@#(.+?)>/g, function(e) {
+                            return "<@#" + ds_data.guildsNM.channels[e.substring(3, e.length - 1)] + ">";
+                        });
+                    } catch (e) {}
+
+                    // Role
+                    try {
+                        message = message.replace(/<@&(.+?)>/g, function(e) {
+                            return "<@&" + ds_data.guildsNM.roles[e.substring(3, e.length - 1)] + ">";
+                        });
+                    } catch (e) {}
+
+                    // Username
+                    try {
+                        message = message.replace(/<@!(.+?)#(\d{4})>/g, function(e) {
+                            return "<@!" + ds_data.usernames[e.substring(3, e.length - 1)] + ">";
+                        });
+                    } catch (e) {}
+
+                    try {
+                        message = message.replace(/<@(.+?)#(\d{4})>/g, function(e) {
+                            return "<@" + ds_data.usernames[e.substring(2, e.length - 1)] + ">";
+                        });
+                    } catch (e) {}
 
                     if (pg.c.webhook.use) {
 
