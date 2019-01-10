@@ -37,6 +37,7 @@ const discordjs = {
                 // Start Bot
                 discordjs.bot = new Discord.Client({ autoReconnect: true });
                 discordjs.bot.usernames = {};
+                discordjs.bot.guildsNM = {};
 
                 // Send Message System API
                 const sendMessage = function(themessage, callback, timer) {
@@ -95,6 +96,7 @@ const discordjs = {
 
                     if ((discordjs.bot.user) && (discordjs.bot.user.id)) {
                         return {
+                            guildsNM: discordjs.bot.guildsNM,
                             usernames: discordjs.bot.usernames,
                             avatar: discordjs.bot.user.avatar,
                             bot: discordjs.bot.user.bot,
@@ -161,11 +163,27 @@ const discordjs = {
                     }
 
                     // Username
-                    if ((event.t == "GUILD_CREATE") || (event.t == "GUILD_REMOVE")) {
+                    if (event.t == "GUILD_CREATE") {
 
                         for (var items in event.d.members) {
                             tinyUpName.addUser(event.d.members[items].user.username, event.d.members[items].user.discriminator, event.d.members[items].user.id);
                         }
+
+                        for (var items in event.d.channels) {
+                            tinyUpName.add(event.d.id, 'channels', event.d.channels[items].name, event.d.channels[items].id);
+                        }
+
+                        for (var items in event.d.roles) {
+                            tinyUpName.add(event.d.id, 'roles', event.d.roles[items].name, event.d.roles[items].id);
+                        }
+
+                    } else if (event.t == "GUILD_REMOVE") {
+
+                        for (var items in event.d.members) {
+                            tinyUpName.deleteUser(event.d.members[items].user.username, event.d.members[items].user.discriminator);
+                        }
+
+                        tinyUpName.remove(event.d.id);
 
                     }
 
@@ -264,17 +282,36 @@ const discordjs = {
                 });
 
                 // Update Username
-
                 const tinyUpName = {
-                    add: function() {
+                    add: function(guildID, type, name, id, old) {
+                        if (!discordjs.bot.guildsNM[guildID]) {
+                            discordjs.bot.guildsNM[guildID] = {
+                                channels: {},
+                                roles: {}
+                            };
+                        }
+                        if ((typeof type == "string") && (typeof name == "string") && ((typeof id == "string") || (typeof id == "number"))) {
 
-                    },
-                    remove: function() {
+                            if (old) {
+                                delete discordjs.bot.guildsNM[guildID][type][old];
+                            }
+                            discordjs.bot.guildsNM[guildID][type][name] = id;
 
+                        }
                     },
-                    addUser: function(username, discriminator, id) {
+                    remove: function(guildID, type, name) {
+                        if ((typeof type == "string") && (typeof name == "string")) {
+                            delete discordjs.bot.guildsNM[guildID][type][name];
+                        } else if (typeof type != "string") {
+                            delete discordjs.bot.guildsNM[guildID];
+                        }
+                    },
+                    addUser: function(username, discriminator, id, OLDusername, OLDdiscriminator) {
                         if (discriminator != "0000") {
                             discordjs.bot.usernames[username + "#" + discriminator] = id;
+                        }
+                        if ((typeof OLDusername == "string") && (typeof OLDusername == "string") && (OLDdiscriminator != "0000")) {
+                            discordjs.bot.usernames[OLDusername + "#" + OLDdiscriminator] = id;
                         }
                     },
                     deleteUser: function(username, discriminator) {
@@ -306,8 +343,30 @@ const discordjs = {
                     },
                     guildUser: function(user) {
                         tinyUpName.addUser(user.user.username, user.user.discriminator, user.user.id);
+                    },
+                    channelST: function(channel, old) {
+                        tinyUpName.add(discordjs.channels.get(channel.id).guild.id, 'channels', channel.name, channel.id, old.name);
+                    },
+                    roleST: function(role, old) {
+                        tinyUpName.add(role.guild.id, 'roles', role.name, role.id, old.name);
                     }
                 };
+
+                discordjs.bot.on('channelCreate', tinyUpName.channelST);
+                discordjs.bot.on('channelUpdate', function(old, newCh) {
+                    tinyUpName.channelST(newCh, old);
+                });
+                discordjs.bot.on('channelDelete', function(channel) {
+                    tinyUpName.remove(discordjs.channels.get(channel.id).guild.id, 'channels', channel.name);
+                });
+
+                discordjs.bot.on('roleCreate', tinyUpName.roleST);
+                discordjs.bot.on('roleUpdate', function(old, roleCh) {
+                    tinyUpName.roleST(roleCh, old);
+                });
+                discordjs.bot.on('roleDelete', function(role) {
+                    tinyUpName.remove(role.guild.id, 'roles', role.name);
+                });
 
                 discordjs.bot.on('guildMemberAvailable', tinyUpName.guildUser);
 
@@ -322,11 +381,7 @@ const discordjs = {
                 });
 
                 discordjs.bot.on('userUpdate', function(old, newuser) {
-                    tinyUpName.addUser(newuser.username, newuser.discriminator, newuser.id);
-                });
-
-                discordjs.bot.on('message', function(user) {
-                    tinyUpName.addUser(user.author.username, user.author.discriminator, user.author.id);
+                    tinyUpName.addUser(newuser.username, newuser.discriminator, newuser.id, old.username, old.discriminator);
                 });
 
                 discordjs.bot.login(c.discord.token);

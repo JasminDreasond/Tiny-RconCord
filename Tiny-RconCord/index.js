@@ -705,7 +705,7 @@ module.exports = function(pgdata) {
                 (typeof c.webhook.guild_id != "string")
             )) {
             log.info(lang.loading_webhook);
-            webhook.get(c.webhook.url, function(data) {
+            webhook.get(c.webhook.url).then(function(data) {
                 try {
                     c.webhook.id = data.id;
                     c.webhook.name = data.name;
@@ -715,9 +715,11 @@ module.exports = function(pgdata) {
                     c.webhook.guild_id = data.guild_id;
                     log.info(lang.loading_webhook_complete);
                     startBase.fire();
-                } catch (e) {
-                    log.error(e);
+                } catch (e) {;
+                    throw e;
                 };
+            }).catch(function(err) {
+                throw err;
             });
         } else {
             startBase.fire();

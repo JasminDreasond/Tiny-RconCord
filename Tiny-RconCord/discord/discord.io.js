@@ -90,6 +90,7 @@ const discordio = {
 
             if (discordio.bot.id) {
                 return {
+                    guildsNM: discordio.bot.guildsNM,
                     usernames: discordio.bot.usernames,
                     avatar: discordio.bot.avatar,
                     bot: discordio.bot.bot,

@@ -230,7 +230,9 @@ const chat = {
         // Discord to Minecraft Chat
         chat.ds_special_chat = function(data, event) {
 
-            if ((data.channelID == c.channelID) && (data.userID != pg.dsBot.getDS().id)) {
+            const ds_data = pg.dsBot.getDS();
+
+            if ((data.channelID == c.channelID) && (data.userID != ds_data.id)) {
 
                 // Attachments
                 if (event.d.attachments.length > 0) {
@@ -259,6 +261,35 @@ const chat = {
                     }
 
                 }
+                if (event.d.mention_roles.length > 0) {
+
+                    for (var i = 0; i < event.d.mention_roles.length; i++) {
+
+                        if (pg.c.discord.lib == "discord.js") {
+                            data.message = data.message.replace(new RegExp(event.d.mention_roles[i]),
+                                ds_data.servers.get(event.d.guild_id).roles.get(event.d.mention_roles[i]).name);
+                        } else {
+                            data.message = data.message.replace(new RegExp(event.d.mention_roles[i]),
+                                ds_data.servers[event.d.guild_id].roles[event.d.mention_roles[i]].name);
+                        }
+
+                    }
+
+                }
+
+                try {
+
+                    data.message = data.message.replace(/<#(.+?)>/g, function(e) {
+
+                        if (pg.c.discord.lib == "discord.js") {
+                            return "#" + ds_data.servers.get(event.d.guild_id).channels.get(e.substring(2, e.length - 1)).name;
+                        } else {
+                            return "#" + ds_data.servers[event.d.guild_id].channels[e.substring(2, e.length - 1)].name;
+                        }
+
+                    });
+
+                } catch (e) {}
 
                 // Send Message
                 if (data.message.replace(" ", "").length > 0) {
@@ -300,11 +331,20 @@ const chat = {
         };
 
         // Chat Minecraft
+        let guildID;
         chat.mc_chat = function(user, message) {
 
             if (user) {
 
                 const ds_data = pg.dsBot.getDS();
+
+                if (!guildID) {
+                    if (pg.c.discord.lib == "discord.js") {
+                        guildID = ds_data.channels.get(c.channelID).guild.id;
+                    } else {
+                        guildID = ds_data.channels[c.channelID].guild.id;
+                    }
+                }
 
                 if (ds_data) {
 
@@ -313,15 +353,15 @@ const chat = {
 
                     // Channel
                     try {
-                        message = message.replace(/<@#(.+?)>/g, function(e) {
-                            return "<@#" + ds_data.guildsNM.channels[e.substring(3, e.length - 1)] + ">";
+                        message = message.replace(/<#(.+?)>/g, function(e) {
+                            return "<#" + ds_data.guildsNM[guildID].channels[e.substring(2, e.length - 1)] + ">";
                         });
                     } catch (e) {}
 
                     // Role
                     try {
                         message = message.replace(/<@&(.+?)>/g, function(e) {
-                            return "<@&" + ds_data.guildsNM.roles[e.substring(3, e.length - 1)] + ">";
+                            return "<@&" + ds_data.guildsNM[guildID].roles[e.substring(3, e.length - 1)] + ">";
                         });
                     } catch (e) {}
 
@@ -344,6 +384,11 @@ const chat = {
                             username: user,
                             content: message,
                             avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
+                        }).catch(function(err) {
+                            if (err) {
+                                pg.log.error(err);
+                                pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(user, message) });
+                            }
                         });
 
                     } else if (c.channelID) {
@@ -373,6 +418,11 @@ const chat = {
                             username: ds_data.username,
                             content: pg.i18(tlang, extra),
                             avatar_url: pg.c.minecraft.avatar_url.replace("%username%", username)
+                        }).catch(function(err) {
+                            if (err) {
+                                pg.log.error(err);
+                                pg.dsBot.sendMessage({ to: c.channelID, message: pg.i18(tlang, extra) });
+                            }
                         });
 
                     } else if (c.channelID) {
