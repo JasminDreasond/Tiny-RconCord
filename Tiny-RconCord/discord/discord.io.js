@@ -20,6 +20,7 @@ const discordio = {
         // Start Bot
         discordio.bot = new Discord.Client({ autorun: true, token: c.discord.token });
         discordio.bot.usernames = {};
+        discordio.bot.guildsNM = {};
 
         // Send Message System API
         const sendMessage = function(themessage, callback, timer) {
@@ -161,6 +162,31 @@ const discordio = {
                 log.discord(json_stringify(event, null, 2, 100));
             }
 
+            // Username
+            if (event.t == "GUILD_CREATE") {
+
+                for (var items in event.d.members) {
+                    tinyUpName.addUser(event.d.members[items].user.username, event.d.members[items].user.discriminator, event.d.members[items].user.id);
+                }
+
+                for (var items in event.d.channels) {
+                    tinyUpName.add(event.d.id, 'channels', event.d.channels[items].name, event.d.channels[items].id);
+                }
+
+                for (var items in event.d.roles) {
+                    tinyUpName.add(event.d.id, 'roles', event.d.roles[items].name, event.d.roles[items].id);
+                }
+
+            } else if (event.t == "GUILD_REMOVE") {
+
+                for (var items in event.d.members) {
+                    tinyUpName.deleteUser(event.d.members[items].user.username, event.d.members[items].user.discriminator);
+                }
+
+                tinyUpName.remove(event.d.id);
+
+            }
+
             if ((event.t == "MESSAGE_CREATE") && (event.d.author.id !== discordio.bot.id) && (!event.d.bot)) {
 
                 // Detect if the message is from server or private message
@@ -255,37 +281,103 @@ const discordio = {
         });
 
         // Update Username
+        const tinyUpName = {
+            add: function(guildID, type, name, id, old) {
+                if (!discordio.bot.guildsNM[guildID]) {
+                    discordio.bot.guildsNM[guildID] = {
+                        channels: {},
+                        roles: {}
+                    };
+                }
+                if ((typeof type == "string") && (typeof name == "string") && ((typeof id == "string") || (typeof id == "number"))) {
 
-        discordio.bot.on('guildMemberAdd', function(user) {
-            discordio.bot.usernames[user.user.username + "#" + user.user.discriminator] = user.id;
+                    if (old) {
+                        delete discordio.bot.guildsNM[guildID][type][old];
+                    }
+                    discordio.bot.guildsNM[guildID][type][name] = id;
+
+                }
+            },
+            remove: function(guildID, type, name) {
+                if ((typeof type == "string") && (typeof name == "string")) {
+                    delete discordio.bot.guildsNM[guildID][type][name];
+                } else if (typeof type != "string") {
+                    delete discordio.bot.guildsNM[guildID];
+                }
+            },
+            addUser: function(username, discriminator, id, OLDusername, OLDdiscriminator) {
+                if (discriminator != "0000") {
+                    discordio.bot.usernames[username + "#" + discriminator] = id;
+                }
+                if ((typeof OLDusername == "string") && (typeof OLDusername == "string") && (OLDdiscriminator != "0000")) {
+                    discordio.bot.usernames[OLDusername + "#" + OLDdiscriminator] = id;
+                }
+            },
+            deleteUser: function(username, discriminator) {
+
+                var confirmed = false;
+                for (var x = 0; x < discordio.bot.servers.length; x++) {
+
+                    if (!confirmed) {
+
+                        for (var i = 0; i < discordio.bot.servers[x].members.length; i++) {
+                            if (!confirmed) {
+                                if ((discordio.bot.servers[x].members[i].user.username == username) && (discordio.bot.servers[x].members[i].user.discriminator == discriminator)) {
+                                    confirmed = true;
+                                }
+                            }
+                        }
+
+                    }
+
+                };
+
+                if (!confirmed) {
+                    delete discordio.bot.usernames[username + "#" + discriminator];
+                }
+
+            },
+            guildUser: function(user) {
+                tinyUpName.addUser(user.user.username, user.user.discriminator, user.user.id);
+            },
+            channelST: function(channel, old) {
+                tinyUpName.add(discordio.channels.get(channel.id).guild.id, 'channels', channel.name, channel.id, old.name);
+            },
+            roleST: function(role, old) {
+                tinyUpName.add(role.guild.id, 'roles', role.name, role.id, old.name);
+            }
+        };
+
+        discordio.bot.on('channelCreate', tinyUpName.channelST);
+        discordio.bot.on('channelUpdate', function(old, newCh) {
+            tinyUpName.channelST(newCh, old);
         });
+        discordio.bot.on('channelDelete', function(channel) {
+            tinyUpName.remove(discordio.channels.get(channel.id).guild.id, 'channels', channel.name);
+        });
+
+        discordio.bot.on('roleCreate', tinyUpName.roleST);
+        discordio.bot.on('roleUpdate', function(old, roleCh) {
+            tinyUpName.roleST(roleCh, old);
+        });
+        discordio.bot.on('roleDelete', function(role) {
+            tinyUpName.remove(role.guild.id, 'roles', role.name);
+        });
+
+        discordio.bot.on('guildMemberAvailable', tinyUpName.guildUser);
+
+        discordio.bot.on('guildMemberAdd', tinyUpName.guildUser);
 
         discordio.bot.on('guildMemberRemove', function(user) {
-            delete discordio.bot.usernames[user.user.username + "#" + user.user.discriminator];
+            tinyUpName.deleteUser(user.user.username, user.user.discriminator);
         });
-
-        /*                 discordio.bot.on('guildMembersChunk', function(members) {
-
-                        }); */
 
         discordio.bot.on('guildMemberUpdate', function(old, newuser) {
-            discordio.bot.usernames[newuser.user.username + "#" + newuser.user.discriminator] = newuser.id;
+            tinyUpName.addUser(newuser.user.username, newuser.user.discriminator, newuser.id);
         });
-
-        /*                 discordio.bot.on('clientUserSettingsUpdate', function() {
-
-                        }); */
-
-        /*                 discordio.bot.on('clientUserGuildSettingsUpdate', function(user) {
-
-                        }); */
 
         discordio.bot.on('userUpdate', function(old, newuser) {
-            discordio.bot.usernames[newuser.username + "#" + newuser.discriminator] = newuser.id;
-        });
-
-        discordio.bot.on('message', function(user) {
-            discordio.bot.usernames[user.author.username + "#" + user.author.discriminator] = user.author.id;
+            tinyUpName.addUser(newuser.username, newuser.discriminator, newuser.id, old.username, old.discriminator);
         });
 
     }
