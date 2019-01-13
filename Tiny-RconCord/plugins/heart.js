@@ -24,14 +24,15 @@ const setHome = {
 
             if (message.includes("<3")) {
                 pg.minecraft.playerPosition(user).then(function(data) {
-                    if (data[0]) {
+                    if (data[1]) {
                         new pg.minecraft.particle({
 
                             name: 'minecraft',
                             source: 'heart',
                             delta: '0.3 2 0.3',
                             count: 3,
-                            cords: data[1]
+                            cords: data[2],
+                            world: data[0]
 
                         }).exe();
                     }

@@ -56,6 +56,14 @@ const helloworld = {
 
         };
 
+        // Minecraft Command (Not working in Minecraft Vanilla)
+        helloworld.mc_command = function(user, command) {
+
+            // Return the command value for another plugins and the command log
+            return [user, command];
+
+        };
+
         // Minecraft Join
         helloworld.mc_join = function(userjoin) {
 

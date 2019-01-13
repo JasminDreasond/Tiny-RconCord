@@ -42,7 +42,7 @@ const setHome = {
         };
 
         // Effect
-        const tpEffect = function(user, cords, callback = function() {}) {
+        const tpEffect = function(user, cords, world, callback = function() {}) {
 
             new pg.minecraft.sound({
 
@@ -60,7 +60,8 @@ const setHome = {
                     source: 'portal',
                     delta: '0.5 1.5 0.5',
                     count: 150,
-                    cords: cords
+                    cords: cords,
+                    world: world
 
                 }).exe(callback);
 
@@ -69,18 +70,16 @@ const setHome = {
         };
 
         // TP Script
-        const teleportStart = function(msg, cords, user) {
+        const teleportStart = function(world, cords, user, effectCords, effectWorld) {
 
-            pg.minecraft.playerPosition(user).then(function(data) {
-                tpEffect(user, data[1], function() {
-                    new pg.minecraft.command(msg, user).exe(function(err, data) {
-                        if (err) {
-                            pg.log.error(err);
-                            new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
-                        } else {
-                            tpEffect(user, cords);
-                        }
-                    });
+            tpEffect(user, effectCords, effectWorld, function() {
+                new pg.minecraft.teleport(cords, user, world).exe(function(err) {
+                    if (err) {
+                        pg.log.error(err);
+                        new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
+                    } else {
+                        tpEffect(user, cords, world);
+                    }
                 });
             });
 
@@ -96,58 +95,56 @@ const setHome = {
 
                 message = message.split(' ');
 
-                let finalmessage = 'teleport';
+                pg.minecraft.playerPosition(user).then(function(efdata) {
 
-                for (var i = 1; i < message.length; i++) {
-                    finalmessage += ' ' + message[i];
-                }
+                    // Single TP Cords
+                    if (
+                        (c.user_to_cords) &&
+                        (!isNaN(Number(message[1]))) &&
+                        (!isNaN(Number(message[2]))) &&
+                        (!isNaN(Number(message[3])))
+                    ) { teleportStart(efdata[0], message[1] + ' ' + message[2] + ' ' + message[3], user, efdata[2], efdata[0]); }
 
-                // Single TP Cords
-                if (
-                    (c.user_to_cords) &&
-                    (!isNaN(Number(message[1]))) &&
-                    (!isNaN(Number(message[2]))) &&
-                    (!isNaN(Number(message[3])))
-                ) { teleportStart(finalmessage, message[1] + ' ' + message[2] + ' ' + message[3], user); }
+                    // User TP Cords
+                    else if (
+                        (c.everyone_to_cords) &&
+                        (isNaN(Number(message[1]))) &&
+                        (!isNaN(Number(message[2]))) &&
+                        (!isNaN(Number(message[3]))) &&
+                        (!isNaN(Number(message[4])))
+                    ) { teleportStart(efdata[0], message[2] + ' ' + message[3] + ' ' + message[4], message[1], null, efdata[2], efdata[0]); }
 
-                // User TP Cords
-                else if (
-                    (c.everyone_to_cords) &&
-                    (isNaN(Number(message[1]))) &&
-                    (!isNaN(Number(message[2]))) &&
-                    (!isNaN(Number(message[3]))) &&
-                    (!isNaN(Number(message[4])))
-                ) { teleportStart(finalmessage, message[2] + ' ' + message[3] + ' ' + message[4], message[1]); }
+                    // User TP User
+                    else if (
+                        (c.everyone_to_user) &&
+                        (isNaN(Number(message[1]))) && (typeof message[2] == "string") && (isNaN(Number(message[2])))
+                    ) {
+                        pg.minecraft.playerPosition(user).then(function(data) {
+                            teleportStart(data[0], data[2], user, efdata[2], efdata[0]);
+                        });
+                    }
 
-                // User TP User
-                else if (
-                    (c.everyone_to_user) &&
-                    (isNaN(Number(message[1]))) && (typeof message[2] == "string") && (isNaN(Number(message[2])))
-                ) {
-                    pg.minecraft.playerPosition(user).then(function(data) {
-                        teleportStart(finalmessage, data[1], user);
-                    });
-                }
+                    // TP User
+                    else if (
+                        (c.user_to_user) &&
+                        (isNaN(Number(message[1])))
+                    ) {
+                        pg.minecraft.playerPosition(message[1]).then(function(data) {
+                            teleportStart(data[0], data[2], user, efdata[2], efdata[0]);
+                        });
+                    }
 
-                // TP User
-                else if (
-                    (c.user_to_user) &&
-                    (isNaN(Number(message[1])))
-                ) {
-                    pg.minecraft.playerPosition(message[1]).then(function(data) {
-                        teleportStart(finalmessage, data[1], user);
-                    });
-                }
+                    // Fail
+                    else {
 
-                // Fail
-                else {
+                        new pg.minecraft.send(
+                            [{ color: 'gray', text: pg.i18(pg.lang.tp_incorrect_value, [pg.c.minecraft.prefix, cmd]) }],
+                            user
+                        ).exe(errorSend);
 
-                    new pg.minecraft.send(
-                        [{ color: 'gray', text: pg.i18(pg.lang.tp_incorrect_value, [pg.c.minecraft.prefix, cmd]) }],
-                        user
-                    ).exe(errorSend);
+                    }
 
-                }
+                });
 
                 return null;
 

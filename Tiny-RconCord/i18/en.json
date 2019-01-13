@@ -11,6 +11,7 @@
     "loading_webhook_complete": "The webhook were loaded successfully",
     "rcon_auth": "Authenticated with {0}:{1}",
     "loading_complete": "Ready ({0} milliseconds)!",
+    "wrong_dimension_id": "Dimension ID is incorrect!",
 
     "no_permission": "You do not have permission to run this command!",
     "no_english": "The {0} plugin needs to have an English language!",
@@ -33,6 +34,7 @@
     "debug": "Debug",
     "chat": "Chat",
     "discord": "Discord",
+    "command": "Command",
 
     "minecraft_connection": "Minecraft Connection",
     "connected": "Connected",

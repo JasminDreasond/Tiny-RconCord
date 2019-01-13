@@ -55,7 +55,7 @@ const setHome = {
         };
 
         // Effect
-        const tpEffect = function(user, cords, callback = function() {}) {
+        const tpEffect = function(user, cords, world, callback = function() {}) {
 
             new pg.minecraft.sound({
 
@@ -73,7 +73,8 @@ const setHome = {
                     source: 'portal',
                     delta: '0.5 1.5 0.5',
                     count: 150,
-                    cords: cords
+                    cords: cords,
+                    world: world
 
                 }).exe(callback);
 
@@ -105,7 +106,7 @@ const setHome = {
 
                         pg.minecraft.playerPosition(user).then(function(data) {
 
-                            db.set(user + "_" + cmd, data[1]);
+                            db.set(user + "_" + cmd, { cords: data[2], world: data[0] });
 
                             new pg.minecraft.send(
                                 [{ color: 'gray', text: pg.i18(pg.lang.home_saved, [pg.c.minecraft.prefix, cmd]) }],
@@ -124,21 +125,38 @@ const setHome = {
                 else if (message.startsWith(pg.c.minecraft.prefix + cmd)) {
 
                     // Get Data
-                    if (!isglobal) { var cords = db.get(user + "_" + cmd); } else { var cords = db.get(cmd); }
+                    if (!isglobal) { var data_tp = db.get(user + "_" + cmd); } else { var data_tp = db.get(cmd); }
 
                     // Send
-                    if (cords) {
+                    if (data_tp) {
 
                         pg.minecraft.playerPosition(user).then(function(data) {
-                            tpEffect(user, data[1], function() {
-                                new pg.minecraft.command("teleport " + cords, user).exe(function(err, data) {
-                                    if (err) {
-                                        pg.log.error(err);
-                                        new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
-                                    } else {
-                                        tpEffect(user, cords);
-                                    }
-                                });
+                            tpEffect(user, data[2], data[0], function() {
+
+                                if (typeof data_tp == "string") {
+
+                                    new pg.minecraft.command("teleport " + data_tp, user).exe(function(err, data) {
+                                        if (err) {
+                                            pg.log.error(err);
+                                            new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
+                                        } else {
+                                            tpEffect(user, data_tp, data[0]);
+                                        }
+                                    });
+
+                                } else {
+
+                                    new pg.minecraft.teleport(data_tp.cords, user, data_tp.world).exe(function(err, data) {
+                                        if (err) {
+                                            pg.log.error(err);
+                                            new pg.minecraft.send([{ color: 'gray', text: JSON.stringify(err) }], user).exe(errorSend);
+                                        } else {
+                                            tpEffect(user, data_tp.cords, data_tp.world);
+                                        }
+                                    });
+
+                                }
+
                             });
                         });
 

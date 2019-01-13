@@ -76,6 +76,14 @@ const systemcons = {
         log.info(titles.chat + " " + systemcons.dateGen(false) + " " + arguments[0] + ": ", arguments[1], arguments[2], arguments[3]);
     },
 
+    command: function() {
+        for (var i = 0; i < 4; i++) {
+            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
+        }
+        console.log(colors.green(titles.command), systemcons.dateGen(), arguments[0] + ":", arguments[1], arguments[2], arguments[3]);
+        log.info(titles.command + " " + systemcons.dateGen(false) + " " + arguments[0] + ": ", arguments[1], arguments[2], arguments[3]);
+    },
+
     discord: function() {
         for (var i = 0; i < 4; i++) {
             if (typeof arguments[i] == "undefined") { arguments[i] = ''; }

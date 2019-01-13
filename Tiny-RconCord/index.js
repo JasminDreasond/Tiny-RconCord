@@ -53,7 +53,8 @@ module.exports = function(pgdata) {
         minecraft: lang['minecraft'],
         debug: lang['debug'],
         chat: lang['chat'],
-        discord: lang['discord']
+        discord: lang['discord'],
+        command: lang['command']
     });
 
     webhook.start(request, log);
@@ -312,11 +313,21 @@ module.exports = function(pgdata) {
                                 var adv = data.match(new RegExp(c.minecraft.regex.advancement));
                             }
 
+                            if (typeof c.minecraft.regex.command == "string") {
+                                var usercommand = data.match(new RegExp(c.minecraft.regex.command));
+                            }
+
                             // Chat
                             if ((typeof c.minecraft.regex.chat == "string") && (userchat)) {
 
                                 // Model Chat
-                                userchat = [userchat[1], userchat[2]];
+
+                                if (userchat.length == 4) {
+                                    userchat = [userchat[2], userchat[3]];
+                                } else {
+                                    userchat = [userchat[1], userchat[2]];
+                                }
+
                                 userchat = await startServer.sendPlugin(userchat, 'mc_chat');
 
                                 if (
@@ -328,6 +339,26 @@ module.exports = function(pgdata) {
                                     (c.chatLog)
                                 ) {
                                     log.chat(userchat[0], userchat[1]);
+                                }
+
+                            }
+
+                            // Command
+                            else if ((typeof c.minecraft.regex.command == "string") && (usercommand)) {
+
+                                // Model Chat
+                                usercommand = [usercommand[1], usercommand[2]];
+                                usercommand = await startServer.sendPlugin(usercommand, 'mc_command');
+
+                                if (
+                                    (usercommand) &&
+                                    (typeof usercommand[0] == "string") &&
+                                    (typeof usercommand[1] == "string") &&
+                                    (usercommand[1].replace(/ /g, "") != "") &&
+                                    (usercommand[0].replace(/ /g, "") != "") &&
+                                    (c.chatLog)
+                                ) {
+                                    log.command(usercommand[0], usercommand[1]);
                                 }
 
                             }

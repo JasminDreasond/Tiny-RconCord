@@ -24,6 +24,15 @@ const minecraft = {
             return await connCommand(this.cmd, callback);
         };
 
+        // Teleport
+        minecraft.teleport = function(cords = "0 0 0", player = "@a", world = ['minecraft', 'overworld']) {
+            this.cmd = 'execute in ' + world[0] + ':' + world[1] + ' run tp ' + player + ' ' + cords;
+        };
+
+        minecraft.teleport.prototype.exe = async function(callback) {
+            return await connCommand(this.cmd, callback);
+        };
+
         // Command
         minecraft.command = function(cmd, player = "@a") {
             this.cmd = 'execute as ' + player + ' run ' + cmd;
@@ -63,6 +72,7 @@ const minecraft = {
                 (typeof data.player == "string")
             ) {
 
+                if ((!data.world) || (typeof data.world[0] != "string") || (typeof data.world[1] != "string")) { data.world = ['minecraft', 'overworld']; }
                 if (typeof data.cords != "string") { data.cords = '~ ~ ~'; }
                 if (typeof data.object != "string") { data.object = '@a'; }
                 if (typeof data.volume != "string") { data.volume = ''; } else {
@@ -77,7 +87,7 @@ const minecraft = {
                     data.minimumVolume = ' ' + data.minimumVolume;
                 }
 
-                this.cmd = 'execute as ' + data.player + ' run playsound ' + data.sound + ':' + data.source + ' ' + data.targets + ' ' + data.object + ' ' + data.cords + data.volume + data.pitch + data.minimumVolume;
+                this.cmd = 'execute in ' + data.world[0] + ':' + data.world[1] + ' as ' + data.player + ' run playsound ' + data.sound + ':' + data.source + ' ' + data.targets + ' ' + data.object + ' ' + data.cords + data.volume + data.pitch + data.minimumVolume;
 
             } else {
                 this.cmd = null;
@@ -97,6 +107,7 @@ const minecraft = {
                 (typeof data.source == "string")
             ) {
 
+                if ((!data.world) || (typeof data.world[0] != "string") || (typeof data.world[1] != "string")) { data.world = ['minecraft', 'overworld']; }
                 if (typeof data.cords != "string") { data.cords = '~ ~ ~'; }
                 if (typeof data.delta != "string") { data.delta = '0 0 0'; }
                 if ((typeof data.speed != "string") && (typeof data.speed != "number")) { data.speed = '0'; }
@@ -104,7 +115,7 @@ const minecraft = {
                 if (typeof data.type != "string") { data.type = 'normal'; }
                 if (typeof data.player != "string") { data.player = '@a'; }
 
-                this.cmd = 'particle ' + data.name + ':' + data.source + ' ' + data.cords + ' ' + data.delta + ' ' + data.speed + ' ' + data.count + ' ' + data.type + ' ' + data.player;
+                this.cmd = 'execute in ' + data.world[0] + ':' + data.world[1] + ' as ' + data.player + ' run particle ' + data.name + ':' + data.source + ' ' + data.cords + ' ' + data.delta + ' ' + data.speed + ' ' + data.count + ' ' + data.type + ' ' + data.player;
 
             } else {
                 this.cmd = null;
@@ -117,8 +128,8 @@ const minecraft = {
         };
 
         // Team
-        minecraft.team = function(cmd, player = "@a") {
-            this.cmd = 'team ';
+        minecraft.team = function(player = "@a") {
+            this.cmd = 'team ' + player + ' ';
         };
 
         minecraft.team.prototype.add = function(id, name) {
@@ -155,7 +166,7 @@ const minecraft = {
         };
 
         // Kill User
-        minecraft.kill = async function(user) {
+        minecraft.kill = async function(user = '@a') {
             return await new Promise(function(resolve, reject) {
                 connCommand("kill " + user, function(err, data) {
                     if (err) {
@@ -166,31 +177,80 @@ const minecraft = {
             });
         };
 
-        // Get User Position
-        minecraft.playerPosition = async function(user) {
+        // Recipe User
+        minecraft.recipe = async function(type, item = '*', user = '@a') {
             return await new Promise(function(resolve, reject) {
-                connCommand("data get entity " + user + " Pos", function(err, data) {
+                connCommand("recipe " + type + " " + user + " " + item, function(err, data) {
+                    if (err) {
+                        log.error(err);
+                        reject(err);
+                    } else { resolve(data); }
+                });
+            });
+        };
+
+        // Get Data
+        minecraft.getData = async function(type, user, item, nojson) {
+
+            if (typeof item == "string") {
+                item = " " + item;
+            } else {
+                item = "";
+            }
+
+            return await new Promise(function(resolve, reject) {
+                connCommand("data get " + type + " " + user + item, function(err, data) {
                     if (err) {
                         log.error(err);
                         reject(err);
                     } else {
 
                         try {
-                            var tinyresult = JSON.parse(data.replace(user + " has the following entity data: ", "")
-                                .replace(/d\,/g, ',')
-                                .replace(/d\]/g, ']')
-                                .replace(/d\)/g, ')')
-                            );
-
-                            resolve([tinyresult, tinyresult[0] + ' ' + tinyresult[1] + ' ' + tinyresult[2]]);
+                            if (!nojson) {
+                                resolve(JSON.parse(data.replace(user + " has the following entity data: ", "")));
+                            } else {
+                                resolve(data.replace(user + " has the following entity data: ", ""));
+                            }
                         } catch (e) {
                             log.error(err);
                             reject(err);
                         }
 
-
                     }
                 });
+            });
+
+        };
+
+        // Get User Position
+        minecraft.playerPosition = async function(user) {
+            return await new Promise(function(resolve, reject) {
+                minecraft.getData('entity', user, 'Pos', true).then(function(pos) {
+                    minecraft.getData('entity', user, 'Dimension', true).then(function(dimension) {
+
+                        var tinyresult = JSON.parse(
+                            pos.replace(/d\,/g, ',')
+                            .replace(/d\]/g, ']')
+                            .replace(/d\)/g, ')')
+                        );
+
+                        dimension = Number(dimension);
+
+                        if (dimension == 1) {
+                            var dms = ['minecraft', 'the_end'];
+                        } else if (dimension == -1) {
+                            var dms = ['minecraft', 'the_nether'];
+                        } else {
+                            if (dimension != 0) {
+                                log.error(lang.wrong_dimension_id);
+                            }
+                            var dms = ['minecraft', 'overworld'];
+                        }
+
+                        resolve([dms, tinyresult, tinyresult[0] + ' ' + tinyresult[1] + ' ' + tinyresult[2]]);
+
+                    }).catch(function(err) { reject(err); });
+                }).catch(function(err) { reject(err); });
             });
         };
 

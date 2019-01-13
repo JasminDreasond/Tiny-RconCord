@@ -378,6 +378,10 @@ const chat = {
                         });
                     } catch (e) {}
 
+                    if (message.endsWith('[m')) {
+                        message = message.substring(0, message.length - 3);
+                    }
+
                     if (pg.c.webhook.use) {
 
                         pg.webhook.send(pg.c.webhook, {
@@ -451,7 +455,7 @@ const chat = {
 
         // Minecraft Advancement
         chat.mc_advancement = function(user, advancement) {
-            return [sendNotiMine(user, pg.lang.user_leave, [user, advancement]), advancement];
+            return [sendNotiMine(user, pg.lang.advancement_receive, [user, advancement]), advancement];
         };
 
 
