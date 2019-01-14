@@ -328,6 +328,11 @@ module.exports = function(pgdata) {
                                     userchat = [userchat[1], userchat[2]];
                                 }
 
+                                // Fix Message Problem
+                                if (userchat[1].endsWith('[m')) {
+                                    userchat[1] = userchat[1].substring(0, userchat[1].length - 3);
+                                }
+
                                 userchat = await startServer.sendPlugin(userchat, 'mc_chat');
 
                                 if (
@@ -455,9 +460,10 @@ module.exports = function(pgdata) {
             query: function() {
 
                 const mcquery = require('./lib/mcquery.js');
+                mcquery.start(log);
 
                 // Query
-                server.forceQuery = mcquery(c.minecraft.rcon.ip, c.minecraft.query.port, c.minecraft.query.delay, function(err, stat) {
+                server.forceQuery = mcquery.send(c.minecraft.rcon.ip, c.minecraft.query.port, c.minecraft.query.delay, function(err, stat) {
                     if (err) {
                         server.query = null;
                         log.error(err);

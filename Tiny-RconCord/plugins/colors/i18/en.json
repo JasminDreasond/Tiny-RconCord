@@ -1,0 +1,13 @@
+{
+
+    "colors_list_help": "List of all available colors",
+    "colors_set_help": "Set a color for your username",
+
+    "colors_list": "Choose a color:",
+
+    "colors": "Colors",
+    "set_color": "Your color has been set to {0}",
+    "incorrect_set_color": "Incorrect color! Please try again",
+    "set_color_error": "There was an error... Please try again"
+
+}

@@ -9,40 +9,50 @@
  *
  ***************************************************************************/
 
-const Query = require('mcquery');
+const tinymcquery = {
 
-//uses the optional settings
-//for a longer timeout;
-let query;
+    start: function(log) {
 
-function checkMcServer(callback, timer, first) {
+        const Query = require('mcquery');
 
-    //connect every time to get a new challengeToken
-    query.connect(function(err) {
+        //uses the optional settings
+        //for a longer timeout;
+        let query;
 
-        if (err) {
-            console.error(err);
-            return callback(null);
-        } else {
-            query.full_stat(callback);
+        function checkMcServer(callback, timer, first) {
+
+            //connect every time to get a new challengeToken
+            query.connect(function(err) {
+
+                if (err) {
+                    log.error(err);
+                    return callback(null);
+                } else {
+                    query.full_stat(callback);
+                }
+
+            });
+
+            if (first == true) {
+                setInterval(function() {
+                    checkMcServer(callback, timer, false);
+                }, timer);
+            }
+
         }
 
-    });
+        function fullStatBack(err, stat) {}
 
-    if (first == true) {
-        setInterval(function() {
-            checkMcServer(callback, timer, false);
-        }, timer);
+        tinymcquery.send = function(HOST, PORT, timer, callback) {
+            query = new Query(HOST, PORT, { timeout: timer });
+            checkMcServer(callback, timer, true);
+            return function() {
+                checkMcServer(callback, timer, false);
+            };
+        }
+
     }
 
 }
 
-function fullStatBack(err, stat) {}
-
-module.exports = function(HOST, PORT, timer, callback) {
-    query = new Query(HOST, PORT, { timeout: timer });
-    checkMcServer(callback, timer, true);
-    return function() {
-        checkMcServer(callback, timer, false);
-    };
-};
+module.exports = tinymcquery;

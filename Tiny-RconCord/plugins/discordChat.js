@@ -378,10 +378,6 @@ const chat = {
                         });
                     } catch (e) {}
 
-                    if (message.endsWith('[m')) {
-                        message = message.substring(0, message.length - 3);
-                    }
-
                     if (pg.c.webhook.use) {
 
                         pg.webhook.send(pg.c.webhook, {

@@ -128,37 +128,44 @@ const minecraft = {
         };
 
         // Team
-        minecraft.team = function(player = "@a") {
-            this.cmd = 'team ' + player + ' ';
+        minecraft.team = function() {
+            this.cmd = 'team ';
         };
 
         minecraft.team.prototype.add = function(id, name) {
-            return this.cmd + 'add ' + id + ' "' + name + '"';
+            this.cmd += 'add ' + id + ' "' + name + '"';
+            return this;
         };
 
         minecraft.team.prototype.empty = function(id) {
-            return this.cmd + 'empty ' + id;
+            this.cmd += 'empty ' + id;
+            return this;
         };
 
         minecraft.team.prototype.join = function(id, user = '@a') {
-            return this.cmd + 'join ' + id + ' ' + user;
+            this.cmd += 'join ' + id + ' ' + user;
+            return this;
         };
 
-        minecraft.team.prototype.leave = function(user) {
-            return this.cmd + 'leave ' + user;
+        minecraft.team.prototype.leave = function(user = '@a') {
+            this.cmd += 'leave ' + user;
+            return this;
         };
 
         minecraft.team.prototype.list = function(team) {
             if (typeof team == "string") { team = ' ' + team; }
-            return this.cmd + 'list' + team;
+            this.cmd += 'list' + team;
+            return this;
         };
 
-        minecraft.team.prototype.modify = function(type, id) {
-            return this.cmd + 'modify ' + type + ' ' + id;
+        minecraft.team.prototype.modify = function(id, option, value) {
+            this.cmd += 'modify ' + id + ' ' + option + ' ' + value;
+            return this;
         };
 
         minecraft.team.prototype.remove = function(id) {
-            return this.cmd + 'remove ' + id;
+            this.cmd += 'remove ' + id;
+            return this;
         };
 
         minecraft.team.prototype.exe = async function(callback) {
