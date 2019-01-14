@@ -348,9 +348,6 @@ const chat = {
 
                 if (ds_data) {
 
-                    // Add everymine
-                    message = message.replace(/\@everymine/g, "<@&" + c.everymine + ">");
-
                     // Channel
                     try {
                         message = message.replace(/<#(.+?)>/g, function(e) {
@@ -378,16 +375,21 @@ const chat = {
                         });
                     } catch (e) {}
 
+                    // Add everymine
+                    message = message.replace(/\@everymine/g, "<@&" + c.everymine + ">");
+
+                    const clearUsername = user.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+
                     if (pg.c.webhook.use) {
 
                         pg.webhook.send(pg.c.webhook, {
-                            username: user,
+                            username: clearUsername,
                             content: message,
-                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", user)
+                            avatar_url: pg.c.minecraft.avatar_url.replace("%username%", clearUsername)
                         }).catch(function(err) {
                             if (err) {
                                 pg.log.error(err);
-                                pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(user, message) });
+                                pg.dsBot.sendMessage({ to: c.channelID, message: chat_st.discordMessage(clearUsername, message) });
                             }
                         });
 
