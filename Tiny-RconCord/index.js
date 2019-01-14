@@ -333,9 +333,18 @@ module.exports = function(pgdata) {
                                     userchat[1] = userchat[1].substring(0, userchat[1].length - 3);
                                 }
 
+                                // Send Plugins
                                 userchat = await startServer.sendPlugin(userchat, 'mc_chat');
 
-                                if (
+                                // Help
+                                if (userchat[1].startsWith(c.minecraft.prefix + 'help')) {
+
+
+
+                                }
+
+                                // Log
+                                else if (
                                     (userchat) &&
                                     (typeof userchat[0] == "string") &&
                                     (typeof userchat[1] == "string") &&
@@ -668,7 +677,7 @@ module.exports = function(pgdata) {
                                     }
                                 }
 
-                                if ((typeof response == "string") && (response.replace(/ /g, "") != "")) {
+                                if ((c.discord.channelID.log) && (typeof response == "string") && (response.replace(/ /g, "") != "")) {
                                     log_control.send("[RCON] " + response);
                                 }
 
