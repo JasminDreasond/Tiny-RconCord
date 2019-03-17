@@ -54,7 +54,8 @@ module.exports = function(pgdata) {
         debug: lang['debug'],
         chat: lang['chat'],
         discord: lang['discord'],
-        command: lang['command']
+        command: lang['command'],
+        many_messages: lang['many_messages']
     });
 
     webhook.start(request, log);

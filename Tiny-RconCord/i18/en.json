@@ -69,6 +69,8 @@
     "madeby": "Made by: {0}",
     "help_minecraftstatus": "View information about the Minecraft server",
     "help_minecraftplayers": "View the player list",
-    "help_nodeplugins": "View the list of plugins installed on the rcon node"
+    "help_nodeplugins": "View the list of plugins installed on the rcon node",
+
+    "many_messages": "Many Messages!"
 
 }
