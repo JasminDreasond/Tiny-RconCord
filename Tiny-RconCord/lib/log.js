@@ -64,15 +64,15 @@ const systemcons = {
                 lastMessage.warning = true;
 
                 if (!st) {
-                    console.log(colors[color](titles[msg]), systemcons.dateGen(), message, colors.red("[" + titles.manymessages + "]"));
+                    console.log(colors[color](titles[msg]), systemcons.dateGen(), message, colors.red("[" + titles.manymessages.toUpperCase() + "]"));
                     if (type == msg) {
-                        log[type](systemcons.dateGen(false) + " " + message + " [" + titles.manymessages + "]");
+                        log[type](systemcons.dateGen(false) + " " + message + " [" + titles.manymessages.toUpperCase() + "]");
                     } else {
-                        log[type](titles[msg] + systemcons.dateGen(false) + " " + message + " [" + titles.manymessages + "]");
+                        log[type](titles[msg] + systemcons.dateGen(false) + " " + message + " [" + titles.manymessages.toUpperCase() + "]");
                     }
                 } else {
-                    console.log(colors[color](titles[msg]), colors.gray("[" + moment().format("MM/DD/YYYY") + "]"), message, colors.red("[" + titles.manymessages + "]"));
-                    log[type](titles[msg] + " [" + moment().format("MM/DD/YYYY") + "] " + message + "[" + titles.manymessages + "]");
+                    console.log(colors[color](titles[msg]), colors.gray("[" + moment().format("MM/DD/YYYY") + "]"), message, colors.red("[" + titles.manymessages.toUpperCase() + "]"));
+                    log[type](titles[msg] + " [" + moment().format("MM/DD/YYYY") + "] " + message + "[" + titles.manymessages.toUpperCase() + "]");
                 }
 
             }
