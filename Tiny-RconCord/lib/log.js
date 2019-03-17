@@ -13,12 +13,73 @@ const colors = require('colors');
 const titles = {};
 let moment;
 
+let lastMessage = {
+    cache: "",
+    count: 0,
+    warning: false
+};
+
 const log = require('simple-node-logger').createRollingFileLogger({
     logDirectory: __dirname + '/../logs',
     fileNamePattern: 'node-<DATE>.log'
 });
 
 const systemcons = {
+
+    template: function(args, color, type, msg, st) {
+
+        var message = "";
+
+        for (var i = 0; i < args.length; i++) {
+            if (i > 0) {
+                message += " " + args[i];
+            } else {
+                message += args[i];
+            }
+        }
+
+        if (lastMessage.cache != message) {
+
+            lastMessage.count = 0;
+            lastMessage.warning = false;
+            lastMessage.cache = message;
+
+            if (!st) {
+                console.log(colors[color](titles[msg]), systemcons.dateGen(), message);
+                if (type == msg) {
+                    log[type](systemcons.dateGen(false) + " " + message);
+                } else {
+                    log[type](titles[msg] + systemcons.dateGen(false) + " " + message);
+                }
+            } else {
+                console.log(colors[color](titles[msg]), colors.gray("[" + moment().format("MM/DD/YYYY") + "]"), message);
+                log[type](titles[msg] + " [" + moment().format("MM/DD/YYYY") + "] " + message);
+            }
+
+        } else {
+
+            if ((lastMessage.warning == false) && (lastMessage.count > 10)) {
+
+                lastMessage.count++;
+                lastMessage.warning = true;
+
+                if (!st) {
+                    console.log(colors[color](titles[msg]), systemcons.dateGen(), message, colors.red("[" + titles.manymessages + "]"));
+                    if (type == msg) {
+                        log[type](systemcons.dateGen(false) + " " + message + " [" + titles.manymessages + "]");
+                    } else {
+                        log[type](titles[msg] + systemcons.dateGen(false) + " " + message + " [" + titles.manymessages + "]");
+                    }
+                } else {
+                    console.log(colors[color](titles[msg]), colors.gray("[" + moment().format("MM/DD/YYYY") + "]"), message, colors.red("[" + titles.manymessages + "]"));
+                    log[type](titles[msg] + " [" + moment().format("MM/DD/YYYY") + "] " + message + "[" + titles.manymessages + "]");
+                }
+
+            }
+
+        }
+
+    },
 
     startApp: function(moments, data) {
         moment = moments;
@@ -36,69 +97,14 @@ const systemcons = {
         }
     },
 
-    info: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.log(colors.cyan(titles.info), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.info(systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
-    },
-
-    warn: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.warn(colors.yellow(titles.warn), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.warn(systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
-    },
-
-    error: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.error(colors.red(titles.error), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.error(systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
-    },
-
-    debug: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.log(colors.magenta(titles.debug), systemcons.dateGen(), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.info(titles.debug + " " + systemcons.dateGen(false) + " " + arguments[0], arguments[1], arguments[2], arguments[3]);
-    },
-
-    chat: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.log(colors.green(titles.chat), systemcons.dateGen(), arguments[0] + ":", arguments[1], arguments[2], arguments[3]);
-        log.info(titles.chat + " " + systemcons.dateGen(false) + " " + arguments[0] + ": ", arguments[1], arguments[2], arguments[3]);
-    },
-
-    command: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.log(colors.green(titles.command), systemcons.dateGen(), arguments[0] + ":", arguments[1], arguments[2], arguments[3]);
-        log.info(titles.command + " " + systemcons.dateGen(false) + " " + arguments[0] + ": ", arguments[1], arguments[2], arguments[3]);
-    },
-
-    discord: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.log(colors.blue(titles.discord), systemcons.dateGen(), arguments[0] + ":", arguments[1], arguments[2], arguments[3]);
-        log.info(titles.discord + " " + systemcons.dateGen(false) + " " + arguments[0] + ": ", arguments[1], arguments[2], arguments[3]);
-    },
-
-    minecraft: function() {
-        for (var i = 0; i < 4; i++) {
-            if (typeof arguments[i] == "undefined") { arguments[i] = ''; }
-        }
-        console.log(colors.green(titles.minecraft), colors.gray("[" + moment().format("MM/DD/YYYY") + "]"), arguments[0], arguments[1], arguments[2], arguments[3]);
-        log.info(titles.minecraft + " [" + moment().format("MM/DD/YYYY") + "] " + arguments[0], arguments[1], arguments[2], arguments[3]);
-    }
+    info: function() { systemcons.template(arguments, "cyan", "info", "info"); },
+    warn: function() { systemcons.template(arguments, "yellow", "warn", "warn"); },
+    error: function() { systemcons.template(arguments, "red", "error", "error"); },
+    debug: function() { systemcons.template(arguments, "magenta", "info", "debug"); },
+    chat: function() { systemcons.template(arguments, "green", "info", "chat"); },
+    command: function() { systemcons.template(arguments, "green", "info", "command"); },
+    discord: function() { systemcons.template(arguments, "blue", "info", "discord"); },
+    minecraft: function() { systemcons.template(arguments, "green", "info", "minecraft", true); }
 
 };
 
