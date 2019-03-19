@@ -19,6 +19,8 @@ const colors = {
     index: 0,
     start: function(pg) {
 
+        const config = require('./colors/config.json');
+
         // Minecraft Colors
         const color_list = [
             'black',
