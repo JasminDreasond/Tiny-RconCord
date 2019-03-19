@@ -95,9 +95,16 @@ const colors = {
 
                 } else if (tiny_colors.type == 1) {
 
-                    new pg.minecraft.team()
-                        .modify(color_list[tiny_colors.i], 'color', color_list[tiny_colors.i])
-                        .exe(tiny_colors.checker);
+                    var newteam = new pg.minecraft.team();
+                    newteam.modify(color_list[tiny_colors.i], 'color', color_list[tiny_colors.i]);
+
+                    if (config) {
+                        for (var items in config) {
+                            newteam.modify(color_list[tiny_colors.i], items, config[items])
+                        }
+                    }
+
+                    newteam.exe(tiny_colors.checker);
 
                 }
 
@@ -123,50 +130,56 @@ const colors = {
 
                 message = message.split(' ');
 
-                if (message[1].startsWith("set")) {
+                if (typeof message[1] == "string") {
 
-                    if (color_list.indexOf(message[2]) > -1) {
+                    if (message[1].startsWith("set")) {
 
-                        new pg.minecraft.team()
-                            .join(message[2], user)
-                            .exe(function(err) {
-                                if (!err) {
-                                    new pg.minecraft.send([{ color: 'gray', text: pg.i18(pg.lang.set_color, [message[2]]) }], user).exe(errorSend);
-                                } else {
-                                    new pg.minecraft.send([{ color: 'gray', text: pg.lang.set_color_error }], user).exe(errorSend);
-                                    pg.log.error(err);
-                                    if (pg.c.discord.channelID.rcon) {
-                                        pg.dsBot.sendMessage({ to: pg.c.discord.channelID.rcon, message: pg.lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                        if (color_list.indexOf(message[2]) > -1) {
+
+                            new pg.minecraft.team()
+                                .join(message[2], user)
+                                .exe(function(err) {
+                                    if (!err) {
+                                        new pg.minecraft.send([{ color: 'gray', text: pg.i18(pg.lang.set_color, [message[2]]) }], user).exe(errorSend);
+                                    } else {
+                                        new pg.minecraft.send([{ color: 'gray', text: pg.lang.set_color_error }], user).exe(errorSend);
+                                        pg.log.error(err);
+                                        if (pg.c.discord.channelID.rcon) {
+                                            pg.dsBot.sendMessage({ to: pg.c.discord.channelID.rcon, message: pg.lang['[ERROR]'] + ' ' + JSON.stringify(err) });
+                                        }
                                     }
-                                }
-                            });
+                                });
 
-                    } else {
-                        new pg.minecraft.send([{ color: 'gray', text: pg.lang.incorrect_set_color }], user).exe(errorSend);
-                    }
-
-
-                } else if (message[1].startsWith("list")) {
-
-                    const listSend = [];
-
-                    listSend.push({ color: 'gray', text: pg.lang.colors_list });
-                    listSend.push({ color: 'gray', text: '\n\n' });
-
-                    for (var i = 0; i < color_list.length; i++) {
-
-                        listSend.push({
-                            color: color_list[i],
-                            text: color_list[i]
-                        });
-
-                        if (i < color_list.length - 1) {
-                            listSend.push({ color: 'white', text: ' | ' });
+                        } else {
+                            new pg.minecraft.send([{ color: 'gray', text: pg.lang.incorrect_set_color }], user).exe(errorSend);
                         }
 
-                    }
 
-                    new pg.minecraft.send(listSend, user).exe(errorSend);
+                    } else if (message[1].startsWith("list")) {
+
+                        const listSend = [];
+
+                        listSend.push({ color: 'gray', text: pg.lang.colors_list });
+                        listSend.push({ color: 'gray', text: '\n\n' });
+
+                        for (var i = 0; i < color_list.length; i++) {
+
+                            listSend.push({
+                                color: color_list[i],
+                                text: color_list[i]
+                            });
+
+                            if (i < color_list.length - 1) {
+                                listSend.push({ color: 'white', text: ' | ' });
+                            }
+
+                        }
+
+                        new pg.minecraft.send(listSend, user).exe(errorSend);
+
+                    } else {
+                        return [user, message];
+                    }
 
                 } else {
                     return [user, message];
