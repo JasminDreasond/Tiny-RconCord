@@ -338,7 +338,7 @@ module.exports = function(pgdata) {
                                 userchat = await startServer.sendPlugin(userchat, 'mc_chat');
 
                                 // Help
-                                if (userchat[1].startsWith(c.minecraft.prefix + 'help')) {
+                                if ((Array.isArray(userchat)) && (userchat[1]) && (userchat[1].startsWith(c.minecraft.prefix + 'help'))) {
 
 
 
